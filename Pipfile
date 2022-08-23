@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 mdanalysis = "*"
 seaborn = "*"
+ipython = "*"
 
 [dev-packages]
 

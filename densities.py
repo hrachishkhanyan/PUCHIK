@@ -38,6 +38,7 @@ class Mesh:
         self.mesh = None
         self.rescale = rescale
         self.length = len(self.u.trajectory)
+        self.unique_resnames = None
 
     def select_atoms(self, sel):
         """
@@ -48,6 +49,7 @@ class Mesh:
 
         """
         self.ag = self.u.select_atoms(sel)
+        self.unique_resnames = np.unique(self.ag.resnames)
         print(f'Selected atom group: {self.ag}')
 
     def _get_int_dim(self):
@@ -144,18 +146,18 @@ class Mesh:
         # return vol * rescale ** 3 / 1000 if units == 'nm' else vol * rescale ** 3
 
     @staticmethod
-    def make_grid(pbc_dim: int, dim=1, d4=True) -> np.ndarray:
+    def make_grid(pbc_dim: int, dim=1, d4=None) -> np.ndarray:
         """
         Returns a 4D matrix
 
         Args:
              pbc_dim (int): Dimensions of the box
              dim (int): Dimensions of the box
-             d4: Return a 3D matrix if False
+             d4 (int): Returns an 4-D matrix if d4 is given. 4th dimension contains d4 elements
         """
 
         x = y = z = pbc_dim // dim + 1
-        grid_matrix = np.zeros((x, y, z, 2)) if d4 else np.zeros((x, y, z))
+        grid_matrix = np.zeros((x, y, z)) if d4 is None else np.zeros((x, y, z, d4))
 
         return grid_matrix
 
@@ -223,15 +225,13 @@ class Mesh:
         Returns:
             np.ndarray: The grid
         """
-        grid_matrix = self.make_grid(grid_dim, dim=rescale)
+        grid_matrix = self.make_grid(grid_dim, dim=rescale, d4=len(self.unique_resnames))
 
         for atom in self.ag:
-            # print(atom.position)
+
             x, y, z = self.check_cube(*atom.position, rescale=rescale)
-            if atom.resname == 'TIP3':
-                grid_matrix[x, y, z, 0] += 1
-            else:
-                grid_matrix[x, y, z, 1] += 1
+            res_number = np.where(self.unique_resnames == atom.resname)
+            grid_matrix[x, y, z, res_number] += 1
 
         return grid_matrix
 
