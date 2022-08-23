@@ -228,7 +228,6 @@ class Mesh:
         grid_matrix = self.make_grid(grid_dim, dim=rescale, d4=len(self.unique_resnames))
 
         for atom in self.ag:
-
             x, y, z = self.check_cube(*atom.position, rescale=rescale)
             res_number = np.where(self.unique_resnames == atom.resname)
             grid_matrix[x, y, z, res_number] += 1
@@ -332,6 +331,16 @@ class Mesh:
 
         return result
 
+    def _extract_from_mesh(self, mol_type):
+        if mol_type not in self.unique_resnames:
+            raise ValueError(
+                f'Molecule type "{mol_type}" is not present in the system. Available types: {self.unique_resnames}'
+            )
+
+        mol_index = np.where(self.unique_resnames == mol_type)
+
+        return self.grid_matrix[:, :, :, mol_index]
+
     def calculate_density(self, selection=None):  # FIXME: Better use selection names?
         """
         Calculates the density of selection from interface
@@ -349,6 +358,8 @@ class Mesh:
         for i, ts in enumerate(self.u.trajectory):
             self.calculate_mesh(rescale=self.rescale)
             interface = self.calculate_interface()
+
+            # TODO use extract_from_mesh()
             inverse = self.calculate_interface(inverse=True)
             mesh = self.make_coordinates(interface)
             points = self.make_coordinates(inverse, keep_numbers=True)
@@ -390,18 +401,25 @@ def main():
 
     mesh.select_atoms(selection)
     grid_matrix = mesh.calculate_mesh(rescale=rescale)
-    surf_matrix = np.asarray(grid_matrix[:, :, :, 1] > grid_matrix[:, :, :, 0], dtype=int)
-    water_matrix = np.asarray(grid_matrix[:, :, :, 1] < grid_matrix[:, :, :, 0], dtype=int)
+    tx_0 = mesh._extract_from_mesh('TX0')
+    ty_39 = mesh._extract_from_mesh('TY79')
+    tip3 = mesh._extract_from_mesh('TIP3')
+    coords = mesh.make_coordinates(tx_0)
+    coords_2 = mesh.make_coordinates(ty_39)
+    coords_3 = mesh.make_coordinates(tip3)
+
+    # surf_matrix = np.asarray(grid_matrix[:, :, :, 1] > grid_matrix[:, :, :, 0], dtype=int)
+    # water_matrix = np.asarray(grid_matrix[:, :, :, 1] < grid_matrix[:, :, :, 0], dtype=int)
 
     # int_coords = mesh.make_coordinates(interface)
-    interface = mesh.calculate_interface()
-    inverse = mesh.calculate_interface(inverse=True)
+    # interface = mesh.calculate_interface()
+    # inverse = mesh.calculate_interface(inverse=True)
     # print(inverse[0].mean())
     # coords_num = mesh.make_coordinates(interface, keep_numbers=True)
     # interface_1 = mesh.interface(interface)
-    int_coords = mesh.make_coordinates(interface)
+    # int_coords = mesh.make_coordinates(interface)
     # int_coords_1 = mesh.make_coordinates(interface_1)
-    inverse_coords = mesh.make_coordinates(inverse, keep_numbers=True)
+    # inverse_coords = mesh.make_coordinates(inverse, keep_numbers=True)
     # for i in range(120 // rescale):
     #     np.save(f'../files/interface_test_files/frame_{i}.npy', interface[:, :, i])
     #     sns.heatmap(interface[:, :, i])
@@ -409,20 +427,22 @@ def main():
     # time.sleep(.1)
     # print(inverse_coords.shape)
     # print(int_coords.shape)
-    coords = mesh.make_coordinates(surf_matrix)
+    # coords = mesh.make_coordinates(surf_matrix)
     #
     # coords_2 = mesh.make_coordinates(water_matrix)
 
-    d, dens = mesh.calculate_density()
-
-    plt.plot(d, dens)
-    # fig = plt.figure()
-    # ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    # d, dens = mesh.calculate_density()
+    #
+    # plt.plot(d, dens)
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d', proj_type='ortho')
     # ax.scatter(int_coords[:, 0], int_coords[:, 1], int_coords[:, 2], color='red')
     # ax.scatter(inverse_coords[:, 0], inverse_coords[:, 1], inverse_coords[:, 2], color='blue', linewidth=0.2)
 
-    # ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], color='green', alpha=0.1)
-    # ax.scatter(coords_2[:, 0], coords_2[:, 1], coords_2[:, 2], color='cyan')
+    ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], color='green', alpha=0.5)
+    ax.scatter(coords_2[:, 0], coords_2[:, 1], coords_2[:, 2], color='red')
+    ax.scatter(coords_3[:, 0], coords_3[:, 1], coords_3[:, 2], color='blue')
+
     # ax.grid(False)
 
     plt.show()
