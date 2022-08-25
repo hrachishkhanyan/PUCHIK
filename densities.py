@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from numpy.linalg import norm
 
+# Local imports
+from utilities.decorators import timer
+
 np.set_printoptions(threshold=sys.maxsize)
 np.seterr(invalid='ignore', divide='ignore')
 
@@ -245,6 +248,7 @@ class Mesh:
 
         return density_matrix
 
+    @timer
     def calculate_mesh(self, rescale=None):
         """
         Calculates the mesh using _calc_mesh private method
@@ -267,6 +271,7 @@ class Mesh:
         # self.mesh = grid_matrix
         # return grid_matrix, density_matrix
 
+    @timer
     def calculate_interface(self, inverse=False):
         """
         Extract the interface from the grid TODO better way needed
@@ -341,6 +346,7 @@ class Mesh:
 
         return self.grid_matrix[:, :, :, mol_index]
 
+    @timer
     def calculate_density(self, selection=None):  # FIXME: Better use selection names?
         """
         Calculates the density of selection from interface
@@ -351,6 +357,7 @@ class Mesh:
         Returns:
             tuple: Density array and corresponding distances
         """
+
         frame_count = 3  # delete this
         res = [None] * (frame_count + 1)  # self.length
         dists_dict_list = [{}] * (frame_count + 1)  # self.length
@@ -358,14 +365,17 @@ class Mesh:
         for i, ts in enumerate(self.u.trajectory):
             self.calculate_mesh(rescale=self.rescale)
             interface = self.calculate_interface()
+            mesh = self.make_coordinates(interface)
 
             # TODO use extract_from_mesh()
-            inverse = self.calculate_interface(inverse=True)
-            mesh = self.make_coordinates(interface)
+            # inverse = self.calculate_interface(inverse=True)
+            # points = self.make_coordinates(inverse, keep_numbers=True)
+            inverse = self._extract_from_mesh(selection)
             points = self.make_coordinates(inverse, keep_numbers=True)
 
             if i > frame_count:
                 break
+
             res[i], d = self._find_distance(points, mesh)
             dists_dict_list[i] = self._normalize_density(res[i], d)
 
@@ -401,12 +411,13 @@ def main():
 
     mesh.select_atoms(selection)
     grid_matrix = mesh.calculate_mesh(rescale=rescale)
-    tx_0 = mesh._extract_from_mesh('TX0')
-    ty_39 = mesh._extract_from_mesh('TY79')
-    tip3 = mesh._extract_from_mesh('TIP3')
-    coords = mesh.make_coordinates(tx_0)
-    coords_2 = mesh.make_coordinates(ty_39)
-    coords_3 = mesh.make_coordinates(tip3)
+    d, dens = mesh.calculate_density('TIP3')
+    d_1, dens_1 = mesh.calculate_density('TY79')
+    d_2, dens_2 = mesh.calculate_density('TX0')
+
+    # coords = mesh.make_coordinates(tx_0)
+    # coords_2 = mesh.make_coordinates(ty_39)
+    # coords_3 = mesh.make_coordinates(tip3)
 
     # surf_matrix = np.asarray(grid_matrix[:, :, :, 1] > grid_matrix[:, :, :, 0], dtype=int)
     # water_matrix = np.asarray(grid_matrix[:, :, :, 1] < grid_matrix[:, :, :, 0], dtype=int)
@@ -433,15 +444,18 @@ def main():
 
     # d, dens = mesh.calculate_density()
     #
-    # plt.plot(d, dens)
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    plt.plot(d, dens)
+    plt.plot(d_1, dens_1)
+    plt.plot(d_2, dens_2)
+
+    # fig = plt.figure()
+    # ax = fig.add_subplot(projection='3d', proj_type='ortho')
     # ax.scatter(int_coords[:, 0], int_coords[:, 1], int_coords[:, 2], color='red')
     # ax.scatter(inverse_coords[:, 0], inverse_coords[:, 1], inverse_coords[:, 2], color='blue', linewidth=0.2)
 
-    ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], color='green', alpha=0.5)
-    ax.scatter(coords_2[:, 0], coords_2[:, 1], coords_2[:, 2], color='red')
-    ax.scatter(coords_3[:, 0], coords_3[:, 1], coords_3[:, 2], color='blue')
+    # ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], color='green', alpha=0.5)
+    # ax.scatter(coords_2[:, 0], coords_2[:, 1], coords_2[:, 2], color='red')
+    # ax.scatter(coords_3[:, 0], coords_3[:, 1], coords_3[:, 2], color='blue')
 
     # ax.grid(False)
 
