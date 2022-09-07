@@ -224,7 +224,7 @@ class Mesh:
         x_mesh_indices = np.where(mesh[:, row, col] > 0)[0]
         y_mesh_indices = np.where(mesh[dep, :, col] > 0)[0]
         z_mesh_indices = np.where(mesh[dep, row, :] > 0)[0]
-        print(point, x_mesh_indices, y_mesh_indices, z_mesh_indices)
+        # print(point, x_mesh_indices, y_mesh_indices, z_mesh_indices)
         if len(x_mesh_indices) == 0 or len(y_mesh_indices) == 0 or len(z_mesh_indices) == 0:
             return False
 
@@ -294,7 +294,7 @@ class Mesh:
         # return grid_matrix, density_matrix
 
     @timer
-    def calculate_interface(self, inverse=False):
+    def calculate_interface(self, inverse=False):  # FIXME: This should use the whole structure
         """
         Extract the interface from the grid TODO better way needed
         Args:
@@ -316,23 +316,36 @@ class Mesh:
         interface = interface[:, :, :, 1]
         return interface
 
-    @staticmethod
     @timer
-    def _find_distance(points, mesh):
+    def _find_distance(self, points, mesh_coords, mesh):
+        """
+        Finds the distances between points and mesh coordinates
+        :param points (ndarray): Coordinates of points that is an ndarray containing 3D coordinates
+        :param mesh_coords (ndarray): Mesh coordinates. Is an ndarray containing 3D coordinates
+        :param mesh (ndarray): Mesh in 3D matrix form. Needed to quickly determine whether the point is inside structure
+        or outside
+        :return tuple: length 2 tuple. First value is the number of particles in each node. Second is a dictionary with
+        keys as distances and values as lists of nodes at that distance
+        """
+
         dists = []
         dists_dict = {}
         node_count = []
+
         for i, point in enumerate(points):
-            min_dist = 10
-
+            min_dist = 10  # some starting distance. FIXME take from the existing ones
             coord, num = point[0:3], point[3]  # num is the number of particles at node coord
+            inside = Mesh._is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
 
-            for mesh_point in mesh:
+            for mesh_point in mesh_coords:
 
                 dist = norm(mesh_point - coord)
 
                 if dist < min_dist:
                     min_dist = dist
+
+            if inside:
+                min_dist *= -1  # distance from interface is negative if inside
 
             temp = [min_dist]
             node_count += temp
@@ -370,7 +383,7 @@ class Mesh:
         return self.grid_matrix[:, :, :, mol_index]
 
     @timer
-    def calculate_density(self, selection=None, skip=1):  # FIXME: Better use selection names?
+    def calculate_density(self, selection=None, skip=1):
         """
         Calculates the density of selection from interface
 
@@ -389,15 +402,13 @@ class Mesh:
             if j % skip == 0:
                 self.calculate_mesh(rescale=self.rescale)
                 interface = self.calculate_interface()
-                mesh = self.make_coordinates(interface)
-
-                # TODO use extract_from_mesh()
+                mesh_coordinates = self.make_coordinates(interface)
                 # inverse = self.calculate_interface(inverse=True)
                 # points = self.make_coordinates(inverse, keep_numbers=True)
                 inverse = self._extract_from_mesh(selection)
                 points = self.make_coordinates(inverse, keep_numbers=True)
 
-                res[index], d = self._find_distance(points, mesh)
+                res[index], d = self._find_distance(points, mesh_coordinates, interface)
                 dists_dict_list[index] = self._normalize_density(res[index], d)
                 index += 1
 
@@ -434,9 +445,9 @@ def main():
     mesh.select_atoms(selection)
     grid_matrix = mesh.calculate_mesh(rescale=rescale)
     np.save('test/grid.npy', grid_matrix[0])
-    # d, dens = mesh.calculate_density('TIP3', skip=100)
-    # d_1, dens_1 = mesh.calculate_density('TY79', skip=100)
-    # d_2, dens_2 = mesh.calculate_density('TX0', skip=100)
+    d, dens = mesh.calculate_density('TIP3', skip=100)
+    d_1, dens_1 = mesh.calculate_density('TY79', skip=100)
+    d_2, dens_2 = mesh.calculate_density('TX0', skip=100)
 
     # coords = mesh.make_coordinates(tx_0)
     # coords_2 = mesh.make_coordinates(ty_39)
