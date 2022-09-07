@@ -217,6 +217,28 @@ class Mesh:
         """
         return int(np.ceil(self_distance_array(self.ag.positions).min()))
 
+    @staticmethod
+    def _is_inside(point, mesh):
+        dep, row, col = point
+
+        x_mesh_indices = np.where(mesh[:, row, col] > 0)[0]
+        y_mesh_indices = np.where(mesh[dep, :, col] > 0)[0]
+        z_mesh_indices = np.where(mesh[dep, row, :] > 0)[0]
+        print(point, x_mesh_indices, y_mesh_indices, z_mesh_indices)
+        if len(x_mesh_indices) == 0 or len(y_mesh_indices) == 0 or len(z_mesh_indices) == 0:
+            return False
+
+        dep_mesh_min, dep_mesh_max = np.where(mesh[:, row, col] > 0)[0].min(), np.where(mesh[:, row, col] > 0)[0].max()
+        row_mesh_min, row_mesh_max = np.where(mesh[dep, :, col] > 0)[0].min(), np.where(mesh[dep, :, col] > 0)[0].max()
+        col_mesh_min, col_mesh_max = np.where(mesh[dep, row, :] > 0)[0].min(), np.where(mesh[dep, row, :] > 0)[0].max()
+
+        if (row_mesh_min <= row <= row_mesh_max
+                and col_mesh_min <= col <= col_mesh_max
+                and dep_mesh_min <= dep <= dep_mesh_max):
+            return True
+
+        return False
+
     def _calc_mesh(self, grid_dim, rescale):
         """
         Calculates the mesh according the atom positions in the box
@@ -295,6 +317,7 @@ class Mesh:
         return interface
 
     @staticmethod
+    @timer
     def _find_distance(points, mesh):
         dists = []
         dists_dict = {}
@@ -347,37 +370,36 @@ class Mesh:
         return self.grid_matrix[:, :, :, mol_index]
 
     @timer
-    def calculate_density(self, selection=None):  # FIXME: Better use selection names?
+    def calculate_density(self, selection=None, skip=1):  # FIXME: Better use selection names?
         """
         Calculates the density of selection from interface
 
         Args:
             selection (str): Selection of the atom group density of which is to be calculated
-
+            skip (int): Use every 'skip'-th frame to calculate density
         Returns:
             tuple: Density array and corresponding distances
         """
+        frame_count = self.length // skip
+        res = [None] * (frame_count + 1)
+        dists_dict_list = [{}] * (frame_count + 1)
+        index = 0  # index of the frame
 
-        frame_count = 3  # delete this
-        res = [None] * (frame_count + 1)  # self.length
-        dists_dict_list = [{}] * (frame_count + 1)  # self.length
+        for j, ts in enumerate(self.u.trajectory):
+            if j % skip == 0:
+                self.calculate_mesh(rescale=self.rescale)
+                interface = self.calculate_interface()
+                mesh = self.make_coordinates(interface)
 
-        for i, ts in enumerate(self.u.trajectory):
-            self.calculate_mesh(rescale=self.rescale)
-            interface = self.calculate_interface()
-            mesh = self.make_coordinates(interface)
+                # TODO use extract_from_mesh()
+                # inverse = self.calculate_interface(inverse=True)
+                # points = self.make_coordinates(inverse, keep_numbers=True)
+                inverse = self._extract_from_mesh(selection)
+                points = self.make_coordinates(inverse, keep_numbers=True)
 
-            # TODO use extract_from_mesh()
-            # inverse = self.calculate_interface(inverse=True)
-            # points = self.make_coordinates(inverse, keep_numbers=True)
-            inverse = self._extract_from_mesh(selection)
-            points = self.make_coordinates(inverse, keep_numbers=True)
-
-            if i > frame_count:
-                break
-
-            res[i], d = self._find_distance(points, mesh)
-            dists_dict_list[i] = self._normalize_density(res[i], d)
+                res[index], d = self._find_distance(points, mesh)
+                dists_dict_list[index] = self._normalize_density(res[index], d)
+                index += 1
 
         res = dict(functools.reduce(operator.add, map(Counter, dists_dict_list)))
         # Average over time
@@ -404,16 +426,17 @@ class Mesh:
 def main():
     tx_100 = r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\100pc_tyl\production.part0005.gro'
     selection = f'resname TY79 TX0 TIP3 and not type H'
-    rescale = 10
+    rescale = 5
 
     mesh = Mesh(traj=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.xtc',
                 top=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.gro', rescale=rescale)
 
     mesh.select_atoms(selection)
     grid_matrix = mesh.calculate_mesh(rescale=rescale)
-    d, dens = mesh.calculate_density('TIP3')
-    d_1, dens_1 = mesh.calculate_density('TY79')
-    d_2, dens_2 = mesh.calculate_density('TX0')
+    np.save('test/grid.npy', grid_matrix[0])
+    # d, dens = mesh.calculate_density('TIP3', skip=100)
+    # d_1, dens_1 = mesh.calculate_density('TY79', skip=100)
+    # d_2, dens_2 = mesh.calculate_density('TX0', skip=100)
 
     # coords = mesh.make_coordinates(tx_0)
     # coords_2 = mesh.make_coordinates(ty_39)

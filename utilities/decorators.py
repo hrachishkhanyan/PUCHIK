@@ -9,7 +9,7 @@ def timer(f):
             start = perf_counter()
             res = f(*args, **kwargs)
             end = perf_counter()
-            print(f'Execution time of func {f.__name__}: {end - start} s')
+            print(f'Execution time of func "{f.__name__}": {end - start} s')
             return res
 
         return wrapper
