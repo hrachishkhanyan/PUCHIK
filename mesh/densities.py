@@ -11,6 +11,8 @@ from numpy.linalg import norm
 
 # Local imports
 from utilities.decorators import timer
+from volume.monte_carlo import monte_carlo_volume
+
 
 np.set_printoptions(threshold=sys.maxsize)
 np.seterr(invalid='ignore', divide='ignore')
@@ -42,6 +44,7 @@ class Mesh:
         self.rescale = rescale
         self.length = len(self.u.trajectory)
         self.unique_resnames = None
+        self.main_structure = []
 
     def select_atoms(self, sel):
         """
@@ -55,6 +58,18 @@ class Mesh:
         self.unique_resnames = np.unique(self.ag.resnames)
         print(f'Selected atom group: {self.ag}')
 
+    def select_structure(self, *res_names,
+                         auto=False):  # TODO I think this can be determined automatically by clustering
+        """
+        Use this method to select the structure for density calculations. Enter 1 or more resnames
+        :param res_names: Resname(s) of the main structure
+        :param auto: Determine automatically if True
+        :return: None
+        """
+
+        self.main_structure = np.where(np.in1d(self.unique_resnames, res_names))[0]
+        print(self.main_structure)
+
     def _get_int_dim(self):
         """
         Utility function to get box dimensions
@@ -64,62 +79,7 @@ class Mesh:
         """
         return int(np.ceil(self.dim[0]))
 
-    @staticmethod
-    def _generate_point(dim):  # TODO! Move this and else related to MC to somewhere else
-        """
-        Generates a 3D point within dim boundaries
-        Args:
-            dim (int): Boundaries of the coordinates
-
-        Returns:
-            point (np.ndarray): Generated point
-        """
-        point = np.random.rand(3) * dim
-        return point
-
-    def _monte_carlo(self, dim, number):
-        """
-        Monte Carlo volume estimation algorithm
-
-        Args:
-            dim (int): Dimensions of the box
-            number (int): Number of points to generate
-
-        Returns:
-            ratio (float): Ratio of number of points generated inside the volume and overall number of points
-        """
-        in_volume = 0
-        out_volume = 0
-        for _ in range(number):
-            point = self._generate_point(dim)
-            which_cell = self.check_cube(*point)
-            if self.mesh[which_cell] == 1:
-                in_volume += 1
-            else:
-                out_volume += 1
-
-        ratio = in_volume / (out_volume + in_volume)
-        return ratio
-
-    def _monte_carlo_volume(self, number, rescale=None):
-        """
-        Utility function responsible for rescaling and calling the actual algorithm
-
-        Args:
-            number (int): Number of points to generate
-            rescale (int): Rescale factor
-
-        Returns:
-            float: Estimated volume of the structure
-        """
-        rescale_coef = self.find_min_dist() if rescale is None else rescale
-        # pbc_vol = (self._get_int_dim() // rescale_coef) ** 3
-        pbc_vol = self._get_int_dim() ** 3
-
-        pbc_sys_ratio = self._monte_carlo(self._get_int_dim() // rescale_coef, number=number)
-
-        return pbc_sys_ratio * pbc_vol
-
+    @timer
     def calculate_volume(self, number=100_000, units='nm', method='mc', rescale=None):
         """
         Returns the volume of the selected structure
@@ -140,7 +100,8 @@ class Mesh:
 
         rescale = rescale if rescale is not None else self.find_min_dist()
 
-        vol = self._monte_carlo_volume(number, rescale) if method == 'mc' else None
+        # vol = self._monte_carlo_volume(number, rescale) if method == 'mc' else None
+        vol = monte_carlo_volume(self._get_int_dim(), self.grid_matrix, number, rescale) if method == 'mc' else None
 
         # scale back up and convert from Angstrom to nm if units == 'nm'
         # return vol * self.find_min_dist() ** 3 / 1000 if units == 'nm' else vol * self.find_min_dist() ** 3
@@ -303,17 +264,19 @@ class Mesh:
         Returns:
             np.ndarray: interface matrix
         """
-        # interface = np.asarray(self.grid_matrix[:, :, :, 1] / self.grid_matrix[:, :, :, 0] > 0.6, dtype=int)
+
         interface = self.grid_matrix.copy()
 
         if inverse:
             interface[self.grid_matrix[:, :, :, 1] / self.grid_matrix[:, :, :, 0] >= 0.4] = 0
             return interface[:, :, :, 0]
 
-        interface[(0 < self.grid_matrix[:, :, :, 1] / self.grid_matrix[:, :, :, 0]) & (
-                self.grid_matrix[:, :, :, 1] / self.grid_matrix[:, :, :, 0] < 0.4)] = 0
+        # The sum(axis=3) is for taking into account the whole structure, which could be constructed of different
+        # types of molecules
+        interface[(0 < self.grid_matrix[:, :, :, self.main_structure].sum(axis=3) / self.grid_matrix[:, :, :, 0]) & (
+                self.grid_matrix[:, :, :, self.main_structure].sum(axis=3) / self.grid_matrix[:, :, :, 0] < 0.4)] = 0
 
-        interface = interface[:, :, :, 1]
+        interface = interface[:, :, :, self.main_structure].sum(axis=3)
         return interface
 
     @timer
@@ -437,17 +400,22 @@ class Mesh:
 def main():
     tx_100 = r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\100pc_tyl\production.part0005.gro'
     selection = f'resname TY79 TX0 TIP3 and not type H'
-    rescale = 5
+    rescale = 1
 
     mesh = Mesh(traj=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.xtc',
                 top=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.gro', rescale=rescale)
 
     mesh.select_atoms(selection)
     grid_matrix = mesh.calculate_mesh(rescale=rescale)
-    np.save('test/grid.npy', grid_matrix[0])
-    d, dens = mesh.calculate_density('TIP3', skip=100)
-    d_1, dens_1 = mesh.calculate_density('TY79', skip=100)
-    d_2, dens_2 = mesh.calculate_density('TX0', skip=100)
+    np.save('../test/grid.npy', grid_matrix[0])
+    mesh.select_structure('TY79', 'TX0')
+
+    interface = mesh.calculate_interface()
+    print(interface.shape)
+    int_coords = mesh.make_coordinates(interface)
+    # d, dens = mesh.calculate_density('TIP3', skip=100)
+    # d_1, dens_1 = mesh.calculate_density('TY79', skip=100)
+    # d_2, dens_2 = mesh.calculate_density('TX0', skip=100)
 
     # coords = mesh.make_coordinates(tx_0)
     # coords_2 = mesh.make_coordinates(ty_39)
@@ -478,13 +446,13 @@ def main():
 
     # d, dens = mesh.calculate_density()
     #
-    plt.plot(d, dens)
-    plt.plot(d_1, dens_1)
-    plt.plot(d_2, dens_2)
+    # plt.plot(d, dens)
+    # plt.plot(d_1, dens_1)
+    # plt.plot(d_2, dens_2)
 
-    # fig = plt.figure()
-    # ax = fig.add_subplot(projection='3d', proj_type='ortho')
-    # ax.scatter(int_coords[:, 0], int_coords[:, 1], int_coords[:, 2], color='red')
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    ax.scatter(int_coords[:, 0], int_coords[:, 1], int_coords[:, 2], color='red')
     # ax.scatter(inverse_coords[:, 0], inverse_coords[:, 1], inverse_coords[:, 2], color='blue', linewidth=0.2)
 
     # ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], color='green', alpha=0.5)
