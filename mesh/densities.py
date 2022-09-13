@@ -1,4 +1,5 @@
-import functools
+from functools import partial, reduce
+from multiprocessing import Pool, cpu_count
 import operator
 import sys
 from collections import Counter
@@ -7,6 +8,7 @@ import MDAnalysis as mda
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+from numba import jit
 from numpy.linalg import norm
 
 # Local imports
@@ -14,14 +16,13 @@ from utilities.decorators import timer
 from utilities.universal_functions import extract_interface
 from volume.monte_carlo import monte_carlo_volume
 
-
 np.set_printoptions(threshold=sys.maxsize)
 np.seterr(invalid='ignore', divide='ignore')
 
 """
     Grid method for analyzing complex shaped structures 
 """
-
+CPU_COUNT = cpu_count()
 UNITS = ('nm', 'a')
 
 
@@ -367,12 +368,57 @@ class Mesh:
                 dists_dict_list[index] = self._normalize_density(res[index], d)
                 index += 1
 
-        res = dict(functools.reduce(operator.add, map(Counter, dists_dict_list)))
+        res = dict(reduce(operator.add, map(Counter, dists_dict_list)))
         # Average over time
         res = {k: res[k] for k in sorted(res)}
         res = np.array(list(res.keys())), np.array(list(res.values())) / (frame_count + 1)
+
         # res = np.array(res).mean(axis=0)
         return res  # Return densities and according distances
+
+    def _calc_dens_mp(self, frame_num, selection=None):
+        """
+        Calculates the density of selection from interface. Multiprocessing version
+
+        Args:
+            selection (str): Selection of the atom group density of which is to be calculated
+            frame_num (int): Number of the frame
+        Returns:
+            tuple: Density array and corresponding distances
+        """
+
+        self.u.trajectory[frame_num]
+
+        self.calculate_mesh(rescale=self.rescale)
+
+        interface = self.calculate_interface()
+        mesh_coordinates = self.make_coordinates(interface)
+
+        inverse = self._extract_from_mesh(selection)  # FIXME: change name
+        points = self.make_coordinates(inverse, keep_numbers=True)
+        res, d = self._find_distance(points, mesh_coordinates, interface)
+
+        return res, d  # Return density and according distance
+
+    def calculate_density_mp(self, selection=None, skip=1):
+        n_frames = self.u.trajectory.n_frames
+
+        dens_per_frame = partial(self._calc_dens_mp,
+                                 selection=selection)  # _calc_dens_mp function with filled selection using partial
+        frame_range = range(0, n_frames, skip)
+
+        with Pool(CPU_COUNT) as worker_pool:
+            res = worker_pool.map(dens_per_frame, frame_range)
+
+        densities = [elem[0] for elem in res]
+        dists = [elem[1] for elem in res]
+        dists_dict_list = [self._normalize_density(densities[index], d) for index, d in enumerate(dists)]
+
+        res = dict(reduce(operator.add, map(Counter, dists_dict_list)))
+
+        res = {k: res[k] for k in sorted(res)}
+        res = np.array(list(res.keys())), np.array(list(res.values())) / len(frame_range)
+        return res
 
     def interface(self, data=None):
         mesh = self.calculate_interface() if data is None else data
@@ -400,16 +446,16 @@ def main():
     mesh.select_atoms(selection)
     grid_matrix = mesh.calculate_mesh(rescale=rescale)
     mesh.select_structure('TY79', 'TX0')
-
-    interface = mesh.calculate_interface()
-    np.save('../test/mesh.npy', interface)
-    skip = 20
-    int_coords = mesh.make_coordinates(interface)
-    d, dens = mesh.calculate_density('TIP3', skip=skip)
-    d_1, dens_1 = mesh.calculate_density('TY79', skip=skip)
-    d_2, dens_2 = mesh.calculate_density('TX0', skip=skip)
-
-
+    # interface = mesh.calculate_interface()
+    # np.save('../test/mesh.npy', interface)
+    skip = 100
+    # int_coords = mesh.make_coordinates(interface)
+    # d, dens = mesh.calculate_density('TIP3', skip=skip)
+    # d_1, dens_1 = mesh.calculate_density('TY79', skip=skip)
+    # d_2, dens_2 = mesh.calculate_density('TX0', skip=skip)
+    d, dens = mesh.calculate_density_mp('TIP3', skip=skip)
+    d_1, dens_1 = mesh.calculate_density_mp('TY79', skip=skip)
+    d_2, dens_2 = mesh.calculate_density_mp('TX0', skip=skip)
     # coords = mesh.make_coordinates(tx_0)
     # coords_2 = mesh.make_coordinates(ty_39)
     # coords_3 = mesh.make_coordinates(tip3)
@@ -462,3 +508,6 @@ def main():
 if __name__ == '__main__':
     main()
     # test_bin_stat()
+# Execution time of func "calculate_density": 156.1464276999468 s
+# Execution time of func "calculate_density": 112.50546269991901 s
+# Execution time of func "calculate_density": 108.97752479999326 s
