@@ -1,3 +1,5 @@
+from time import perf_counter
+
 import numpy as np
 from matplotlib import pyplot as plt
 from mesh.densities import Mesh
@@ -54,6 +56,25 @@ def test_cylinder():
     # plt.show()
 
 
+def timer(f):
+    def wrapper(*args, **kwargs):
+        start = perf_counter()
+        res = f(*args, **kwargs)
+        end = perf_counter()
+        print(f'Execution time of func "{f.__name__}": {end - start} s')
+        return res
+
+    return wrapper
+
+
+@timer
+def add(x, y):
+    return x + y
+
+# add_v2 = timer(add)
+add(2, 5)
+
 if __name__ == '__main__':
     # test_cylinder()
-    test_sphere()
+    # test_sphere()
+    pass

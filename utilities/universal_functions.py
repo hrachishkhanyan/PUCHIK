@@ -1,3 +1,5 @@
+from copy import deepcopy
+
 import numpy as np
 
 from utilities.decorators import timer
@@ -52,3 +54,39 @@ def is_inside(point, mesh):
         return True
 
     return False
+
+
+def make_coordinates(mesh, keep_numbers=False):
+    """
+    Converts the mesh to coordinates
+    Args:
+        mesh (np.ndarray):  Mesh to convert into 3D coordinates
+        keep_numbers (bool): Resulting tuples will also contain the number of particles at that coordinate if True
+
+    Returns:
+        np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh
+    """
+
+    coords = []
+    for i, mat in enumerate(mesh):
+        for j, col in enumerate(mat):
+            for k, elem in enumerate(col):
+                if elem > 0:
+                    coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))
+
+    return np.array(coords, dtype=int)
+
+
+def extract_interface(mesh: np.ndarray):
+    original = deepcopy(mesh)
+
+    for i, plane in enumerate(original):
+        for j, row in enumerate(plane):
+            for k, elem in enumerate(row):
+                if elem > 0:
+                    if (original[i + 1, j, k] > 0 and original[i - 1, j, k] > 0 and
+                            original[i, j + 1, k] > 0 and original[i, j - 1, k] > 0 and
+                            original[i, j, k + 1] > 0 and original[i, j, k - 1] > 0):
+                        mesh[i, j, k] = 0
+
+    return mesh

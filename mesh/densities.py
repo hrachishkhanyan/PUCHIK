@@ -11,6 +11,7 @@ from numpy.linalg import norm
 
 # Local imports
 from utilities.decorators import timer
+from utilities.universal_functions import extract_interface
 from volume.monte_carlo import monte_carlo_volume
 
 
@@ -68,7 +69,6 @@ class Mesh:
         """
 
         self.main_structure = np.where(np.in1d(self.unique_resnames, res_names))[0]
-        print(self.main_structure)
 
     def _get_int_dim(self):
         """
@@ -79,7 +79,6 @@ class Mesh:
         """
         return int(np.ceil(self.dim[0]))
 
-    @timer
     def calculate_volume(self, number=100_000, units='nm', method='mc', rescale=None):
         """
         Returns the volume of the selected structure
@@ -231,7 +230,6 @@ class Mesh:
 
         return density_matrix
 
-    @timer
     def calculate_mesh(self, rescale=None):
         """
         Calculates the mesh using _calc_mesh private method
@@ -248,14 +246,10 @@ class Mesh:
         # define the matrices
         grid_matrix = self._calc_mesh(grid_dim, min_distance_coeff)
         self.grid_matrix = grid_matrix
-        # density_matrix = self._calc_density('IN', grid_dim, min_distance_coeff)
-        return grid_matrix
-        # grid_matrix = np.asarray(grid_matrix[:, :, :, 1] > grid_matrix[:, :, :, 0], dtype=int)
-        # self.mesh = grid_matrix
-        # return grid_matrix, density_matrix
 
-    @timer
-    def calculate_interface(self, inverse=False):  # FIXME: This should use the whole structure
+        return grid_matrix
+
+    def calculate_interface(self, inverse=False):
         """
         Extract the interface from the grid TODO better way needed
         Args:
@@ -277,9 +271,8 @@ class Mesh:
                 self.grid_matrix[:, :, :, self.main_structure].sum(axis=3) / self.grid_matrix[:, :, :, 0] < 0.4)] = 0
 
         interface = interface[:, :, :, self.main_structure].sum(axis=3)
-        return interface
+        return extract_interface(interface)
 
-    @timer
     def _find_distance(self, points, mesh_coords, mesh):
         """
         Finds the distances between points and mesh coordinates
@@ -368,9 +361,8 @@ class Mesh:
                 mesh_coordinates = self.make_coordinates(interface)
                 # inverse = self.calculate_interface(inverse=True)
                 # points = self.make_coordinates(inverse, keep_numbers=True)
-                inverse = self._extract_from_mesh(selection)
+                inverse = self._extract_from_mesh(selection)  # FIXME: change name
                 points = self.make_coordinates(inverse, keep_numbers=True)
-
                 res[index], d = self._find_distance(points, mesh_coordinates, interface)
                 dists_dict_list[index] = self._normalize_density(res[index], d)
                 index += 1
@@ -400,22 +392,23 @@ class Mesh:
 def main():
     tx_100 = r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\100pc_tyl\production.part0005.gro'
     selection = f'resname TY79 TX0 TIP3 and not type H'
-    rescale = 1
+    rescale = 10
 
     mesh = Mesh(traj=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.xtc',
                 top=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.gro', rescale=rescale)
 
     mesh.select_atoms(selection)
     grid_matrix = mesh.calculate_mesh(rescale=rescale)
-    np.save('../test/grid.npy', grid_matrix[0])
     mesh.select_structure('TY79', 'TX0')
 
     interface = mesh.calculate_interface()
-    print(interface.shape)
+    np.save('../test/mesh.npy', interface)
+    skip = 20
     int_coords = mesh.make_coordinates(interface)
-    # d, dens = mesh.calculate_density('TIP3', skip=100)
-    # d_1, dens_1 = mesh.calculate_density('TY79', skip=100)
-    # d_2, dens_2 = mesh.calculate_density('TX0', skip=100)
+    d, dens = mesh.calculate_density('TIP3', skip=skip)
+    d_1, dens_1 = mesh.calculate_density('TY79', skip=skip)
+    d_2, dens_2 = mesh.calculate_density('TX0', skip=skip)
+
 
     # coords = mesh.make_coordinates(tx_0)
     # coords_2 = mesh.make_coordinates(ty_39)
@@ -445,15 +438,17 @@ def main():
     # coords_2 = mesh.make_coordinates(water_matrix)
 
     # d, dens = mesh.calculate_density()
-    #
-    # plt.plot(d, dens)
-    # plt.plot(d_1, dens_1)
-    # plt.plot(d_2, dens_2)
 
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d', proj_type='ortho')
-    ax.scatter(int_coords[:, 0], int_coords[:, 1], int_coords[:, 2], color='red')
-    # ax.scatter(inverse_coords[:, 0], inverse_coords[:, 1], inverse_coords[:, 2], color='blue', linewidth=0.2)
+    plt.plot(d, dens)
+    plt.plot(d_1, dens_1)
+    plt.plot(d_2, dens_2)
+    #
+    # fig = plt.figure()
+    # ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    # ax.scatter(int_coords[:, 0], int_coords[:, 1], int_coords[:, 2], color='red')
+    #
+    # ax.scatter(d_1[:, 0], d_1[:, 1], d_1[:, 2], color='blue', alpha=0.2)
+    # ax.scatter(d_2[:, 0], d_2[:, 1], d_2[:, 2], color='blue', alpha=0.2, linewidth=0.2)
 
     # ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], color='green', alpha=0.5)
     # ax.scatter(coords_2[:, 0], coords_2[:, 1], coords_2[:, 2], color='red')
