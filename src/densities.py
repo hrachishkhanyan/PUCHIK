@@ -7,14 +7,12 @@ from MDAnalysis.analysis.distances import self_distance_array
 import MDAnalysis as mda
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-from numba import jit
 from numpy.linalg import norm
 
 # Local imports
-from utilities.decorators import timer
-from utilities.universal_functions import extract_interface
-from volume.monte_carlo import monte_carlo_volume
+from src.utilities.decorators import timer
+from src.utilities.universal_functions import extract_interface
+from src.volume.monte_carlo import monte_carlo_volume
 
 np.set_printoptions(threshold=sys.maxsize)
 np.seterr(invalid='ignore', divide='ignore')
@@ -78,7 +76,7 @@ class Mesh:
         Returns:
             Dimensions of the box as an int
         """
-        return int(np.ceil(self.dim[0]))
+        return int(np.ceil(self.u.dimensions[0]))
 
     def calculate_volume(self, number=100_000, units='nm', method='mc', rescale=None):
         """
@@ -200,22 +198,25 @@ class Mesh:
 
         return False
 
-    def _calc_mesh(self, grid_dim, rescale):
+    def _calc_mesh(self, grid_dim, rescale, ag, diff=None):
         """
         Calculates the mesh according the atom positions in the box
 
         Args:
             grid_dim (int): Box dimensions
             rescale: rescale factor
+            diff: Is True if we are calculating a mesh for other than the main structure
 
         Returns:
             np.ndarray: The grid
         """
         grid_matrix = self.make_grid(grid_dim, dim=rescale, d4=len(self.unique_resnames))
+        if ag is None:
+            ag = self.ag
 
-        for atom in self.ag:
+        for atom in ag:
             x, y, z = self.check_cube(*atom.position, rescale=rescale)
-            res_number = np.where(self.unique_resnames == atom.resname)
+            res_number = 0 if diff else np.where(self.unique_resnames == atom.resname)
             grid_matrix[x, y, z, res_number] += 1
 
         return grid_matrix
@@ -231,10 +232,11 @@ class Mesh:
 
         return density_matrix
 
-    def calculate_mesh(self, rescale=None):
+    def calculate_mesh(self, selection=None, rescale=None):
         """
         Calculates the mesh using _calc_mesh private method
         Args:
+            selection: Selection for atom group to calculate mesh
             rescale: rescale factor
 
         Returns:
@@ -243,10 +245,12 @@ class Mesh:
         # find closest atoms and rescale positions according to this
         min_distance_coeff = self.find_min_dist() if rescale is None else rescale
         grid_dim = self._get_int_dim()  # get one dimension
-
+        atom_group = self.u.select_atoms(selection) if selection is not None else self.ag
+        diff = bool(selection)
         # define the matrices
-        grid_matrix = self._calc_mesh(grid_dim, min_distance_coeff)
-        self.grid_matrix = grid_matrix
+        grid_matrix = self._calc_mesh(grid_dim, min_distance_coeff, atom_group, diff)
+        if selection is None:  # if selection is None, then it's the main structure
+            self.grid_matrix = grid_matrix
 
         return grid_matrix
 
@@ -350,6 +354,10 @@ class Mesh:
         Returns:
             tuple: Density array and corresponding distances
         """
+
+        if not self.main_structure:
+            raise ValueError('Please use select_structure method to select the main structure.')
+
         frame_count = self.length // skip
         res = [None] * (frame_count + 1)
         dists_dict_list = [{}] * (frame_count + 1)
@@ -376,13 +384,13 @@ class Mesh:
         # res = np.array(res).mean(axis=0)
         return res  # Return densities and according distances
 
-    def _calc_dens_mp(self, frame_num, selection=None):
+    def _calc_dens_mp(self, frame_num, selection):
         """
         Calculates the density of selection from interface. Multiprocessing version
 
         Args:
-            selection (str): Selection of the atom group density of which is to be calculated
             frame_num (int): Number of the frame
+            selection (str): Selection of the atom group density of which is to be calculated
         Returns:
             tuple: Density array and corresponding distances
         """
@@ -393,13 +401,15 @@ class Mesh:
 
         interface = self.calculate_interface()
         mesh_coordinates = self.make_coordinates(interface)
+        # inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
 
-        inverse = self._extract_from_mesh(selection)  # FIXME: change name
+        inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
         points = self.make_coordinates(inverse, keep_numbers=True)
         res, d = self._find_distance(points, mesh_coordinates, interface)
 
         return res, d  # Return density and according distance
 
+    @timer
     def calculate_density_mp(self, selection=None, skip=1):
         n_frames = self.u.trajectory.n_frames
 
@@ -438,7 +448,7 @@ class Mesh:
 def main():
     tx_100 = r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\100pc_tyl\production.part0005.gro'
     selection = f'resname TY79 TX0 TIP3 and not type H'
-    rescale = 10
+    rescale = 5
 
     mesh = Mesh(traj=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.xtc',
                 top=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.gro', rescale=rescale)
@@ -448,7 +458,7 @@ def main():
     mesh.select_structure('TY79', 'TX0')
     # interface = mesh.calculate_interface()
     # np.save('../test/mesh.npy', interface)
-    skip = 100
+    skip = 50
     # int_coords = mesh.make_coordinates(interface)
     # d, dens = mesh.calculate_density('TIP3', skip=skip)
     # d_1, dens_1 = mesh.calculate_density('TY79', skip=skip)
@@ -456,6 +466,8 @@ def main():
     d, dens = mesh.calculate_density_mp('TIP3', skip=skip)
     d_1, dens_1 = mesh.calculate_density_mp('TY79', skip=skip)
     d_2, dens_2 = mesh.calculate_density_mp('TX0', skip=skip)
+    np.save('test/75tyl_25TX_dens.npy', np.array([d, dens, d_1, dens_1, d_2, dens_2]))
+
     # coords = mesh.make_coordinates(tx_0)
     # coords_2 = mesh.make_coordinates(ty_39)
     # coords_3 = mesh.make_coordinates(tip3)
@@ -488,7 +500,8 @@ def main():
     plt.plot(d, dens)
     plt.plot(d_1, dens_1)
     plt.plot(d_2, dens_2)
-    #
+    plt.ylabel('Number (#/$\AA^3$)')
+    plt.xlabel('Distance from interface (nm)')
     # fig = plt.figure()
     # ax = fig.add_subplot(projection='3d', proj_type='ortho')
     # ax.scatter(int_coords[:, 0], int_coords[:, 1], int_coords[:, 2], color='red')

@@ -1,5 +1,5 @@
 import numpy as np
-from utilities.universal_functions import check_cube, is_inside
+from src.utilities.universal_functions import check_cube, is_inside
 
 
 def generate_point(dim):

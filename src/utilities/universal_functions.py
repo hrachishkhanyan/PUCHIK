@@ -2,8 +2,6 @@ from copy import deepcopy
 
 import numpy as np
 
-from utilities.decorators import timer
-
 
 def check_cube(x: float, y: float, z: float, rescale=1) -> tuple:
     """
@@ -80,10 +78,10 @@ def make_coordinates(mesh, keep_numbers=False):
 def extract_interface(mesh: np.ndarray):
     original = deepcopy(mesh)
 
-    for i, plane in enumerate(original):
-        for j, row in enumerate(plane):
-            for k, elem in enumerate(row):
-                if elem > 0:
+    for i in range(len(original) - 2):
+        for j in range(len(original[i]) - 2):
+            for k in range(len(original[i][j]) - 2):
+                if original[i][j][k] > 0:
                     if (original[i + 1, j, k] > 0 and original[i - 1, j, k] > 0 and
                             original[i, j + 1, k] > 0 and original[i, j - 1, k] > 0 and
                             original[i, j, k + 1] > 0 and original[i, j, k - 1] > 0):

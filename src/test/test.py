@@ -1,8 +1,6 @@
 from time import perf_counter
 
-import numpy as np
-from matplotlib import pyplot as plt
-from mesh.densities import Mesh
+from src.densities import Mesh
 
 
 def test_sphere():
