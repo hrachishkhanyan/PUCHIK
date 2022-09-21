@@ -1,3 +1,4 @@
+import setuptools
 from setuptools import setup
 
 setup(name='Grid Project',
@@ -7,8 +8,7 @@ setup(name='Grid Project',
       author='H. Ishkhanyan',
       author_email='hrachya.ishkhanyan@kcl.ac.uk',
       license='MIT',
-      packages=['md_grid_project'],
+      packages=setuptools.find_packages(),
       install_requires=[
           'MDAnalysis',
-      ],
-      zip_safe=False)
+      ])
