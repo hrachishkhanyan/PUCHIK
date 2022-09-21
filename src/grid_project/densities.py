@@ -4,15 +4,16 @@ import operator
 import sys
 from collections import Counter
 from MDAnalysis.analysis.distances import self_distance_array
+from MDAnalysis.transformations.wrap import wrap
 import MDAnalysis as mda
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.linalg import norm
 
 # Local imports
-from src.utilities.decorators import timer
-from src.utilities.universal_functions import extract_interface
-from src.volume.monte_carlo import monte_carlo_volume
+from src.grid_project.utilities.decorators import timer
+from src.grid_project.utilities.universal_functions import extract_interface
+from src.grid_project.volume.monte_carlo import monte_carlo_volume
 
 np.set_printoptions(threshold=sys.maxsize)
 np.seterr(invalid='ignore', divide='ignore')
@@ -56,6 +57,9 @@ class Mesh:
         """
         self.ag = self.u.select_atoms(sel)
         self.unique_resnames = np.unique(self.ag.resnames)
+        print('Wrapping trajectory...')
+        transform = wrap(self.ag)
+        self.u.trajectory.add_transformations(transform)
         print(f'Selected atom group: {self.ag}')
 
     def select_structure(self, *res_names,
@@ -355,9 +359,6 @@ class Mesh:
             tuple: Density array and corresponding distances
         """
 
-        if not self.main_structure:
-            raise ValueError('Please use select_structure method to select the main structure.')
-
         frame_count = self.length // skip
         res = [None] * (frame_count + 1)
         dists_dict_list = [{}] * (frame_count + 1)
@@ -370,7 +371,7 @@ class Mesh:
                 mesh_coordinates = self.make_coordinates(interface)
                 # inverse = self.calculate_interface(inverse=True)
                 # points = self.make_coordinates(inverse, keep_numbers=True)
-                inverse = self._extract_from_mesh(selection)  # FIXME: change name
+                inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
                 points = self.make_coordinates(inverse, keep_numbers=True)
                 res[index], d = self._find_distance(points, mesh_coordinates, interface)
                 dists_dict_list[index] = self._normalize_density(res[index], d)
@@ -466,7 +467,7 @@ def main():
     d, dens = mesh.calculate_density_mp('TIP3', skip=skip)
     d_1, dens_1 = mesh.calculate_density_mp('TY79', skip=skip)
     d_2, dens_2 = mesh.calculate_density_mp('TX0', skip=skip)
-    np.save('test/75tyl_25TX_dens.npy', np.array([d, dens, d_1, dens_1, d_2, dens_2]))
+    np.save('../test/75tyl_25TX_dens.npy', np.array([d, dens, d_1, dens_1, d_2, dens_2]))
 
     # coords = mesh.make_coordinates(tx_0)
     # coords_2 = mesh.make_coordinates(ty_39)

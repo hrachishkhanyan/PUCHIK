@@ -1,0 +1,9 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+grid_project_1.egg-info/PKG-INFO
+grid_project_1.egg-info/SOURCES.txt
+grid_project_1.egg-info/dependency_links.txt
+grid_project_1.egg-info/requires.txt
+grid_project_1.egg-info/top_level.txt

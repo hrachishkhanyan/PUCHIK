@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from src.densities import Mesh
+from src.grid_project.densities import Mesh
 
 
 def main(*args, **kwargs):
@@ -15,7 +15,7 @@ def main(*args, **kwargs):
     mesh.select_atoms('not type H')
     mesh.select_structure('TX4')
 
-    # d, dens = mesh.calculate_density_mp('resname SOL and not type H', skip=skip)
+    d, dens = mesh.calculate_density_mp('resname SOL and not type H', skip=skip)
     d_1, dens_1 = mesh.calculate_density_mp(f'resname TX4 and name {tail} and not type H', skip=skip)
     d_2, dens_2 = mesh.calculate_density_mp(f'resname TX4 and name {head} and not type H', skip=skip)
     np.save('TX114_data.npy', np.array([d_1, dens_1, d_2, dens_2]))

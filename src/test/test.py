@@ -1,6 +1,6 @@
 from time import perf_counter
 
-from src.densities import Mesh
+from src import Mesh
 
 
 def test_sphere():
