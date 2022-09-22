@@ -18,7 +18,7 @@ def main(*args, **kwargs):
     d, dens = mesh.calculate_density_mp('resname SOL and not type H', skip=skip)
     d_1, dens_1 = mesh.calculate_density_mp(f'resname TX4 and name {tail} and not type H', skip=skip)
     d_2, dens_2 = mesh.calculate_density_mp(f'resname TX4 and name {head} and not type H', skip=skip)
-    np.save('TX114_data.npy', np.array([d_1, dens_1, d_2, dens_2]))
+    np.save('../src/test/TX114_data.npy', np.array([d_1, dens_1, d_2, dens_2]))
     # plt.plot(d, dens)
     plt.plot(d_1, dens_1)
     plt.plot(d_2, dens_2)
