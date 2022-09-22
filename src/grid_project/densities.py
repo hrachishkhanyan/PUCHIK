@@ -1,7 +1,6 @@
 from functools import partial, reduce
 from multiprocessing import Pool, cpu_count
 import operator
-import sys
 from collections import Counter
 from MDAnalysis.analysis.distances import self_distance_array
 from MDAnalysis.transformations.wrap import wrap
@@ -11,11 +10,10 @@ import matplotlib.pyplot as plt
 from numpy.linalg import norm
 
 # Local imports
-from src.grid_project.utilities.decorators import timer
-from src.grid_project.utilities.universal_functions import extract_interface
-from src.grid_project.volume.monte_carlo import monte_carlo_volume
+from .utilities.decorators import timer
+from .utilities.universal_functions import extract_interface
+from .volume.monte_carlo import monte_carlo_volume
 
-np.set_printoptions(threshold=sys.maxsize)
 np.seterr(invalid='ignore', divide='ignore')
 
 """

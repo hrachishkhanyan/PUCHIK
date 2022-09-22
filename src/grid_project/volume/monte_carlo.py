@@ -1,5 +1,5 @@
 import numpy as np
-from src.grid_project.utilities.universal_functions import check_cube, is_inside
+from ..utilities.universal_functions import check_cube, is_inside
 
 
 def generate_point(dim):
@@ -13,37 +13,6 @@ def generate_point(dim):
     """
     point = np.random.rand(3) * dim
     return point
-
-
-# def monte_carlo(dim, mesh, number):
-#     """
-#     Monte Carlo volume estimation algorithm
-#
-#     Args:
-#         dim (int): Dimensions of the box
-#         number (int): Number of points to generate
-#
-#     Returns:
-#         ratio (float): Ratio of number of points generated inside the volume and overall number of points
-#     """
-#     in_volume = 0
-#     out_volume = 0
-#     in_points = []
-#     out_points = []
-#
-#     for _ in range(number):
-#         point = generate_point(dim)
-#         which_cell = check_cube(*point)
-#
-#         if mesh[which_cell] > 0:
-#             in_volume += 1
-#             in_points.append(which_cell)
-#         else:
-#             out_volume += 1
-#             out_points.append(which_cell)
-#
-#     ratio = in_volume / (out_volume + in_volume)
-#     return ratio, (in_points, out_points)
 
 
 def monte_carlo(dim, mesh, number):

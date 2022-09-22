@@ -1,4 +1,4 @@
 tests/scratch.py
 src/cpp
 test.npy
-dist
+src/dist
