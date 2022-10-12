@@ -1,6 +1,10 @@
 from time import perf_counter
 
-from src import Mesh
+import numpy as np
+from matplotlib import pyplot as plt
+
+from src.grid_project.core.densities import Mesh
+from src.grid_project.utilities.universal_functions import extract_interface
 
 
 def test_sphere():
@@ -54,25 +58,68 @@ def test_cylinder():
     # plt.show()
 
 
-def timer(f):
-    def wrapper(*args, **kwargs):
-        start = perf_counter()
-        res = f(*args, **kwargs)
-        end = perf_counter()
-        print(f'Execution time of func "{f.__name__}": {end - start} s')
-        return res
+def test_stretch_cyl():
+    sphere_pdb = 'test_structures/InP_cylinder.pdb'
+    selection = f'resname UNL or resname SOL and not type H'
 
-    return wrapper
+    mesh = Mesh(sphere_pdb)
+    mesh.select_atoms(selection)
+
+    # print(mesh.dim)
+    rescale = 1
+    stretch_rescale = 4
+    grid_matrix = mesh.calculate_mesh(rescale=rescale)
+    grid_matrix_1 = mesh.calculate_mesh(rescale=stretch_rescale)
+    interface = extract_interface(grid_matrix)
+    interface_1 = extract_interface(grid_matrix_1)
+
+    coords = mesh.make_coordinates(interface)
+    coords_1 = mesh.make_coordinates(stretch(interface_1, 4, 3))
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    step = 10
+    ax.scatter(coords[::3, 0], coords[::3, 1], coords[::3, 2])
+    ax.scatter(coords_1[::step, 0], coords_1[::step, 1], coords_1[::step, 2], alpha=0.2)
+
+    plt.show()
 
 
-@timer
-def add(x, y):
-    return x + y
+def test_stretch_micelle():
+    mesh = Mesh(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.gro')
+    selection = f'resname TY79 TX0 and not type H'
 
-# add_v2 = timer(add)
-add(2, 5)
+    mesh.select_atoms(selection)
+    mesh.select_structure('TY79', 'TX0')
+
+    # print(mesh.dim)
+    rescale = 1
+    stretch_rescale = 5
+    grid_matrix = mesh.calculate_mesh(rescale=rescale)
+    grid_matrix_1 = mesh.calculate_mesh(rescale=stretch_rescale)
+    interface = extract_interface(grid_matrix[:, :, :, mesh.main_structure].sum(axis=3))
+    print(mesh.main_structure)
+    interface_1 = extract_interface(grid_matrix_1[:, :, :, mesh.main_structure].sum(axis=3))
+    coords = mesh.make_coordinates(interface)
+    coords_1 = mesh.make_coordinates(stretch(interface_1, stretch_rescale, 3))
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    step = 4
+    step_1 = 10
+    ax.scatter(coords[::step, 0], coords[::step, 1], coords[::step, 2])
+    ax.scatter(coords_1[::step_1, 0], coords_1[::step_1, 1], coords_1[::step_1, 2], alpha=0.2)
+
+    plt.show()
+
+
+def stretch(a, k, dim=None):
+    dim = a.ndim if dim is None else dim
+    temp = np.repeat(a, k, axis=0)
+    for i in range(1, dim):
+        temp = np.repeat(temp, k, i)
+    return temp
+
 
 if __name__ == '__main__':
     # test_cylinder()
     # test_sphere()
-    pass
+    test_stretch_micelle()

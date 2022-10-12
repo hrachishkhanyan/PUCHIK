@@ -88,11 +88,3 @@ def extract_interface(mesh: np.ndarray):
                         mesh[i, j, k] = 0
 
     return mesh
-
-
-def stretch(a, k, dim=None):
-    dim = a.ndim if dim is None else dim
-    temp = np.repeat(a, k, axis=0)
-    for i in range(1, dim):
-        temp = np.repeat(temp, k, i)
-    return temp

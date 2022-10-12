@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import pyplot as plt
 
-from src.grid_project.densities import Mesh
+from src.grid_project.core.densities import Mesh
 
 
 def main(*args, **kwargs):

@@ -14,12 +14,10 @@ from grid_project.utilities.decorators import timer
 from grid_project.utilities.universal_functions import extract_interface
 from grid_project.volume.monte_carlo import monte_carlo_volume
 
-from src.grid_project.utilities.universal_functions import stretch
-
 np.seterr(invalid='ignore', divide='ignore')
 
 """
-    Grid method for analyzing complex shaped structures
+    Grid method for analyzing complex shaped structures 
 """
 CPU_COUNT = cpu_count()
 UNITS = ('nm', 'a')
@@ -43,7 +41,6 @@ class Mesh:
         self.dim = self.u.dimensions
         self.mesh = None
         self.rescale = rescale
-        self.interface_rescale = 4  # this is for calculating a rescaled interface then upscaling it
         self.length = len(self.u.trajectory)
         self.unique_resnames = None
         self.main_structure = []
@@ -399,10 +396,10 @@ class Mesh:
 
         self.u.trajectory[frame_num]
 
-        self.calculate_mesh(rescale=self.interface_rescale)
+        self.calculate_mesh(rescale=self.rescale)
 
         interface = self.calculate_interface()
-        mesh_coordinates = self.make_coordinates(stretch(interface, self.interface_rescale, 3))
+        mesh_coordinates = self.make_coordinates(interface)
         # inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
 
         inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
@@ -450,26 +447,25 @@ class Mesh:
 def main():
     tx_100 = r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\100pc_tyl\production.part0005.gro'
     selection = f'resname TY79 TX0 TIP3 and not type H'
-    rescale = 6
+    rescale = 5
 
     mesh = Mesh(traj=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.xtc',
                 top=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7\75tyl_25TX\centered.gro', rescale=rescale)
 
     mesh.select_atoms(selection)
-    print(mesh.u.residues)
     grid_matrix = mesh.calculate_mesh(rescale=rescale)
     mesh.select_structure('TY79', 'TX0')
     # interface = mesh.calculate_interface()
     # np.save('../test/mesh.npy', interface)
-    skip = 1000
+    skip = 50
     # int_coords = mesh.make_coordinates(interface)
-
-    d, dens = mesh.calculate_density_mp('resname TIP3 and not type H', skip=skip)
-    d_1, dens_1 = mesh.calculate_density_mp('resname TY79 and not type H', skip=skip)
-    d_2, dens_2 = mesh.calculate_density_mp('resname TX0 and not type H', skip=skip)
-    # d, dens, d_1, dens_1, d_2, dens_2 = np.load(
-    #     r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\data\densities\50tyl_50TX_dens.npy', allow_pickle=True)
-    # np.save('../../test/75tyl_25TX_dens.npy', np.array([d, dens, d_1, dens_1, d_2, dens_2]))
+    # d, dens = mesh.calculate_density('TIP3', skip=skip)
+    # d_1, dens_1 = mesh.calculate_density('TY79', skip=skip)
+    # d_2, dens_2 = mesh.calculate_density('TX0', skip=skip)
+    d, dens = mesh.calculate_density_mp('TIP3', skip=skip)
+    d_1, dens_1 = mesh.calculate_density_mp('TY79', skip=skip)
+    d_2, dens_2 = mesh.calculate_density_mp('TX0', skip=skip)
+    np.save('../../test/75tyl_25TX_dens.npy', np.array([d, dens, d_1, dens_1, d_2, dens_2]))
 
     # coords = mesh.make_coordinates(tx_0)
     # coords_2 = mesh.make_coordinates(ty_39)
