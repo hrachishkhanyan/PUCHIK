@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: grid-project
-Version: 1.0.7
+Version: 1.0.10
 Summary: Grid project creates a grid from an molecular dynamics structure file. The system in question can have an arbitrary structure. Volume and species densities can then calculated.
 Home-page: https://github.com/hrachishkhanyan/grid_project
 Author: H. Ishkhanyan

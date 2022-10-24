@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 
 setup(name='Grid Project',
-      version='1.0.7',
+      version='1.0.10',
       description='Intrinsic density profiles for aspherical structures',
       url='https://github.com/hrachishkhanyan/grid_project',
       author='H. Ishkhanyan',

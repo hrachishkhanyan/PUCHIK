@@ -78,6 +78,14 @@ def make_coordinates(mesh, keep_numbers=False):
 def extract_interface(mesh: np.ndarray):
     original = deepcopy(mesh)
 
+    # Borders of the interface
+    min_x = 900
+    max_x = 0
+    min_y = 900
+    max_y = 0
+    min_z = 900
+    max_z = 0
+
     for i in range(len(original) - 2):
         for j in range(len(original[i]) - 2):
             for k in range(len(original[i][j]) - 2):
@@ -85,6 +93,27 @@ def extract_interface(mesh: np.ndarray):
                     if (original[i + 1, j, k] > 0 and original[i - 1, j, k] > 0 and
                             original[i, j + 1, k] > 0 and original[i, j - 1, k] > 0 and
                             original[i, j, k + 1] > 0 and original[i, j, k - 1] > 0):
+                        if i < min_z:
+                            min_z = i
+                        if i > max_z:
+                            min_z = i
+                        if i < min_y:
+                            min_y = i
+                        if i > max_y:
+                            min_y = i
+                        if i < min_x:
+                            min_x = i
+                        if i > max_x:
+                            min_x = i
                         mesh[i, j, k] = 0
+    borders = (min_x, max_x, min_y, max_y, min_z, max_z)
+    print(borders)
+    return mesh, borders
 
-    return mesh
+
+def stretch(a, k, dim=None):
+    dim = a.ndim if dim is None else dim
+    temp = np.repeat(a, k, axis=0)
+    for i in range(1, dim):
+        temp = np.repeat(temp, k, i)
+    return temp

@@ -1,0 +1,10 @@
+{
+    "configurations": [
+      {
+        "type": "python",
+        "name": "main",
+        "arguments": ["tests/main.py"],
+      },
+
+    ]
+}
