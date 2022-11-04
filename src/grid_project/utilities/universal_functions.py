@@ -75,7 +75,7 @@ def make_coordinates(mesh, keep_numbers=False):
     return np.array(coords, dtype=int)
 
 
-def extract_interface(mesh: np.ndarray):
+def extract_interface(mesh: np.ndarray, rescale_coeff=1):
     original = deepcopy(mesh)
 
     # Borders of the interface
@@ -90,21 +90,22 @@ def extract_interface(mesh: np.ndarray):
         for j in range(len(original[i]) - 2):
             for k in range(len(original[i][j]) - 2):
                 if original[i][j][k] > 0:
+                    if i < min_z:
+                        min_z = i
+                    if i > max_z:
+                        max_z = i
+                    if j < min_y:
+                        min_y = j
+                    if j > max_y:
+                        max_y = j
+                    if k < min_x:
+                        min_x = k
+                    if k > max_x:
+                        max_x = k
                     if (original[i + 1, j, k] > 0 and original[i - 1, j, k] > 0 and
                             original[i, j + 1, k] > 0 and original[i, j - 1, k] > 0 and
                             original[i, j, k + 1] > 0 and original[i, j, k - 1] > 0):
-                        if i < min_z:
-                            min_z = i
-                        if i > max_z:
-                            min_z = i
-                        if i < min_y:
-                            min_y = i
-                        if i > max_y:
-                            min_y = i
-                        if i < min_x:
-                            min_x = i
-                        if i > max_x:
-                            min_x = i
+
                         mesh[i, j, k] = 0
     borders = (min_x, max_x, min_y, max_y, min_z, max_z)
     print(borders)

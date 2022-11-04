@@ -64,7 +64,7 @@ class Mesh:
         self.length = len(self.u.trajectory)
         self.unique_resnames = None
         self.main_structure = []
-        self.interface_borders = None
+        self.interface_borders = None  # defined in calculate_interface method
 
     def select_atoms(self, sel):
         """
@@ -300,10 +300,10 @@ class Mesh:
                 self.grid_matrix[:, :, :, self.main_structure].sum(axis=3) / self.grid_matrix[:, :, :, 0] < 0.4)] = 0
 
         interface = interface[:, :, :, self.main_structure].sum(axis=3)
-        extracted, self.interface_borders = extract_interface(interface)
+        extracted, self.interface_borders = extract_interface(interface, self.interface_rescale)
         return extracted
 
-    def _find_distance(self, points, mesh_coords, mesh):
+    def _find_distance(self, points, mesh_coords, mesh, inner=False):
         """
         Finds the distances between points and mesh coordinates
         :param points (ndarray): Coordinates of points that is an ndarray containing 3D coordinates
@@ -313,14 +313,15 @@ class Mesh:
         :return tuple: length 2 tuple. First value is the number of particles in each node. Second is a dictionary with
         keys as distances and values as lists of nodes at that distance
         """
-
+        # TODO! Move irrelevant pieces to a separate function
         dists = []
         dists_dict = {}
         node_count = []
 
         for i, point in enumerate(points):
             min_dist = 10  # some starting distance. FIXME take from the existing ones
-            coord, num = point[0:3], point[3]  # num is the number of particles at node coord
+            coord = point[0:3]
+            num = point[3] if not inner else 1  # num is the number of particles at node coord
             inside = Mesh._is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
 
             for mesh_point in mesh_coords:
@@ -357,6 +358,10 @@ class Mesh:
             result[dist] = len(np.array(dist_dict[dist])) / dist_length / (self.rescale ** 3)
 
         return result
+
+    def _normalize_density_inner(self):
+        # Best to combine with _normalize_density
+        ...
 
     def _extract_from_mesh(self, mol_type):
         if mol_type not in self.unique_resnames:
@@ -406,6 +411,21 @@ class Mesh:
         # res = np.array(res).mean(axis=0)
         return res  # Return densities and according distances
 
+    def _calc_inner_dens(self, selection, mesh_coords, interface):
+        # select inner atoms
+        min_z, max_z, min_y, max_y, min_x, max_x = self.interface_borders
+
+        inner_coords = self.u.select_atoms(
+            f'{selection} and '
+            f'(prop x > {min_x} and prop x < {max_x}) and '
+            f'(prop y > {min_y} and prop y < {max_y}) and '
+            f'(prop z > {min_z} and prop z < {max_z})')
+        res = self._find_distance(inner_coords, mesh_coords, interface)
+        print(res)
+
+    def _calc_outer_dens(self, interface):
+        ...
+
     def _calc_dens_mp(self, frame_num, selection):
         """
         Calculates the density of selection from interface. Multiprocessing version
@@ -425,9 +445,9 @@ class Mesh:
         mesh_coordinates = self.make_coordinates(stretch(interface, self.interface_rescale, 3))
         # inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
 
-        inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
-        points = self.make_coordinates(inverse, keep_numbers=True)
-        res, d = self._find_distance(points, mesh_coordinates, interface)
+        selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
+        selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
+        res, d = self._find_distance(selection_coords, mesh_coordinates, interface)
 
         return res, d  # Return density and according distance
 
