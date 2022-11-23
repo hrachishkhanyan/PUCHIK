@@ -2,6 +2,20 @@ from time import perf_counter
 from functools import wraps
 
 
+def logger(debug=False):
+    def decorator(f):
+        if callable(f):
+            @wraps(f)
+            def wrapper(*args, **kwargs):
+                if debug:
+                    print(f'Method "{f.__name__}" was called')
+                return f(*args, **kwargs)
+
+            return wrapper
+
+    return decorator
+
+
 def timer(f):
     if callable(f):
         @wraps(f)

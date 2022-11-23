@@ -1,5 +1,6 @@
 from copy import deepcopy
 
+from numba import guvectorize, float32, jit, njit
 import numpy as np
 
 
@@ -64,18 +65,25 @@ def make_coordinates(mesh, keep_numbers=False):
     Returns:
         np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh
     """
-
+    dim = mesh.ndim
     coords = []
-    for i, mat in enumerate(mesh):
-        for j, col in enumerate(mat):
-            for k, elem in enumerate(col):
+
+    if dim == 2:
+        for i, col in enumerate(mesh):
+            for j, elem in enumerate(col):
                 if elem > 0:
-                    coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))
+                    coords.append((i, j)) if not keep_numbers else coords.append((i, j, mesh[i, j]))
+    else:
+        for i, mat in enumerate(mesh):
+            for j, col in enumerate(mat):
+                for k, elem in enumerate(col):
+                    if elem > 0:
+                        coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))
 
     return np.array(coords, dtype=int)
 
 
-def extract_interface(mesh: np.ndarray, rescale_coeff=1):
+def extract_interface(mesh: np.ndarray, rescale_coeff=1):  # TODO change the name: Rescale is not used
     original = deepcopy(mesh)
 
     # Borders of the interface
@@ -105,7 +113,6 @@ def extract_interface(mesh: np.ndarray, rescale_coeff=1):
                     if (original[i + 1, j, k] > 0 and original[i - 1, j, k] > 0 and
                             original[i, j + 1, k] > 0 and original[i, j - 1, k] > 0 and
                             original[i, j, k + 1] > 0 and original[i, j, k - 1] > 0):
-
                         mesh[i, j, k] = 0
     borders = (min_x, max_x, min_y, max_y, min_z, max_z)
     print(borders)
@@ -118,3 +125,19 @@ def stretch(a, k, dim=None):
     for i in range(1, dim):
         temp = np.repeat(temp, k, i)
     return temp
+
+
+@guvectorize([(float32[:], float32[:], float32[:])], '(n),(n)->()', target='cuda')
+def calculate_distance(p_1, p_2, res):
+    x_1, y_1, z_1 = p_1
+    x_2, y_2, z_2 = p_2
+
+    res[0] = ((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2 + (z_1 - z_2) ** 2) ** (1/2)
+
+
+@jit(parallel=True)
+def distance_array(set_1, set_2):
+    res_shape = set_1.shape[0]
+    res = np.zeros(shape=(res_shape, res_shape))
+
+    return res
