@@ -2,6 +2,7 @@ from copy import deepcopy
 
 from numba import guvectorize, float32, jit, njit
 import numpy as np
+from scipy.spatial import ConvexHull
 
 
 def check_cube(x: float, y: float, z: float, rescale=1) -> tuple:
@@ -84,6 +85,7 @@ def make_coordinates(mesh, keep_numbers=False):
 
 
 def extract_interface(mesh: np.ndarray, rescale_coeff=1):  # TODO change the name: Rescale is not used
+    """ Don't need this anymore. See extract_hull """
     original = deepcopy(mesh)
 
     # Borders of the interface
@@ -132,7 +134,7 @@ def calculate_distance(p_1, p_2, res):
     x_1, y_1, z_1 = p_1
     x_2, y_2, z_2 = p_2
 
-    res[0] = ((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2 + (z_1 - z_2) ** 2) ** (1/2)
+    res[0] = ((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2 + (z_1 - z_2) ** 2) ** (1 / 2)
 
 
 @jit(parallel=True)
@@ -141,3 +143,51 @@ def distance_array(set_1, set_2):
     res = np.zeros(shape=(res_shape, res_shape))
 
     return res
+
+
+def create_missing_points(matrix, hull):
+    result = matrix[hull.vertices].copy()
+    for simplex in hull.simplices:
+        p_1, p_2 = matrix[simplex]
+        x = np.linspace(p_1[0], p_2[0], 10, endpoint=True).round()
+        y = np.linspace(p_1[1], p_2[1], 10, endpoint=True).round()
+
+        new_points = np.vstack((x, y)).T
+        result = np.vstack((result, new_points))
+    return result
+
+
+def extract_hull(mesh):
+    """ Using Qhull algorithm extracts the hull. Utility function create_missing_points adds more points to the hull
+    in order to have more continuous surface
+    :param mesh: Convex hull for this mesh (ndarray) will be calculated
+    :returns result: ndarray of shape mesh.shape, that contains the hull/surface of the original mesh"""
+
+    result = np.zeros(mesh.shape)
+
+    for i, plane in enumerate(mesh):
+        coords = make_coordinates(plane)
+        if len(coords):
+            try:
+                hull = ConvexHull(coords)
+                coords = create_missing_points(coords, hull).astype(int)
+                result[i, coords[:, 0], coords[:, 1]] = 1
+                # result[i, coords[hull.vertices][:, 0], coords[hull.vertices][:, 1]] = plane[
+                #     coords[hull.vertices][:, 0], coords[hull.vertices][:, 1]]
+            except:
+                # Don't care
+                ...
+
+    return result
+
+
+def _is_inside(point, mesh):
+    x, y, z = point
+    yz_proj = mesh.sum(axis=0)
+    xz_proj = mesh.sum(axis=1)
+    xy_proj = mesh.sum(axis=2)
+
+    if yz_proj[y, z] > 0 and xz_proj[x, z] > 0 and xy_proj[x, y] > 0:
+        return True
+
+    return False

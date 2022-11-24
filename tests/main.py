@@ -78,9 +78,9 @@ def main(*args, **kwargs):
     # enclosing_matrix[:, :, min_z] = 1
     # enclosing_matrix[:, :, max_z] = 1
     # enclosing_coords = make_coordinates(enclosing_matrix)
-    # fig = plt.figure()
-    # ax = fig.add_subplot(projection='3d', proj_type='ortho')
-    # ax.scatter(coords[::5, 0], coords[::5, 1], coords[::5, 2], color='green', alpha=1)
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], color='green', alpha=1)
     # ax.scatter(slice_coords[::20, 0], slice_coords[::20, 1], slice_coords[::20, 2], color='blue', alpha=0.5)
     # ax.scatter(whole[::20, 0], whole[::20, 1], whole[::20, 2], color='yellow', alpha=0.5)
     # ax.scatter(outer_coords[::20, 0], outer_coords[::20, 1], outer_coords[::20, 2], color='red', alpha=0.3)

@@ -1,5 +1,4 @@
 import time
-from dataclasses import dataclass
 from functools import partial, reduce
 from multiprocessing import Pool, cpu_count
 import operator
@@ -13,10 +12,10 @@ from numpy.linalg import norm
 
 # Local imports
 from grid_project.utilities.decorators import timer, logger
-from grid_project.utilities.universal_functions import extract_interface
 from grid_project.volume.monte_carlo import monte_carlo_volume
 from grid_project.settings import DEBUG
 from grid_project.utilities.universal_functions import stretch
+from grid_project.utilities.universal_functions import extract_hull, _is_inside
 
 np.seterr(invalid='ignore', divide='ignore')
 
@@ -187,6 +186,7 @@ class Mesh:
 
     @staticmethod
     def _is_inside(point, mesh):
+        """ Not a good version. Use the one from utilities.universal_functions """
         dep, row, col = np.asarray(point, dtype=int)
 
         x_mesh_indices = np.where(mesh[:, row, col] > 0)[0]
@@ -289,8 +289,9 @@ class Mesh:
                 self.grid_matrix[:, :, :, self.main_structure].sum(axis=3) / self.grid_matrix[:, :, :, 0] < ratio)] = 0
 
         interface = interface[:, :, :, self.main_structure].sum(axis=3)
-        extracted, self.interface_borders = extract_interface(interface, self.interface_rescale)
-        return extracted
+        # extracted, self.interface_borders = extract_interface(interface, self.interface_rescale)
+        interface = extract_hull(interface)
+        return interface
 
     @logger(DEBUG)
     def _find_distance(self, points, mesh_coords, mesh):
@@ -312,10 +313,10 @@ class Mesh:
             min_dist = 1000  # some starting distance. FIXME take from the existing ones
             coord = point[0:3]
             num = point[3]  # num is the number of particles at node coord
-            inside = Mesh._is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
+            inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
 
             for mesh_point in mesh_coords:
-
+                # break
                 dist = norm(mesh_point - coord)
 
                 if dist < min_dist:
@@ -429,7 +430,6 @@ class Mesh:
         # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
         # implementing generalized normalization
         interface = self.calculate_interface(ratio=ratio)
-        print(interface.shape)
         mesh_coordinates = self.make_coordinates(interface)
         # inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
 
@@ -479,8 +479,8 @@ class Mesh:
 
 
 def main(*args, **kwargs):
-    from tests.mol_parts import TYL3_HYDROPHOBIC
-    from tests.mol_parts import TX100_HYDROPHOBIC
+    from src.test.mol_parts import TYL3_HYDROPHOBIC, TX100_HYDROPHOBIC
+    from grid_project.settings import BASE_DATA_SAVE_DIR
 
     rescale = 4
     skip = 2000
@@ -491,30 +491,12 @@ def main(*args, **kwargs):
         traj=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\50tyl_50TX\production.part0005_skip_10.xtc',
         top=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\50tyl_50TX\production.part0005.gro',
         rescale=rescale)
-    # mesh = Mesh(r'C:\Users\hrach\Documents\Simulations\TX100\triton_micelle_production999.gro', rescale=rescale)
-    # tail = 'C6A C6B C6C C5 C4 C2 C3A C3B C1A C1B C1F C1C C1E C1D'
-    # head = 'O1 CA1 CA2 O2 CB1 CB2 O3 CC1 CC2 O4 CD1 CD2 O5 CE1 CE2 O6 CF1 CF2 O7 CG1 CG2 O8 CJ1 CJ2 O11'
+
     tail = 'C'
     mesh.select_atoms('not type H')
     mesh.select_structure(*system)
-    # grid_matrix = mesh.calculate_mesh(rescale=rescale)
-    # interface = mesh.calculate_interface()
-    # min_z, max_z, min_y, max_y, min_x, max_x = mesh.interface_borders
-    # s = mesh.u.select_atoms(
-    #     f'not type H and (prop x > {min_x} and prop x < {max_x}) and (prop y > {min_y} and prop y < {max_y})'
-    #     f' and (prop z > {min_z} and prop z < {max_z})')
-    # s_1 = mesh.u.select_atoms('all')
-    # coords = mesh.make_coordinates(interface)
-    # outer_mesh = mesh.calculate_mesh('resname SOL and not type H', rescale=rescale)[:, :, :, 0]
-    # outer_mesh[min_x:max_x, min_y:max_y, min_z:max_z] = 0  # TODO: This too
-    # outer_coords = mesh.make_coordinates(outer_mesh)
-    # print(outer_coords)
-    # slice_coords = s.positions
-    # whole = s_1.positions
-    # res = mesh._calc_inner_dens('resname SOL and not type H', coords, interface)
-    # np.save(r'C:\Users\hrach\Documents\innter_density_test.npy', [i[0] for i in res[1].values()])
-    d, dens = mesh.calculate_density_mp('resname TIP3 and not type H', ratio=ratio, skip=skip)
 
+    # d, dens = mesh.calculate_density_mp('resname TIP3 and not type H', ratio=ratio, skip=skip)
 
     d_1, dens_1 = mesh.calculate_density_mp(
         f'resname TY39 and name {TYL3_HYDROPHOBIC} and not type H O', ratio=ratio,
@@ -528,13 +510,14 @@ def main(*args, **kwargs):
     d_4, dens_4 = mesh.calculate_density_mp(
         f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O', ratio=ratio,
         skip=skip)  # hydrophilic
-    # np.save(f'{DATA_DIR}/{"_".join(system)}_{surf_ratio}_data_{rescale}_rescaled_{str(ratio).replace("․","_")}.npy',
+
+    # np.save(f'{BASE_DATA_SAVE_DIR}/{"_".join(system)}_{surf_ratio}_data_{rescale}_rescaled_{str(ratio).replace("․","_")}.npy',
     #         np.array([d, dens, d_1, dens_1, d_2, dens_2, d_3, dens_3, d_4, dens_4], dtype=object))
     # d, dens, d_1, dens_1, d_2, dens_2, d_3, dens_3, d_4, dens_4 = np.load(
     #     f'{DATA_DIR}/{"_".join(system)}_{surf_ratio}_data_{rescale}_rescaled.npy', allow_pickle=True)
     # plt.hist([i[0] for i in res[1].values()])
 
-    plt.plot(d, dens)
+    # plt.plot(d, dens)
     plt.plot(d_1, dens_1, label='TY39 Hydrophobic')
     plt.plot(d_2, dens_2, label='TY39 Hydrophilic')
     plt.plot(d_3, dens_3, label='TX100 Hydrophobic')

@@ -16,4 +16,6 @@ grid_project/utilities/decorators.py
 grid_project/utilities/universal_functions.py
 grid_project/volume/__init__.py
 grid_project/volume/monte_carlo.py
+test/__init__.py
+test/mol_parts.py
 test/test.py

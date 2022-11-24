@@ -85,6 +85,7 @@ def make_coordinates(mesh, keep_numbers=False):
 
 
 def extract_interface(mesh: np.ndarray, rescale_coeff=1):  # TODO change the name: Rescale is not used
+    """ Don't need this anymore. See extract_hull """
     original = deepcopy(mesh)
 
     # Borders of the interface
@@ -173,8 +174,20 @@ def extract_hull(mesh):
                 result[i, coords[:, 0], coords[:, 1]] = 1
                 # result[i, coords[hull.vertices][:, 0], coords[hull.vertices][:, 1]] = plane[
                 #     coords[hull.vertices][:, 0], coords[hull.vertices][:, 1]]
-            except:
+            except Exception:
                 # Don't care
                 ...
 
     return result
+
+
+def _is_inside(point, mesh):
+    x, y, z = point
+    yz_proj = mesh.sum(axis=0)
+    xz_proj = mesh.sum(axis=1)
+    xy_proj = mesh.sum(axis=2)
+
+    if yz_proj[y, z] > 0 and xz_proj[x, z] > 0 and xy_proj[x, y] > 0:
+        return True
+
+    return False
