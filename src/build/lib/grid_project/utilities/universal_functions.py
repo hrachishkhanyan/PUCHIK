@@ -1,6 +1,4 @@
 from copy import deepcopy
-
-from numba import guvectorize, float32, jit, njit
 import numpy as np
 from scipy.spatial import ConvexHull
 
@@ -129,28 +127,35 @@ def stretch(a, k, dim=None):
     return temp
 
 
-@guvectorize([(float32[:], float32[:], float32[:])], '(n),(n)->()', target='cuda')
-def calculate_distance(p_1, p_2, res):
-    x_1, y_1, z_1 = p_1
-    x_2, y_2, z_2 = p_2
-
-    res[0] = ((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2 + (z_1 - z_2) ** 2) ** (1 / 2)
-
-
-@jit(parallel=True)
-def distance_array(set_1, set_2):
-    res_shape = set_1.shape[0]
-    res = np.zeros(shape=(res_shape, res_shape))
-
-    return res
+# @guvectorize([(float32[:], float32[:], float32[:])], '(n),(n)->()', target='cuda')
+# def calculate_distance(p_1, p_2, res):
+#     x_1, y_1, z_1 = p_1
+#     x_2, y_2, z_2 = p_2
+#
+#     res[0] = ((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2 + (z_1 - z_2) ** 2) ** (1 / 2)
 
 
-def create_missing_points(matrix, hull):
+# @jit(parallel=True)
+# def distance_array(set_1, set_2):
+#     res_shape = set_1.shape[0]
+#     res = np.zeros(shape=(res_shape, res_shape))
+#
+#     return res
+
+
+def create_missing_points(matrix, hull, point_coeff=8):
+    """
+    This function adds more points to the hull. Without this hull contains gaps
+    :param matrix: Matrix of points after constructing convex hull
+    :param hull: hull coordinates
+    :param point_coeff: larger number generates more points
+    :return: complete hull
+    """
     result = matrix[hull.vertices].copy()
     for simplex in hull.simplices:
         p_1, p_2 = matrix[simplex]
-        x = np.linspace(p_1[0], p_2[0], 10, endpoint=True).round()
-        y = np.linspace(p_1[1], p_2[1], 10, endpoint=True).round()
+        x = np.linspace(p_1[0], p_2[0], point_coeff, endpoint=True).round()
+        y = np.linspace(p_1[1], p_2[1], point_coeff, endpoint=True).round()
 
         new_points = np.vstack((x, y)).T
         result = np.vstack((result, new_points))
@@ -174,7 +179,7 @@ def extract_hull(mesh):
                 result[i, coords[:, 0], coords[:, 1]] = 1
                 # result[i, coords[hull.vertices][:, 0], coords[hull.vertices][:, 1]] = plane[
                 #     coords[hull.vertices][:, 0], coords[hull.vertices][:, 1]]
-            except:
+            except Exception:
                 # Don't care
                 ...
 
