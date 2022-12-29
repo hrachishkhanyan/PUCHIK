@@ -1,6 +1,6 @@
-import numpy
-from Cython.Build import cythonize
 from setuptools import setup, find_packages
+from Cython.Build import cythonize
+import numpy
 
 setup(name='Grid Project',
       version='1.0.10',
@@ -11,9 +11,9 @@ setup(name='Grid Project',
       license='MIT',
       packages=find_packages(),
       install_requires=[
-          'MDAnalysis',
           'cython',
-          'numpy'
+          'MDAnalysis',
+          'numpy',
       ],
       ext_modules=cythonize('grid_project/core/utils.pyx'),
       package_dir={'src': ''},

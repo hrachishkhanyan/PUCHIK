@@ -13,7 +13,7 @@ import numpy as np
 from grid_project.utilities.decorators import timer, logger
 from grid_project.volume.monte_carlo import monte_carlo_volume
 from grid_project.settings import DEBUG
-from grid_project.utilities.universal_functions import extract_hull  # , _is_inside
+from grid_project.utilities.universal_functions import extract_hull  #, _is_inside
 
 from grid_project.core.utils import find_distance, find_distance_2  # , norm, _is_inside
 
@@ -389,16 +389,14 @@ class Mesh:
         dens = res_densities[sort_index]
         dist = np.round(res_dists[sort_index])
         min_d, max_d = int(dist.min()), int(dist.max())
-        dens_fin = np.zeros(self._get_int_dim())  # Distances are indices of the array.
-        dist_fin = np.zeros(self._get_int_dim())
-        offset = 25  # Array has an offset of 25 to account for negative distances
+        dens_fin = np.zeros(100)  # Array is large, so that we have homogeneous arrays to overcome averaging
+        # issues in density calculation. FIXME somehow change the magic number 100
 
-        for j in range(min_d, max_d):
+        for i, j in enumerate(range(min_d, max_d)):
             indices = np.argwhere(dist == j)
-            dens_fin[offset + j] = dens[indices].mean() if len(indices) != 0 else dens_fin[offset + j - 1]  # WRONG! Change this pls
-            dist_fin[offset + j] = j
+            dens_fin[i] = dens[indices].mean() if len(indices) != 0 else dens_fin[i - 1]
 
-        return dens_fin, dist_fin
+        return dens_fin, np.unique(dist)
 
     def _extract_from_mesh(self, mol_type):
         if mol_type not in self.unique_resnames:
@@ -512,14 +510,8 @@ class Mesh:
         with Pool(cpu_count) as worker_pool:
             res = worker_pool.map(dens_per_frame, frame_range)
 
-        temp_dens = np.array([elem[0] for elem in res])
-        temp_dist = np.array([elem[1] for elem in res])
-
-        densities = temp_dens.mean(axis=0, where=(temp_dens != 0))  # there will be nan's because of 0's
-        distances = temp_dist.mean(axis=0, where=(temp_dist != 0))
-
-        densities = np.nan_to_num(densities, nan=0.)  # replacing nan's back with 0's
-        distances = np.nan_to_num(distances, nan=0.)
+        densities = np.array([elem[0] for elem in res]).mean(axis=0)
+        dists = [elem[1] for elem in res][0]
         # with open(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\data\\water_rescale_1_new.pickle', 'wb') as file:
         #     pickle.dump(res, file)
         """  First method
@@ -534,8 +526,7 @@ class Mesh:
         res = np.array(list(res.keys())), np.array(list(res.values())) / len(frame_range)
         return res
         """
-        np.save(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\100pc_tyl\dens.npy', densities)
-        return np.trim_zeros(densities), np.trim_zeros(distances)
+        return densities, dists
 
     def interface(self, data=None):
         mesh = self.calculate_interface() if data is None else data
@@ -562,7 +553,7 @@ def main(*args, **kwargs):
         'mix': r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3'
     }
     rescale = 1
-    skip = 500
+    skip = 2000
     system = ['TY39']
     # interface_selection = f'resname TRITO and name {TRITO_HYDROPHOBIC} or resname TX0 and not name {TX100_HYDROPHOBIC} ' \
     #                       f'and not type H'
@@ -577,17 +568,17 @@ def main(*args, **kwargs):
     mesh.select_atoms('not type H')
     mesh.select_structure(*system)
 
-    dens, dist = mesh.calculate_density_mp(selection='resname TIP3 and not type H',
+    d, dens = mesh.calculate_density_mp(selection='resname TIP3 and not type H',
                                      interface_selection=interface_selection, skip=skip)#, number_of_frames=1)
 
-    dens_1, dist_1 = mesh.calculate_density_mp(
-        f'resname TY39 and name {TYL3_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-        ratio=ratio,
-        skip=skip)  # hydrophobic
-    dens_2, dist_2 = mesh.calculate_density_mp(
-        f'resname TY39 and not name {TYL3_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-        ratio=ratio,
-        skip=skip)  # hydrophilic
+    # d_1, dens_1 = mesh.calculate_density_mp(
+    #     f'resname TY39 and name {TYL3_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    #     ratio=ratio,
+    #     skip=skip)  # hydrophobic
+    # d_2, dens_2 = mesh.calculate_density_mp(
+    #     f'resname TY39 and not name {TYL3_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    #     ratio=ratio,
+    #     skip=skip)  # hydrophilic
     # d_3, dens_3 = mesh.calculate_density_mp(
     #     f'resname TX0 and not name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
     #     ratio=ratio,
@@ -605,12 +596,7 @@ def main(*args, **kwargs):
     # plt.hist([i[0] for i in res[1].values()])
 
     from matplotlib import pyplot as plt
-
-    plt.plot(dist, dens)
-
-    plt.plot(dist_1, dens_1)
-
-    plt.plot(dist_2, dens_2)
+    plt.plot(d, dens)
     # plt.plot(d_1, dens_1, label='TRITO Hydrophobic')
     # plt.plot(d_2, dens_2, label='TRITO Hydrophilic')
     # plt.plot(d_3, dens_3, label='TX100 Hydrophobic')

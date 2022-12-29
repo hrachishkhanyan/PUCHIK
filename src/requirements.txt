@@ -1,2 +1,3 @@
-MDAnalysis
 cython
+numpy
+MDAnalysis

@@ -1,16 +1,22 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = [
+    "setuptools>=61.0",
+    "Cython",
+    "numpy",
+    "setuptools",
+    "wheel"
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "grid_project"
 version = "1.0.10"
 authors = [
-  { name="Hrachya Ishkhanyan", email="hrachya.ishkhanyan@kcl.ac.uk" },
+    { name = "Hrachya Ishkhanyan", email = "hrachya.ishkhanyan@kcl.ac.uk" },
 ]
 description = "Grid project creates a grid from an molecular dynamics structure file. The system in question can have an arbitrary structure. Volume and species densities can then calculated."
 readme = "README.md"
-license = { file="LICENSE" }
+license = { file = "LICENSE" }
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
