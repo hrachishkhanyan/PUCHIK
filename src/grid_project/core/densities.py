@@ -387,31 +387,20 @@ class Mesh:
         res_dists = np.array(res_dists)
 
         # Second part
-        """sort_index = np.argsort(res_dists)
+        sort_index = np.argsort(res_dists)
         dens = res_densities[sort_index]
         dist = np.round(res_dists[sort_index])
-        min_d, max_d = int(dist.min()), int(dist.max())
+        min_d, max_d = int(dist.min()), int(dist.max()) + 1  # considering range limit exclusion
         dens_fin = np.zeros(self._get_int_dim())  # Distances are indices of the array.
         dist_fin = np.zeros(self._get_int_dim())
         offset = 25  # Array has an offset of 25 to account for negative distances
 
         for j in range(min_d, max_d):
             indices = np.argwhere(dist == j)
-            dens_fin[offset + j] = dens[indices].mean() if len(indices) != 0 else dens_fin[offset + j - 1]  # WRONG! Change this pls
-            dist_fin[offset + j] = j"""
+            dens_fin[offset + j] = dens[indices].mean()
+            dist_fin[offset + j] = j
 
-        sort_index = np.argsort(res_dists)
-        dens = res_densities[sort_index]
-        dist = np.round(res_dists[sort_index])
-
-        min_d, max_d = int(dist.min()), int(dist.max()) + 1  # considering range limits
-        dens_fin = np.zeros((max_d - min_d))
-
-        for i, j in enumerate(range(min_d, max_d)):
-            indices = np.argwhere(dist == j)
-            dens_fin[i] = dens[indices].mean()
-
-        return dens_fin, np.unique(dist)
+        return dens_fin, dist
 
     def _extract_from_mesh(self, mol_type):
         if mol_type not in self.unique_resnames:
