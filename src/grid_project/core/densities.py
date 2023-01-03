@@ -535,7 +535,7 @@ class Mesh:
         return res
         """
         np.save(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\100pc_tyl\dens.npy', densities)
-        return np.trim_zeros(densities), np.trim_zeros(distances)
+        return densities, distances
 
     def interface(self, data=None):
         mesh = self.calculate_interface() if data is None else data
