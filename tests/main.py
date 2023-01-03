@@ -98,12 +98,12 @@ def main(*args, **kwargs):
     plt.show()
 
 
-def normalize_density(arg):
+def normalize_density(arg, bin_count):
     dists_and_coord = [elem[0] for elem in arg]
     dists = [elem[1] for elem in arg]
     n_frames = len(dists_and_coord)
     # dens, dist = _normalize_density(dists_and_coord[0], dists[0])
-    dens, dist = _normalize_density_2(dists_and_coord[0], 12)
+    dens, dist = _normalize_density_2(dists_and_coord[0], bin_count)
 
     # coords = mesh
     # fig = plt.figure()
@@ -128,12 +128,16 @@ def _normalize_density_2(dists_and_coord, bin_count=12):
 
     res_dists = []
     res_densities = []
-    number_matrix = np.zeros(shape=(BOX_DIM,) * 3 + (2,))
+    number_matrix = np.empty(shape=(BOX_DIM,) * 3 + (2,))
+    number_matrix.fill(np.nan)
 
     bin_size = BOX_DIM // bin_count
+    print(bin_size)
     for dc in dists_and_coord:
         x, y, z = dc[1]
         number_matrix[x, y, z, 1] = dc[0]
+        if np.isnan(number_matrix[x, y, z, 0]):
+            number_matrix[x, y, z, 0] = 0
         number_matrix[x, y, z, 0] += 1
 
     for i in range(0, bin_count):
@@ -144,9 +148,10 @@ def _normalize_density_2(dists_and_coord, bin_count=12):
                        j * bin_size: (j + 1) * bin_size,
                        k * bin_size: (k + 1) * bin_size
                        ]
-                density = bin_[:, :, :, 0].sum() / (bin_size ** 3)
+
+                density = np.nansum(bin_[:, :, :, 0]) / (bin_size ** 3)
                 dists = bin_[:, :, :, 1]
-                temp = list(dists[dists != 0])
+                temp = list(dists[~np.isnan(dists)])
                 res_dists += temp
                 res_densities += [density] * len(temp)
 
@@ -157,12 +162,13 @@ def _normalize_density_2(dists_and_coord, bin_count=12):
     sort_index = np.argsort(res_dists)
     dens = res_densities[sort_index]
     dist = np.round(res_dists[sort_index])
-    min_d, max_d = int(dist.min()), int(dist.max())
+
+    min_d, max_d = int(dist.min()), int(dist.max()) + 1  # considering range limits
     dens_fin = np.zeros((max_d - min_d))
 
     for i, j in enumerate(range(min_d, max_d)):
         indices = np.argwhere(dist == j)
-        dens_fin[i] = dens[indices].mean() if len(indices) != 0 else dens_fin[i - 1]
+        dens_fin[i] = dens[indices].mean()
 
     return dens_fin, np.unique(dist)
 
@@ -186,5 +192,5 @@ if __name__ == '__main__':
     with open(f'{DATA_DIR}/water_rescale_1_new.pickle', 'rb') as file:
         o = pickle.load(file)
 
-    normalize_density(o)
+    normalize_density(o, bin_count=12)
     # rdf()

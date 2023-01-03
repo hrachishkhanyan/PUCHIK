@@ -44,7 +44,7 @@ class Mesh:
         self.dim = self.u.dimensions
         self.mesh = None
         self.rescale = rescale
-        self.interface_rescale = 4  # this is for calculating a rescaled interface then upscaling it
+        self.interface_rescale = 1  # this is for calculating a rescaled interface then upscaling it
         self.length = self.u.trajectory.n_frames
         self.unique_resnames = None
         self.main_structure = []
@@ -358,13 +358,15 @@ class Mesh:
 
         res_dists = []
         res_densities = []
-        number_matrix = np.zeros(shape=(self._get_int_dim(),) * 3 + (2,))
-
+        number_matrix = np.empty(shape=(self._get_int_dim(),) * 3 + (2,))
+        number_matrix.fill(np.nan)
         bin_size = self._get_int_dim() // bin_count
 
         for dc in dists_and_coord:
             x, y, z = dc[1]
             number_matrix[x, y, z, 1] = dc[0]
+            if np.isnan(number_matrix[x, y, z, 0]):
+                number_matrix[x, y, z, 0] = 0
             number_matrix[x, y, z, 0] += 1
 
         for i in range(0, bin_count):
@@ -375,9 +377,9 @@ class Mesh:
                            j * bin_size: (j + 1) * bin_size,
                            k * bin_size: (k + 1) * bin_size
                            ]
-                    density = bin_[:, :, :, 0].sum() / (bin_size ** 3)
+                    density = np.nansum(bin_[:, :, :, 0]) / (bin_size ** 3)
                     dists = bin_[:, :, :, 1]
-                    temp = list(dists[dists != 0])
+                    temp = list(dists[~np.isnan(dists)])
                     res_dists += temp
                     res_densities += [density] * len(temp)
 
@@ -385,7 +387,7 @@ class Mesh:
         res_dists = np.array(res_dists)
 
         # Second part
-        sort_index = np.argsort(res_dists)
+        """sort_index = np.argsort(res_dists)
         dens = res_densities[sort_index]
         dist = np.round(res_dists[sort_index])
         min_d, max_d = int(dist.min()), int(dist.max())
@@ -396,9 +398,20 @@ class Mesh:
         for j in range(min_d, max_d):
             indices = np.argwhere(dist == j)
             dens_fin[offset + j] = dens[indices].mean() if len(indices) != 0 else dens_fin[offset + j - 1]  # WRONG! Change this pls
-            dist_fin[offset + j] = j
+            dist_fin[offset + j] = j"""
 
-        return dens_fin, dist_fin
+        sort_index = np.argsort(res_dists)
+        dens = res_densities[sort_index]
+        dist = np.round(res_dists[sort_index])
+
+        min_d, max_d = int(dist.min()), int(dist.max()) + 1  # considering range limits
+        dens_fin = np.zeros((max_d - min_d))
+
+        for i, j in enumerate(range(min_d, max_d)):
+            indices = np.argwhere(dist == j)
+            dens_fin[i] = dens[indices].mean()
+
+        return dens_fin, np.unique(dist)
 
     def _extract_from_mesh(self, mol_type):
         if mol_type not in self.unique_resnames:
