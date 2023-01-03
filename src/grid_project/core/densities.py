@@ -562,7 +562,7 @@ def main(*args, **kwargs):
         'mix': r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3'
     }
     rescale = 1
-    skip = 500
+    skip = 200
     system = ['TY39']
     # interface_selection = f'resname TRITO and name {TRITO_HYDROPHOBIC} or resname TX0 and not name {TX100_HYDROPHOBIC} ' \
     #                       f'and not type H'
