@@ -1,5 +1,6 @@
 import numpy as np
 cimport numpy as np
+from scipy.spatial import ConvexHull
 
 np.import_array()
 
@@ -100,6 +101,65 @@ def _is_inside_old(np.ndarray point, np.ndarray mesh):
 
 
 def _is_inside(np.ndarray point, np.ndarray mesh):
+    cdef bint yz_inside, xz_inside, xy_inside
+    cdef np.ndarray yz_proj
+    cdef np.ndarray xz_proj
+    cdef np.ndarray xy_proj
+
+    yz_proj = make_coordinates(mesh.sum(axis=0))
+    xz_proj = make_coordinates(mesh.sum(axis=1))
+    xy_proj = make_coordinates(mesh.sum(axis=2))
+
+    yz_hull = ConvexHull(yz_proj)
+    xz_hull = ConvexHull(xz_proj)
+    xy_hull = ConvexHull(xy_proj)
+
+    yz_inside = point_in_hull(point[[1, 2]], yz_hull)
+    xz_inside = point_in_hull(point[[0, 2]], xz_hull)
+    xy_inside = point_in_hull(point[[0, 1]], xy_hull)
+
+    return yz_inside and xz_inside and xy_inside
+
+
+def point_in_hull(np.ndarray point, hull):
+    cdef double tolerance
+    tolerance = 1e-12
+    return all(
+        (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
+        for eq in hull.equations)
+
+def make_coordinates(mesh, keep_numbers=False):
+    """
+    Converts the mesh to coordinates
+    Args:
+        mesh (np.ndarray):  Mesh to convert into 3D coordinates
+        keep_numbers (bool): Resulting tuples will also contain the number of particles at that coordinate if True
+
+    Returns:
+        np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh
+    """
+    cdef int dim
+    cdef list coords
+
+    dim = mesh.ndim
+    coords = []
+
+    if dim == 2:
+        for i, col in enumerate(mesh):
+            for j, elem in enumerate(col):
+                if elem > 0:
+                    coords.append((i, j)) if not keep_numbers else coords.append((i, j, mesh[i, j]))
+    else:
+        for i, mat in enumerate(mesh):
+            for j, col in enumerate(mat):
+                for k, elem in enumerate(col):
+                    if elem > 0:
+                        coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))
+
+    return np.array(coords, dtype=int)
+
+
+def _is_inside_not_right(np.ndarray point, np.ndarray mesh):
     cdef int x, y, z
     cdef int x_1, y_1, z_1  # to check if point is inside
     cdef bint x_inside, y_inside, z_inside

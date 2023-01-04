@@ -290,7 +290,7 @@ class Mesh:
 
         interface = interface[:, :, :, self.main_structure].sum(axis=3)
         # extracted, self.interface_borders = extract_interface(interface, self.interface_rescale)
-        interface_hull = extract_hull(interface, coef)
+        interface_hull = extract_hull(interface, 14)
         transposed = extract_hull(interface.T).T  # This is done for filling gaps in the other side
         interface_hull += transposed
         return interface_hull
