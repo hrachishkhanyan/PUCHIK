@@ -15,7 +15,7 @@ from grid_project.volume.monte_carlo import monte_carlo_volume
 from grid_project.settings import DEBUG
 from grid_project.utilities.universal_functions import extract_hull  # , _is_inside
 
-from grid_project.core.utils import find_distance, find_distance_2  # , norm, _is_inside
+from grid_project.core.utils import find_distance, find_distance_2, norm, _is_inside
 
 np.seterr(invalid='ignore', divide='ignore')
 
@@ -290,11 +290,32 @@ class Mesh:
 
         interface = interface[:, :, :, self.main_structure].sum(axis=3)
         # extracted, self.interface_borders = extract_interface(interface, self.interface_rescale)
-        interface_hull = extract_hull(interface)
+        interface_hull = extract_hull(interface, 14)
         transposed = extract_hull(interface.T).T  # This is done for filling gaps in the other side
         interface_hull += transposed
         return interface_hull
 
+    def find_distance_2(self, points, mesh_coords, mesh):
+        dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
+
+        for i, point in enumerate(points):
+            min_dist = 1000
+            coord = point[0:3]
+            num = point[3]  # num is the number of particles at node coord
+            inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
+
+            for mesh_point in mesh_coords:
+                dist = norm(mesh_point, coord)
+
+                if dist < min_dist:
+                    min_dist = dist
+
+            if inside:
+                min_dist *= -1
+
+            dists_and_coord.append((min_dist, coord))
+
+        return dists_and_coord
     # @logger(DEBUG)
     # def _find_distance(self, points, mesh_coords, mesh):
     #     """
@@ -391,8 +412,10 @@ class Mesh:
         dens = res_densities[sort_index]
         dist = np.round(res_dists[sort_index])
         min_d, max_d = int(dist.min()), int(dist.max()) + 1  # considering range limit exclusion
-        dens_fin = np.zeros(self._get_int_dim())  # Distances are indices of the array.
-        dist_fin = np.zeros(self._get_int_dim())
+        dens_fin = np.empty(self._get_int_dim())  # Distances are indices of the array.
+        dist_fin = np.empty(self._get_int_dim())
+        dens_fin.fill(np.nan)
+        dist_fin.fill(np.nan)
         offset = 25  # Array has an offset of 25 to account for negative distances
 
         for j in range(min_d, max_d):
@@ -400,7 +423,7 @@ class Mesh:
             dens_fin[offset + j] = dens[indices].mean()
             dist_fin[offset + j] = j
 
-        return dens_fin, dist
+        return dens_fin, dist_fin
 
     def _extract_from_mesh(self, mol_type):
         if mol_type not in self.unique_resnames:
@@ -487,7 +510,7 @@ class Mesh:
         selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
 
         # res, d = find_distance_2(selection_coords, mesh_coordinates, interface)  # first method
-        res = find_distance_2(selection_coords, mesh_coordinates, interface)  # This and next line are second method
+        res = self.find_distance_2(selection_coords, mesh_coordinates, interface)  # This and next line are second method
         res, d = self._normalize_density_2(res)
         return res, d  # Return density and according distance
 
@@ -517,10 +540,10 @@ class Mesh:
         temp_dens = np.array([elem[0] for elem in res])
         temp_dist = np.array([elem[1] for elem in res])
 
-        densities = temp_dens.mean(axis=0, where=(temp_dens != 0))  # there will be nan's because of 0's
-        distances = temp_dist.mean(axis=0, where=(temp_dist != 0))
+        densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dist))  # there will be nan's because of nan's
+        distances = temp_dist.mean(axis=0, where=~np.isnan(temp_dist))
 
-        densities = np.nan_to_num(densities, nan=0.)  # replacing nan's back with 0's
+        densities = np.nan_to_num(densities, nan=0.)  # replacing nan's with 0's
         distances = np.nan_to_num(distances, nan=0.)
         # with open(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\data\\water_rescale_1_new.pickle', 'wb') as file:
         #     pickle.dump(res, file)

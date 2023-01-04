@@ -127,23 +127,7 @@ def stretch(a, k, dim=None):
     return temp
 
 
-# @guvectorize([(float32[:], float32[:], float32[:])], '(n),(n)->()', target='cuda')
-# def calculate_distance(p_1, p_2, res):
-#     x_1, y_1, z_1 = p_1
-#     x_2, y_2, z_2 = p_2
-#
-#     res[0] = ((x_1 - x_2) ** 2 + (y_1 - y_2) ** 2 + (z_1 - z_2) ** 2) ** (1 / 2)
-
-
-# @jit(parallel=True)
-# def distance_array(set_1, set_2):
-#     res_shape = set_1.shape[0]
-#     res = np.zeros(shape=(res_shape, res_shape))
-#
-#     return res
-
-
-def create_missing_points(matrix, hull, point_coeff=8):
+def create_missing_points(matrix, hull, point_coeff=12):
     """
     This function adds more points to the hull. Without this hull contains gaps
     :param matrix: Matrix of points after constructing convex hull
@@ -162,7 +146,7 @@ def create_missing_points(matrix, hull, point_coeff=8):
     return result
 
 
-def extract_hull(mesh):
+def extract_hull(mesh, point_coef=8):
     """ Using Qhull algorithm extracts the hull. Utility function create_missing_points adds more points to the hull
     in order to have more continuous surface
     :param mesh: Convex hull for this mesh (ndarray) will be calculated
@@ -175,7 +159,7 @@ def extract_hull(mesh):
         if len(coords):
             try:
                 hull = ConvexHull(coords)
-                coords = create_missing_points(coords, hull).astype(int)
+                coords = create_missing_points(coords, hull, point_coeff=point_coef).astype(int)
                 result[i, coords[:, 0], coords[:, 1]] = 1
                 # result[i, coords[hull.vertices][:, 0], coords[hull.vertices][:, 1]] = plane[
                 #     coords[hull.vertices][:, 0], coords[hull.vertices][:, 1]]
