@@ -15,7 +15,7 @@ from grid_project.volume.monte_carlo import monte_carlo_volume
 from grid_project.settings import DEBUG
 from grid_project.utilities.universal_functions import extract_hull  # , _is_inside
 
-from grid_project.core.utils import find_distance, find_distance_2, norm, _is_inside
+from grid_project.core.utils import find_distance_2  #, norm, _is_inside
 
 np.seterr(invalid='ignore', divide='ignore')
 
@@ -510,7 +510,7 @@ class Mesh:
         selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
 
         # res, d = find_distance_2(selection_coords, mesh_coordinates, interface)  # first method
-        res = self.find_distance_2(selection_coords, mesh_coordinates, interface)  # This and next line are second method
+        res = find_distance_2(selection_coords, mesh_coordinates, interface)  # This and next line are second method
         res, d = self._normalize_density_2(res)
         return res, d  # Return density and according distance
 
