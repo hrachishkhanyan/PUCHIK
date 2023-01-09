@@ -8,6 +8,7 @@ from grid_project.utilities.universal_functions import make_coordinates
 from matplotlib import pyplot as plt
 import pickle
 from grid_project import Mesh
+from scipy.spatial import ConvexHull
 
 from mol_parts import TYL3_HYDROPHOBIC, TX100_HYDROPHOBIC
 
@@ -104,7 +105,6 @@ def normalize_density(arg, bin_count):
     n_frames = len(dists_and_coord)
     # dens, dist = _normalize_density(dists_and_coord[0], dists[0])
     dens, dist = _normalize_density_2(dists_and_coord[0], bin_count)
-
     # coords = mesh
     # fig = plt.figure()
     # ax = fig.add_subplot(projection='3d', proj_type='ortho')
@@ -132,7 +132,7 @@ def _normalize_density_2(dists_and_coord, bin_count=12):
     number_matrix.fill(np.nan)
 
     bin_size = BOX_DIM // bin_count
-    print(bin_size)
+
     for dc in dists_and_coord:
         x, y, z = dc[1]
         number_matrix[x, y, z, 1] = dc[0]
@@ -156,6 +156,8 @@ def _normalize_density_2(dists_and_coord, bin_count=12):
                 res_densities += [density] * len(temp)
 
     res_densities = np.array(res_densities)
+    plt.hist(res_densities, bins=20)
+    plt.show()
     res_dists = np.array(res_dists)
 
     # Second part
@@ -164,14 +166,19 @@ def _normalize_density_2(dists_and_coord, bin_count=12):
     dist = np.round(res_dists[sort_index])
 
     min_d, max_d = int(dist.min()), int(dist.max()) + 1  # considering range limits
-    dens_fin = np.zeros((max_d - min_d))
+    # dens_fin = np.zeros((max_d - min_d))
+    dens_fin = np.empty(BOX_DIM)  # Distances are indices of the array.
+    dist_fin = np.empty(BOX_DIM)
+    dens_fin.fill(np.nan)
+    dist_fin.fill(np.nan)
+    offset = 25  # Array has an offset of 25 to account for negative distances
 
-    for i, j in enumerate(range(min_d, max_d)):
+    for j in range(min_d, max_d):
         indices = np.argwhere(dist == j)
-        dens_fin[i] = dens[indices].mean()
+        dens_fin[offset + j] = dens[indices].mean()
+        dist_fin[offset + j] = j
 
-    return dens_fin, np.unique(dist)
-
+    return dens_fin, dist_fin  # np.unique(dist)
 
 
 def rdf():
@@ -187,10 +194,133 @@ def rdf():
     plt.show()
 
 
-if __name__ == '__main__':
-    # main()
-    with open(f'{DATA_DIR}/water_rescale_1_new.pickle', 'rb') as file:
-        o = pickle.load(file)
+def _is_inside(point, mesh):
+    x, y, z = point
+    # yz_proj = mesh.sum(axis=0)
+    # xz_proj = mesh.sum(axis=1)
+    # xy_proj = mesh.sum(axis=2)
 
-    normalize_density(o, bin_count=12)
+    yz_proj = make_coordinates(mesh.sum(axis=0))
+    xz_proj = make_coordinates(mesh.sum(axis=1))
+    xy_proj = make_coordinates(mesh.sum(axis=2))
+
+    yz_hull = ConvexHull(yz_proj)
+    xz_hull = ConvexHull(xz_proj)
+    xy_hull = ConvexHull(xy_proj)
+
+    yz_inside = point_in_hull((y, z), yz_hull)
+    xz_inside = point_in_hull((x, z), xz_hull)
+    xy_inside = point_in_hull((x, y), xy_hull)
+
+    return yz_inside and xz_inside and xy_inside
+
+
+def point_in_hull(point, hull, tolerance=1e-12):
+    return all(
+        (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
+        for eq in hull.equations)
+
+
+def inside_or_outside(points, mesh_coords, mesh):
+    dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
+    inside_coords = []
+    outside_coords = []
+
+    for i, point in enumerate(points):
+        coord = point[0:3]
+        # num = point[3]  # num is the number of particles at node coord
+        inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
+        if inside:
+            inside_coords.append(coord)
+        else:
+            outside_coords.append(coord)
+
+    return np.array(inside_coords), np.array(outside_coords)
+
+
+def find_distance_2(points, mesh_coords, mesh):
+    dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
+
+    for i, point in enumerate(points):
+        min_dist = 1000
+        coord = point[0:3]
+        # num = point[3]  # num is the number of particles at node coord
+        inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
+
+        for mesh_point in mesh_coords:
+            dist = norm(mesh_point, coord)
+
+            if dist < min_dist:
+                min_dist = dist
+
+        if inside:
+            min_dist *= -1
+
+        dists_and_coord.append((min_dist, coord))
+
+    return dists_and_coord
+
+
+def norm(p_1, p_2):
+    x_1 = p_1[0]
+    y_1 = p_1[1]
+    z_1 = p_1[2]
+    x_2 = p_2[0]
+    y_2 = p_2[1]
+    z_2 = p_2[2]
+    return np.sqrt((x_1 - x_2) * (x_1 - x_2) + (y_1 - y_2) * (y_1 - y_2) + (z_1 - z_2) * (z_1 - z_2))
+
+
+def test_is_inside():
+    selection_coords = np.load('selection_coords_1.npy')
+    mesh_coordinates = np.load('mesh_coordinates_1.npy')
+    interface = np.load('interface_1.npy')
+
+    inside, outside = find_distance_2(selection_coords, mesh_coordinates, interface)
+    #
+    np.save('inside_1.npy', inside)
+    np.save('outside_1.npy', outside)
+    # inside, outside = np.load('inside.npy'), np.load('outside.npy')
+
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    ax.scatter(inside[:, 0], inside[:, 1], inside[:, 2], color='green', alpha=1, s=.2)
+    ax.scatter(outside[25000:, 0], outside[25000:, 1], outside[25000:, 2], color='red', alpha=1, s=.2)
+
+    plt.show()
+
+
+if __name__ == '__main__':
+    test_is_inside()
+    # main()
+    # with open(f'{DATA_DIR}/water_rescale_1_new.pickle', 'rb') as file:
+    #     o = pickle.load(file)
+    # print(o)
+    # dens, dist = o
+    # dens = np.array(dens)
+    # dist = np.array(dist)
+    # # plt.plot(dist[2], dens[2])
+    # plt.plot(dist.mean(axis=0, where=~np.isnan(dist)), dens.mean(axis=0, where=~np.isnan(dens)))
+    # plt.plot(dist.mean(axis=0), dens.mean(axis=0))
+
+    # normalize_density(o, bin_count=20)
     # rdf()
+    # mesh = np.load(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\mesh_test.npy')
+    # point = np.array([87, 57, 75])
+    # print(_is_inside(point, mesh))
+    # yz_proj = make_coordinates(mesh.sum(axis=0))
+    # xz_proj = make_coordinates(mesh.sum(axis=1))
+    # xy_proj = make_coordinates(mesh.sum(axis=2))
+    #
+    # plt.scatter(yz_proj[:, 0], yz_proj[:, 1])
+    # plt.scatter(point[1], point[2])
+    #
+    # for simplex in hull.simplices:
+    #     plt.plot(xz_proj[simplex, 0], xz_proj[simplex, 1], 'k-')
+    # plt.scatter(xz_proj[:, 0], xz_proj[:, 1])
+    # plt.scatter(point[0], point[2])
+    #
+    # plt.scatter(xy_proj[:, 0], xy_proj[:, 1])
+    # plt.scatter(point[0], point[1])
+    #
+    # plt.show()

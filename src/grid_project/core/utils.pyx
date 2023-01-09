@@ -124,6 +124,7 @@ def _is_inside(np.ndarray point, np.ndarray mesh):
 def point_in_hull(np.ndarray point, hull):
     cdef double tolerance
     tolerance = 1e-12
+
     return all(
         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
         for eq in hull.equations)

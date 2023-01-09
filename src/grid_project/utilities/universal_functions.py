@@ -28,6 +28,7 @@ def check_cube(x: float, y: float, z: float, rescale=1) -> tuple:
 
 def is_inside(point, mesh):
     """
+    WRONG
     Determines if the point is inside the mesh or not
     :param point: 3D point
     :param mesh: Mesh of points
