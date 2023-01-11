@@ -436,7 +436,7 @@ class Mesh:
 
         return self.grid_matrix[:, :, :, mol_index]
 
-    def calculate_density(self, interface_selection, selection=None, skip=1, number_of_frames=None, norm_bin_count=20):
+    def calculate_density(self, interface_selection, selection=None, start=0, skip=1, number_of_frames=None, norm_bin_count=20):
         """
         Calculates the density of selection from interface
 
@@ -497,7 +497,7 @@ class Mesh:
 
         return densities, distances  # Return densities and according distances
 
-    def _calc_dens_mp(self, frame_num, selection, interface_selection, ratio):
+    def _calc_dens_mp(self, frame_num, selection, interface_selection, ratio, norm_bin_count):
         """
         Calculates the density of selection from interface. Multiprocessing version
 
@@ -528,13 +528,13 @@ class Mesh:
         np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\interface.npy', interface)
 
         res = find_distance_2(selection_coords, mesh_coordinates, interface)  # This and next line are second method
-        res, d = self._normalize_density_2(res)
+        res, d = self._normalize_density_2(res, norm_bin_count=norm_bin_count)
 
         return res, d  # Return density and according distance
 
     # @timer
     def calculate_density_mp(self, selection=None, interface_selection=None, ratio=0.4, start=0, skip=1,
-                             cpu_count=CPU_COUNT):
+                             norm_bin_count=20, cpu_count=CPU_COUNT):
         """
         Calculates density of selection from the interface
         :param selection: MDAnalysis selection of ag
@@ -549,23 +549,24 @@ class Mesh:
         dens_per_frame = partial(self._calc_dens_mp,
                                  selection=selection,
                                  interface_selection=interface_selection,
-                                 ratio=ratio)  # _calc_dens_mp function with filled selection using partial
+                                 ratio=ratio,
+                                 norm_bin_count=norm_bin_count)  # _calc_dens_mp function with filled selection using partial
         frame_range = range(start, n_frames, skip)
 
         with Pool(cpu_count) as worker_pool:
             res = worker_pool.map(dens_per_frame, frame_range)
+        res = np.array(res)
+        temp_dens = res[:, 0]
+        # temp_dist = res[:, 1]  # not needed?
 
-        temp_dens = np.array([elem[0] for elem in res])
-        temp_dist = np.array([elem[1] for elem in res])
-
-        densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dist))  # there will be nan's because of nan's
-        distances = temp_dist.mean(axis=0, where=~np.isnan(temp_dist))
+        densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dens))  # there will be nan's because of nan's
+        # distances = temp_dist.mean(axis=0, where=~np.isnan(temp_dist))
 
         densities = np.nan_to_num(densities, nan=0.)  # replacing nan's with 0's
-        distances = np.nan_to_num(distances, nan=0.)
-        with open(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\data\\water_rescale_1_new.pickle',
-                  'wb') as file:
-            pickle.dump(res, file)
+        # distances = np.nan_to_num(distances, nan=0.)
+        # with open(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\data\\water_rescale_1_new.pickle',
+        #           'wb') as file:
+        #     pickle.dump(res, file)
         """  First method
         
         densities = [elem[0] for elem in res]
@@ -579,7 +580,7 @@ class Mesh:
         return res
         """
         np.save(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\100pc_tyl\dens.npy', densities)
-        return densities, distances
+        return densities, np.arange(-25, 95)  # Because of offset 25 in normalization
 
     def interface(self, data=None):
         mesh = self.calculate_interface() if data is None else data
