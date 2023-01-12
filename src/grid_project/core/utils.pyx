@@ -4,7 +4,6 @@ from scipy.spatial import ConvexHull
 
 np.import_array()
 
-
 def find_distance(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
     cdef list node_count
     cdef list temp
@@ -47,7 +46,6 @@ def find_distance(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
         # dists += (temp * num)
 
     return node_count, dists_dict
-
 
 def find_distance_2(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
     cdef list dists_from_point
@@ -99,8 +97,24 @@ def _is_inside_old(np.ndarray point, np.ndarray mesh):
 
     return False
 
+def _is_inside(np.ndarray point, np.ndarray mesh) -> np.ndarray:
+    cdef np.ndarray inside
+    cdef list slice_index
 
-def _is_inside(np.ndarray point, np.ndarray mesh):
+    inside = np.array((False, False, False))
+    slice_index = [[1, 2],
+                   [0, 2],
+                   [0, 1]]
+    cdef int i
+    for i in range(3):
+        mesh_slice = mesh[mesh[:, i] == point[i]]
+        if len(mesh_slice) >= 3:
+            hull = ConvexHull(mesh_slice[:, slice_index[i]])
+            inside[i] = point_in_hull(point[slice_index[i]], hull)
+
+    return inside.all()
+
+def _is_inside_not_working_again(np.ndarray point, np.ndarray mesh):
     cdef bint yz_inside, xz_inside, xy_inside
     cdef np.ndarray yz_proj
     cdef np.ndarray xz_proj
@@ -119,7 +133,6 @@ def _is_inside(np.ndarray point, np.ndarray mesh):
     xy_inside = point_in_hull(point[[0, 1]], xy_hull)
 
     return yz_inside and xz_inside and xy_inside
-
 
 def point_in_hull(np.ndarray point, hull):
     cdef double tolerance
@@ -159,7 +172,6 @@ def make_coordinates(mesh, keep_numbers=False):
 
     return np.array(coords, dtype=int)
 
-
 def _is_inside_not_right(np.ndarray point, np.ndarray mesh):
     cdef int x, y, z
     cdef int x_1, y_1, z_1  # to check if point is inside
@@ -195,7 +207,6 @@ def _is_inside_not_right(np.ndarray point, np.ndarray mesh):
 
     return x_inside and z_inside and y_inside
 
-
 def norm(np.ndarray p_1, np.ndarray p_2):
     cdef int x_1
     cdef int y_1
@@ -210,7 +221,3 @@ def norm(np.ndarray p_1, np.ndarray p_2):
     y_2 = p_2[1]
     z_2 = p_2[2]
     return np.sqrt((x_1 - x_2) * (x_1 - x_2) + (y_1 - y_2) * (y_1 - y_2) + (z_1 - z_2) * (z_1 - z_2))
-
-
-
-

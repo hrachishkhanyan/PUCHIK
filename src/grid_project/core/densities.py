@@ -511,11 +511,10 @@ class Mesh:
 
         self.u.trajectory[frame_num]
 
-        self.calculate_mesh(selection=interface_selection, main_structure=True, rescale=self.interface_rescale)
-        # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
+        mesh = self.calculate_mesh(selection=interface_selection, main_structure=True,
+                                   rescale=self.interface_rescale)[:, :, :, 1]        # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
         # implementing generalized normalization
-        interface = self.calculate_interface(ratio=ratio)
-        mesh_coordinates = self.make_coordinates(interface)
+        mesh_coordinates = self.make_coordinates(mesh)
         # inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
 
         selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
@@ -523,11 +522,8 @@ class Mesh:
         selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
 
         # res, d = find_distance_2(selection_coords, mesh_coordinates, interface)  # first method
-        np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\selection_coords.npy', selection_coords)
-        np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\mesh_coordinates.npy', mesh_coordinates)
-        np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\interface.npy', interface)
 
-        res = find_distance_2(selection_coords, mesh_coordinates, interface)  # This and next line are second method
+        res = find_distance_2(selection_coords, mesh_coordinates, mesh)  # This and next line are second method
         res, d = self._normalize_density_2(res, norm_bin_count=norm_bin_count)
 
         return res, d  # Return density and according distance
