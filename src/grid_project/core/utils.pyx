@@ -46,8 +46,40 @@ def find_distance(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
         # dists += (temp * num)
 
     return node_count, dists_dict
+def find_distance_2(np.ndarray points, np.ndarray mesh_coords):
+    cdef list dists_and_coord
+    cdef double min_dist
+    # cdef int num
+    cdef np.ndarray coord
+    cdef bint inside
+    cdef int sign
+    cdef double dist
+    dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
+    hull = ConvexHull(mesh_coords, qhull_options='QJ')
 
-def find_distance_2(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
+    cdef int i
+    cdef np.ndarray point
+    cdef np.ndarray simplex
+
+    for i, point in enumerate(points):
+        min_dist = 1000
+        coord = point[0:3]
+        # num = point[3]  # num is the number of particles at node coord
+        inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
+
+        for simplex in hull.simplices:
+            dist = norm(coord, mesh_coords[simplex].mean(axis=0))
+
+            if dist < min_dist:
+                min_dist = dist
+
+        sign = -1 if inside else 1
+
+        dists_and_coord.append((sign * min_dist, coord))
+
+    return dists_and_coord
+
+def find_distance_2_old(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
     cdef list dists_from_point
     cdef list temp
     cdef double min_dist
@@ -66,7 +98,7 @@ def find_distance_2(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
         min_dist = 1000
         coord = point[0:3]
         # num = point[3]  # num is the number of particles at node coord
-        inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
+        inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
 
         for mesh_point in mesh_coords:
             dist = norm(mesh_point, coord)
@@ -97,7 +129,7 @@ def _is_inside_old(np.ndarray point, np.ndarray mesh):
 
     return False
 
-def _is_inside(np.ndarray point, np.ndarray mesh) -> np.ndarray:
+def _is_inside(np.ndarray point, np.ndarray mesh) -> np.bool_:
     cdef np.ndarray inside
     cdef list slice_index
 

@@ -524,7 +524,7 @@ class Mesh:
         # res, d = find_distance_2(selection_coords, mesh_coordinates, interface)  # first method
 
         res = find_distance_2(selection_coords, mesh_coordinates, mesh)  # This and next line are second method
-        res, d = self._normalize_density_2(res, norm_bin_count=norm_bin_count)
+        res, d = self._normalize_density_2(res, bin_count=norm_bin_count)
 
         return res, d  # Return density and according distance
 

@@ -1253,7 +1253,7 @@ typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
  */
 typedef npy_cdouble __pyx_t_5numpy_complex_t;
 
-/* "src/grid_project/core/utils.pyx":137
+/* "src/grid_project/core/utils.pyx":169
  *     return yz_inside and xz_inside and xy_inside
  * 
  * def point_in_hull(np.ndarray point, hull):             # <<<<<<<<<<<<<<
@@ -1268,7 +1268,7 @@ struct __pyx_obj_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_h
 };
 
 
-/* "src/grid_project/core/utils.pyx":142
+/* "src/grid_project/core/utils.pyx":174
  * 
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)             # <<<<<<<<<<<<<<
@@ -1547,6 +1547,13 @@ static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key);
 #define __Pyx_PyObject_Dict_GetItem(obj, name)  PyObject_GetItem(obj, name)
 #endif
 
+/* ObjectGetItem.proto */
+#if CYTHON_USE_TYPE_SLOTS
+static CYTHON_INLINE PyObject *__Pyx_PyObject_GetItem(PyObject *obj, PyObject* key);
+#else
+#define __Pyx_PyObject_GetItem(obj, key)  PyObject_GetItem(obj, key)
+#endif
+
 /* ListAppend.proto */
 #if CYTHON_USE_PYLIST_INTERNALS && CYTHON_ASSUME_SAFE_MACROS
 static CYTHON_INLINE int __Pyx_PyList_Append(PyObject* list, PyObject* x) {
@@ -1575,13 +1582,6 @@ static CYTHON_INLINE int __Pyx_IterFinish(void);
 
 /* UnpackItemEndCheck.proto */
 static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected);
-
-/* ObjectGetItem.proto */
-#if CYTHON_USE_TYPE_SLOTS
-static CYTHON_INLINE PyObject *__Pyx_PyObject_GetItem(PyObject *obj, PyObject* key);
-#else
-#define __Pyx_PyObject_GetItem(obj, key)  PyObject_GetItem(obj, key)
-#endif
 
 /* SetItemInt.proto */
 #define __Pyx_SetItemInt(o, i, v, type, is_signed, to_py_func, is_list, wraparound, boundscheck)\
@@ -2019,6 +2019,7 @@ static const char __pyx_k_k[] = "k";
 static const char __pyx_k_x[] = "x";
 static const char __pyx_k_y[] = "y";
 static const char __pyx_k_z[] = "z";
+static const char __pyx_k_QJ[] = "QJ";
 static const char __pyx_k_np[] = "np";
 static const char __pyx_k_all[] = "all";
 static const char __pyx_k_col[] = "col";
@@ -2042,11 +2043,13 @@ static const char __pyx_k_dist[] = "dist";
 static const char __pyx_k_elem[] = "elem";
 static const char __pyx_k_hull[] = "hull";
 static const char __pyx_k_main[] = "__main__";
+static const char __pyx_k_mean[] = "mean";
 static const char __pyx_k_mesh[] = "mesh";
 static const char __pyx_k_name[] = "__name__";
 static const char __pyx_k_ndim[] = "ndim";
 static const char __pyx_k_norm[] = "norm";
 static const char __pyx_k_send[] = "send";
+static const char __pyx_k_sign[] = "sign";
 static const char __pyx_k_sqrt[] = "sqrt";
 static const char __pyx_k_temp[] = "temp";
 static const char __pyx_k_test[] = "__test__";
@@ -2064,6 +2067,7 @@ static const char __pyx_k_inside[] = "inside";
 static const char __pyx_k_origin[] = "origin";
 static const char __pyx_k_points[] = "points";
 static const char __pyx_k_genexpr[] = "genexpr";
+static const char __pyx_k_simplex[] = "simplex";
 static const char __pyx_k_xy_hull[] = "xy_hull";
 static const char __pyx_k_xy_proj[] = "xy_proj";
 static const char __pyx_k_xz_hull[] = "xz_hull";
@@ -2077,6 +2081,7 @@ static const char __pyx_k_z_inside[] = "z_inside";
 static const char __pyx_k_enumerate[] = "enumerate";
 static const char __pyx_k_equations[] = "equations";
 static const char __pyx_k_is_inside[] = "_is_inside";
+static const char __pyx_k_simplices[] = "simplices";
 static const char __pyx_k_tolerance[] = "tolerance";
 static const char __pyx_k_xy_inside[] = "xy_inside";
 static const char __pyx_k_xz_inside[] = "xz_inside";
@@ -2094,12 +2099,14 @@ static const char __pyx_k_keep_numbers[] = "keep_numbers";
 static const char __pyx_k_find_distance[] = "find_distance";
 static const char __pyx_k_is_inside_old[] = "_is_inside_old";
 static const char __pyx_k_point_in_hull[] = "point_in_hull";
+static const char __pyx_k_qhull_options[] = "qhull_options";
 static const char __pyx_k_scipy_spatial[] = "scipy.spatial";
 static const char __pyx_k_dists_and_coord[] = "dists_and_coord";
 static const char __pyx_k_find_distance_2[] = "find_distance_2";
 static const char __pyx_k_dists_from_point[] = "dists_from_point";
 static const char __pyx_k_make_coordinates[] = "make_coordinates";
 static const char __pyx_k_cline_in_traceback[] = "cline_in_traceback";
+static const char __pyx_k_find_distance_2_old[] = "find_distance_2_old";
 static const char __pyx_k_is_inside_not_right[] = "_is_inside_not_right";
 static const char __pyx_k_grid_project_core_utils_pyx[] = "grid_project\\core\\utils.pyx";
 static const char __pyx_k_is_inside_not_working_again[] = "_is_inside_not_working_again";
@@ -2109,6 +2116,7 @@ static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multia
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
 static PyObject *__pyx_n_s_ConvexHull;
 static PyObject *__pyx_n_s_ImportError;
+static PyObject *__pyx_n_s_QJ;
 static PyObject *__pyx_n_s_all;
 static PyObject *__pyx_n_s_args;
 static PyObject *__pyx_n_s_array;
@@ -2130,6 +2138,7 @@ static PyObject *__pyx_n_s_enumerate;
 static PyObject *__pyx_n_s_equations;
 static PyObject *__pyx_n_s_find_distance;
 static PyObject *__pyx_n_s_find_distance_2;
+static PyObject *__pyx_n_s_find_distance_2_old;
 static PyObject *__pyx_n_s_genexpr;
 static PyObject *__pyx_n_s_get;
 static PyObject *__pyx_kp_s_grid_project_core_utils_pyx;
@@ -2147,6 +2156,7 @@ static PyObject *__pyx_n_s_keep_numbers;
 static PyObject *__pyx_n_s_main;
 static PyObject *__pyx_n_s_make_coordinates;
 static PyObject *__pyx_n_s_mat;
+static PyObject *__pyx_n_s_mean;
 static PyObject *__pyx_n_s_mesh;
 static PyObject *__pyx_n_s_mesh_coords;
 static PyObject *__pyx_n_s_mesh_point;
@@ -2169,9 +2179,13 @@ static PyObject *__pyx_n_s_point;
 static PyObject *__pyx_n_s_point_in_hull;
 static PyObject *__pyx_n_s_point_in_hull_locals_genexpr;
 static PyObject *__pyx_n_s_points;
+static PyObject *__pyx_n_s_qhull_options;
 static PyObject *__pyx_n_s_range;
 static PyObject *__pyx_n_s_scipy_spatial;
 static PyObject *__pyx_n_s_send;
+static PyObject *__pyx_n_s_sign;
+static PyObject *__pyx_n_s_simplex;
+static PyObject *__pyx_n_s_simplices;
 static PyObject *__pyx_n_s_slice_index;
 static PyObject *__pyx_n_s_sqrt;
 static PyObject *__pyx_n_s_src_grid_project_core_utils;
@@ -2202,15 +2216,16 @@ static PyObject *__pyx_n_s_z_1;
 static PyObject *__pyx_n_s_z_2;
 static PyObject *__pyx_n_s_z_inside;
 static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_find_distance(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_points, PyArrayObject *__pyx_v_mesh_coords, PyArrayObject *__pyx_v_mesh); /* proto */
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_points, PyArrayObject *__pyx_v_mesh_coords, PyArrayObject *__pyx_v_mesh); /* proto */
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh); /* proto */
-static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh); /* proto */
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_working_again(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh); /* proto */
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_points, PyArrayObject *__pyx_v_mesh_coords); /* proto */
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4find_distance_2_old(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_points, PyArrayObject *__pyx_v_mesh_coords, CYTHON_UNUSED PyArrayObject *__pyx_v_mesh); /* proto */
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside_old(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh); /* proto */
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh); /* proto */
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10_is_inside_not_working_again(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh); /* proto */
 static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_13point_in_hull_genexpr(PyObject *__pyx_self); /* proto */
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10point_in_hull(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyObject *__pyx_v_hull); /* proto */
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_mesh, PyObject *__pyx_v_keep_numbers); /* proto */
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_right(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh); /* proto */
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_16norm(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_p_1, PyArrayObject *__pyx_v_p_2); /* proto */
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12point_in_hull(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyObject *__pyx_v_hull); /* proto */
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14make_coordinates(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_mesh, PyObject *__pyx_v_keep_numbers); /* proto */
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_16_is_inside_not_right(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh); /* proto */
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_18norm(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_p_1, PyArrayObject *__pyx_v_p_2); /* proto */
 static PyObject *__pyx_tp_new_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_hull(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static PyObject *__pyx_tp_new_3src_12grid_project_4core_5utils___pyx_scope_struct_1_genexpr(PyTypeObject *t, PyObject *a, PyObject *k); /*proto*/
 static __Pyx_CachedCFunction __pyx_umethod_PyDict_Type_get = {0, &__pyx_n_s_get, 0, 0, 0};
@@ -2235,6 +2250,7 @@ static PyObject *__pyx_tuple__18;
 static PyObject *__pyx_tuple__20;
 static PyObject *__pyx_tuple__22;
 static PyObject *__pyx_tuple__24;
+static PyObject *__pyx_tuple__26;
 static PyObject *__pyx_codeobj__9;
 static PyObject *__pyx_codeobj__11;
 static PyObject *__pyx_codeobj__13;
@@ -2244,6 +2260,7 @@ static PyObject *__pyx_codeobj__19;
 static PyObject *__pyx_codeobj__21;
 static PyObject *__pyx_codeobj__23;
 static PyObject *__pyx_codeobj__25;
+static PyObject *__pyx_codeobj__27;
 /* Late includes */
 
 /* "src/grid_project/core/utils.pyx":7
@@ -2854,8 +2871,8 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_find_distance(CYTHON_
  *         # dists += (temp * num)
  * 
  *     return node_count, dists_dict             # <<<<<<<<<<<<<<
- * 
- * def find_distance_2(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
+ * def find_distance_2(np.ndarray points, np.ndarray mesh_coords):
+ *     cdef list dists_and_coord
  */
   __Pyx_XDECREF(__pyx_r);
   __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 48, __pyx_L1_error)
@@ -2900,12 +2917,12 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_find_distance(CYTHON_
   return __pyx_r;
 }
 
-/* "src/grid_project/core/utils.pyx":50
- *     return node_count, dists_dict
+/* "src/grid_project/core/utils.pyx":49
  * 
- * def find_distance_2(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):             # <<<<<<<<<<<<<<
- *     cdef list dists_from_point
- *     cdef list temp
+ *     return node_count, dists_dict
+ * def find_distance_2(np.ndarray points, np.ndarray mesh_coords):             # <<<<<<<<<<<<<<
+ *     cdef list dists_and_coord
+ *     cdef double min_dist
  */
 
 /* Python wrapper */
@@ -2914,13 +2931,545 @@ static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_3find_distance_2 
 static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_3find_distance_2(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_points = 0;
   PyArrayObject *__pyx_v_mesh_coords = 0;
-  PyArrayObject *__pyx_v_mesh = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("find_distance_2 (wrapper)", 0);
+  {
+    static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_points,&__pyx_n_s_mesh_coords,0};
+    PyObject* values[2] = {0,0};
+    if (unlikely(__pyx_kwds)) {
+      Py_ssize_t kw_args;
+      const Py_ssize_t pos_args = PyTuple_GET_SIZE(__pyx_args);
+      switch (pos_args) {
+        case  2: values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+        CYTHON_FALLTHROUGH;
+        case  1: values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+        CYTHON_FALLTHROUGH;
+        case  0: break;
+        default: goto __pyx_L5_argtuple_error;
+      }
+      kw_args = PyDict_Size(__pyx_kwds);
+      switch (pos_args) {
+        case  0:
+        if (likely((values[0] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_points)) != 0)) kw_args--;
+        else goto __pyx_L5_argtuple_error;
+        CYTHON_FALLTHROUGH;
+        case  1:
+        if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mesh_coords)) != 0)) kw_args--;
+        else {
+          __Pyx_RaiseArgtupleInvalid("find_distance_2", 1, 2, 2, 1); __PYX_ERR(0, 49, __pyx_L3_error)
+        }
+      }
+      if (unlikely(kw_args > 0)) {
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "find_distance_2") < 0)) __PYX_ERR(0, 49, __pyx_L3_error)
+      }
+    } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
+      goto __pyx_L5_argtuple_error;
+    } else {
+      values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
+      values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
+    }
+    __pyx_v_points = ((PyArrayObject *)values[0]);
+    __pyx_v_mesh_coords = ((PyArrayObject *)values[1]);
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("find_distance_2", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 49, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("src.grid_project.core.utils.find_distance_2", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_points), __pyx_ptype_5numpy_ndarray, 1, "points", 0))) __PYX_ERR(0, 49, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh_coords), __pyx_ptype_5numpy_ndarray, 1, "mesh_coords", 0))) __PYX_ERR(0, 49, __pyx_L1_error)
+  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(__pyx_self, __pyx_v_points, __pyx_v_mesh_coords);
+
+  /* function exit code */
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_points, PyArrayObject *__pyx_v_mesh_coords) {
+  PyObject *__pyx_v_dists_and_coord = 0;
+  double __pyx_v_min_dist;
+  PyArrayObject *__pyx_v_coord = 0;
+  int __pyx_v_inside;
+  int __pyx_v_sign;
+  double __pyx_v_dist;
+  PyObject *__pyx_v_hull = NULL;
+  CYTHON_UNUSED int __pyx_v_i;
+  PyArrayObject *__pyx_v_point = 0;
+  PyArrayObject *__pyx_v_simplex = 0;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  int __pyx_t_5;
+  Py_ssize_t __pyx_t_6;
+  PyObject *(*__pyx_t_7)(PyObject *);
+  int __pyx_t_8;
+  PyObject *__pyx_t_9 = NULL;
+  int __pyx_t_10;
+  Py_ssize_t __pyx_t_11;
+  PyObject *(*__pyx_t_12)(PyObject *);
+  PyObject *__pyx_t_13 = NULL;
+  PyObject *__pyx_t_14 = NULL;
+  double __pyx_t_15;
+  int __pyx_t_16;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("find_distance_2", 0);
+
+  /* "src/grid_project/core/utils.pyx":57
+ *     cdef int sign
+ *     cdef double dist
+ *     dists_and_coord = []  # Will contain distance of the point from the interface and from the origin             # <<<<<<<<<<<<<<
+ *     hull = ConvexHull(mesh_coords, qhull_options='QJ')
+ * 
+ */
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 57, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_dists_and_coord = ((PyObject*)__pyx_t_1);
+  __pyx_t_1 = 0;
+
+  /* "src/grid_project/core/utils.pyx":58
+ *     cdef double dist
+ *     dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
+ *     hull = ConvexHull(mesh_coords, qhull_options='QJ')             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int i
+ */
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_t_2 = PyTuple_New(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_INCREF(((PyObject *)__pyx_v_mesh_coords));
+  __Pyx_GIVEREF(((PyObject *)__pyx_v_mesh_coords));
+  PyTuple_SET_ITEM(__pyx_t_2, 0, ((PyObject *)__pyx_v_mesh_coords));
+  __pyx_t_3 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (PyDict_SetItem(__pyx_t_3, __pyx_n_s_qhull_options, __pyx_n_s_QJ) < 0) __PYX_ERR(0, 58, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_2, __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_4);
+  __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __pyx_v_hull = __pyx_t_4;
+  __pyx_t_4 = 0;
+
+  /* "src/grid_project/core/utils.pyx":64
+ *     cdef np.ndarray simplex
+ * 
+ *     for i, point in enumerate(points):             # <<<<<<<<<<<<<<
+ *         min_dist = 1000
+ *         coord = point[0:3]
+ */
+  __pyx_t_5 = 0;
+  if (likely(PyList_CheckExact(((PyObject *)__pyx_v_points))) || PyTuple_CheckExact(((PyObject *)__pyx_v_points))) {
+    __pyx_t_4 = ((PyObject *)__pyx_v_points); __Pyx_INCREF(__pyx_t_4); __pyx_t_6 = 0;
+    __pyx_t_7 = NULL;
+  } else {
+    __pyx_t_6 = -1; __pyx_t_4 = PyObject_GetIter(((PyObject *)__pyx_v_points)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 64, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_7 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 64, __pyx_L1_error)
+  }
+  for (;;) {
+    if (likely(!__pyx_t_7)) {
+      if (likely(PyList_CheckExact(__pyx_t_4))) {
+        if (__pyx_t_6 >= PyList_GET_SIZE(__pyx_t_4)) break;
+        #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+        __pyx_t_3 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_3); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 64, __pyx_L1_error)
+        #else
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 64, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        #endif
+      } else {
+        if (__pyx_t_6 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
+        #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+        __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_6); __Pyx_INCREF(__pyx_t_3); __pyx_t_6++; if (unlikely(0 < 0)) __PYX_ERR(0, 64, __pyx_L1_error)
+        #else
+        __pyx_t_3 = PySequence_ITEM(__pyx_t_4, __pyx_t_6); __pyx_t_6++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 64, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        #endif
+      }
+    } else {
+      __pyx_t_3 = __pyx_t_7(__pyx_t_4);
+      if (unlikely(!__pyx_t_3)) {
+        PyObject* exc_type = PyErr_Occurred();
+        if (exc_type) {
+          if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
+          else __PYX_ERR(0, 64, __pyx_L1_error)
+        }
+        break;
+      }
+      __Pyx_GOTREF(__pyx_t_3);
+    }
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 64, __pyx_L1_error)
+    __Pyx_XDECREF_SET(__pyx_v_point, ((PyArrayObject *)__pyx_t_3));
+    __pyx_t_3 = 0;
+    __pyx_v_i = __pyx_t_5;
+    __pyx_t_5 = (__pyx_t_5 + 1);
+
+    /* "src/grid_project/core/utils.pyx":65
+ * 
+ *     for i, point in enumerate(points):
+ *         min_dist = 1000             # <<<<<<<<<<<<<<
+ *         coord = point[0:3]
+ *         # num = point[3]  # num is the number of particles at node coord
+ */
+    __pyx_v_min_dist = 1000.0;
+
+    /* "src/grid_project/core/utils.pyx":66
+ *     for i, point in enumerate(points):
+ *         min_dist = 1000
+ *         coord = point[0:3]             # <<<<<<<<<<<<<<
+ *         # num = point[3]  # num is the number of particles at node coord
+ *         inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
+ */
+    __pyx_t_3 = __Pyx_PyObject_GetSlice(((PyObject *)__pyx_v_point), 0, 3, NULL, NULL, &__pyx_slice_, 1, 1, 1); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 66, __pyx_L1_error)
+    __Pyx_XDECREF_SET(__pyx_v_coord, ((PyArrayObject *)__pyx_t_3));
+    __pyx_t_3 = 0;
+
+    /* "src/grid_project/core/utils.pyx":68
+ *         coord = point[0:3]
+ *         # num = point[3]  # num is the number of particles at node coord
+ *         inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh             # <<<<<<<<<<<<<<
+ * 
+ *         for simplex in hull.simplices:
+ */
+    __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_is_inside); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 68, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_1 = NULL;
+    __pyx_t_8 = 0;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
+      __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_2);
+      if (likely(__pyx_t_1)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_2);
+        __Pyx_INCREF(__pyx_t_1);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_2, function);
+        __pyx_t_8 = 1;
+      }
+    }
+    #if CYTHON_FAST_PYCALL
+    if (PyFunction_Check(__pyx_t_2)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_1, ((PyObject *)__pyx_v_coord), ((PyObject *)__pyx_v_mesh_coords)};
+      __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_GOTREF(__pyx_t_3);
+    } else
+    #endif
+    #if CYTHON_FAST_PYCCALL
+    if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
+      PyObject *__pyx_temp[3] = {__pyx_t_1, ((PyObject *)__pyx_v_coord), ((PyObject *)__pyx_v_mesh_coords)};
+      __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
+      __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __Pyx_GOTREF(__pyx_t_3);
+    } else
+    #endif
+    {
+      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 68, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      if (__pyx_t_1) {
+        __Pyx_GIVEREF(__pyx_t_1); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_1); __pyx_t_1 = NULL;
+      }
+      __Pyx_INCREF(((PyObject *)__pyx_v_coord));
+      __Pyx_GIVEREF(((PyObject *)__pyx_v_coord));
+      PyTuple_SET_ITEM(__pyx_t_9, 0+__pyx_t_8, ((PyObject *)__pyx_v_coord));
+      __Pyx_INCREF(((PyObject *)__pyx_v_mesh_coords));
+      __Pyx_GIVEREF(((PyObject *)__pyx_v_mesh_coords));
+      PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, ((PyObject *)__pyx_v_mesh_coords));
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_9, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 68, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+    }
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 68, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_v_inside = __pyx_t_10;
+
+    /* "src/grid_project/core/utils.pyx":70
+ *         inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
+ * 
+ *         for simplex in hull.simplices:             # <<<<<<<<<<<<<<
+ *             dist = norm(coord, mesh_coords[simplex].mean(axis=0))
+ * 
+ */
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_v_hull, __pyx_n_s_simplices); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    if (likely(PyList_CheckExact(__pyx_t_3)) || PyTuple_CheckExact(__pyx_t_3)) {
+      __pyx_t_2 = __pyx_t_3; __Pyx_INCREF(__pyx_t_2); __pyx_t_11 = 0;
+      __pyx_t_12 = NULL;
+    } else {
+      __pyx_t_11 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 70, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_12 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 70, __pyx_L1_error)
+    }
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    for (;;) {
+      if (likely(!__pyx_t_12)) {
+        if (likely(PyList_CheckExact(__pyx_t_2))) {
+          if (__pyx_t_11 >= PyList_GET_SIZE(__pyx_t_2)) break;
+          #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+          __pyx_t_3 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_11); __Pyx_INCREF(__pyx_t_3); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 70, __pyx_L1_error)
+          #else
+          __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_3);
+          #endif
+        } else {
+          if (__pyx_t_11 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
+          #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+          __pyx_t_3 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_11); __Pyx_INCREF(__pyx_t_3); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 70, __pyx_L1_error)
+          #else
+          __pyx_t_3 = PySequence_ITEM(__pyx_t_2, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 70, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_3);
+          #endif
+        }
+      } else {
+        __pyx_t_3 = __pyx_t_12(__pyx_t_2);
+        if (unlikely(!__pyx_t_3)) {
+          PyObject* exc_type = PyErr_Occurred();
+          if (exc_type) {
+            if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
+            else __PYX_ERR(0, 70, __pyx_L1_error)
+          }
+          break;
+        }
+        __Pyx_GOTREF(__pyx_t_3);
+      }
+      if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 70, __pyx_L1_error)
+      __Pyx_XDECREF_SET(__pyx_v_simplex, ((PyArrayObject *)__pyx_t_3));
+      __pyx_t_3 = 0;
+
+      /* "src/grid_project/core/utils.pyx":71
+ * 
+ *         for simplex in hull.simplices:
+ *             dist = norm(coord, mesh_coords[simplex].mean(axis=0))             # <<<<<<<<<<<<<<
+ * 
+ *             if dist < min_dist:
+ */
+      __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_norm); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __pyx_t_1 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_mesh_coords), ((PyObject *)__pyx_v_simplex)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      __pyx_t_13 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_mean); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_13);
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_1 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_1);
+      if (PyDict_SetItem(__pyx_t_1, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 71, __pyx_L1_error)
+      __pyx_t_14 = __Pyx_PyObject_Call(__pyx_t_13, __pyx_empty_tuple, __pyx_t_1); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_14);
+      __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
+      __pyx_t_1 = NULL;
+      __pyx_t_8 = 0;
+      if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_9))) {
+        __pyx_t_1 = PyMethod_GET_SELF(__pyx_t_9);
+        if (likely(__pyx_t_1)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_9);
+          __Pyx_INCREF(__pyx_t_1);
+          __Pyx_INCREF(function);
+          __Pyx_DECREF_SET(__pyx_t_9, function);
+          __pyx_t_8 = 1;
+        }
+      }
+      #if CYTHON_FAST_PYCALL
+      if (PyFunction_Check(__pyx_t_9)) {
+        PyObject *__pyx_temp[3] = {__pyx_t_1, ((PyObject *)__pyx_v_coord), __pyx_t_14};
+        __pyx_t_3 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_GOTREF(__pyx_t_3);
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+      } else
+      #endif
+      #if CYTHON_FAST_PYCCALL
+      if (__Pyx_PyFastCFunction_Check(__pyx_t_9)) {
+        PyObject *__pyx_temp[3] = {__pyx_t_1, ((PyObject *)__pyx_v_coord), __pyx_t_14};
+        __pyx_t_3 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+        __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
+        __Pyx_GOTREF(__pyx_t_3);
+        __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
+      } else
+      #endif
+      {
+        __pyx_t_13 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 71, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_13);
+        if (__pyx_t_1) {
+          __Pyx_GIVEREF(__pyx_t_1); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_1); __pyx_t_1 = NULL;
+        }
+        __Pyx_INCREF(((PyObject *)__pyx_v_coord));
+        __Pyx_GIVEREF(((PyObject *)__pyx_v_coord));
+        PyTuple_SET_ITEM(__pyx_t_13, 0+__pyx_t_8, ((PyObject *)__pyx_v_coord));
+        __Pyx_GIVEREF(__pyx_t_14);
+        PyTuple_SET_ITEM(__pyx_t_13, 1+__pyx_t_8, __pyx_t_14);
+        __pyx_t_14 = 0;
+        __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_13, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 71, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_3);
+        __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
+      }
+      __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      __pyx_t_15 = __pyx_PyFloat_AsDouble(__pyx_t_3); if (unlikely((__pyx_t_15 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 71, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_v_dist = __pyx_t_15;
+
+      /* "src/grid_project/core/utils.pyx":73
+ *             dist = norm(coord, mesh_coords[simplex].mean(axis=0))
+ * 
+ *             if dist < min_dist:             # <<<<<<<<<<<<<<
+ *                 min_dist = dist
+ * 
+ */
+      __pyx_t_10 = ((__pyx_v_dist < __pyx_v_min_dist) != 0);
+      if (__pyx_t_10) {
+
+        /* "src/grid_project/core/utils.pyx":74
+ * 
+ *             if dist < min_dist:
+ *                 min_dist = dist             # <<<<<<<<<<<<<<
+ * 
+ *         sign = -1 if inside else 1
+ */
+        __pyx_v_min_dist = __pyx_v_dist;
+
+        /* "src/grid_project/core/utils.pyx":73
+ *             dist = norm(coord, mesh_coords[simplex].mean(axis=0))
+ * 
+ *             if dist < min_dist:             # <<<<<<<<<<<<<<
+ *                 min_dist = dist
+ * 
+ */
+      }
+
+      /* "src/grid_project/core/utils.pyx":70
+ *         inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
+ * 
+ *         for simplex in hull.simplices:             # <<<<<<<<<<<<<<
+ *             dist = norm(coord, mesh_coords[simplex].mean(axis=0))
+ * 
+ */
+    }
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+    /* "src/grid_project/core/utils.pyx":76
+ *                 min_dist = dist
+ * 
+ *         sign = -1 if inside else 1             # <<<<<<<<<<<<<<
+ * 
+ *         dists_and_coord.append((sign * min_dist, coord))
+ */
+    if ((__pyx_v_inside != 0)) {
+      __pyx_t_8 = -1;
+    } else {
+      __pyx_t_8 = 1;
+    }
+    __pyx_v_sign = __pyx_t_8;
+
+    /* "src/grid_project/core/utils.pyx":78
+ *         sign = -1 if inside else 1
+ * 
+ *         dists_and_coord.append((sign * min_dist, coord))             # <<<<<<<<<<<<<<
+ * 
+ *     return dists_and_coord
+ */
+    __pyx_t_2 = PyFloat_FromDouble((__pyx_v_sign * __pyx_v_min_dist)); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 78, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 78, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_GIVEREF(__pyx_t_2);
+    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_2);
+    __Pyx_INCREF(((PyObject *)__pyx_v_coord));
+    __Pyx_GIVEREF(((PyObject *)__pyx_v_coord));
+    PyTuple_SET_ITEM(__pyx_t_3, 1, ((PyObject *)__pyx_v_coord));
+    __pyx_t_2 = 0;
+    __pyx_t_16 = __Pyx_PyList_Append(__pyx_v_dists_and_coord, __pyx_t_3); if (unlikely(__pyx_t_16 == ((int)-1))) __PYX_ERR(0, 78, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+    /* "src/grid_project/core/utils.pyx":64
+ *     cdef np.ndarray simplex
+ * 
+ *     for i, point in enumerate(points):             # <<<<<<<<<<<<<<
+ *         min_dist = 1000
+ *         coord = point[0:3]
+ */
+  }
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+
+  /* "src/grid_project/core/utils.pyx":80
+ *         dists_and_coord.append((sign * min_dist, coord))
+ * 
+ *     return dists_and_coord             # <<<<<<<<<<<<<<
+ * 
+ * def find_distance_2_old(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __Pyx_INCREF(__pyx_v_dists_and_coord);
+  __pyx_r = __pyx_v_dists_and_coord;
+  goto __pyx_L0;
+
+  /* "src/grid_project/core/utils.pyx":49
+ * 
+ *     return node_count, dists_dict
+ * def find_distance_2(np.ndarray points, np.ndarray mesh_coords):             # <<<<<<<<<<<<<<
+ *     cdef list dists_and_coord
+ *     cdef double min_dist
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_9);
+  __Pyx_XDECREF(__pyx_t_13);
+  __Pyx_XDECREF(__pyx_t_14);
+  __Pyx_AddTraceback("src.grid_project.core.utils.find_distance_2", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_dists_and_coord);
+  __Pyx_XDECREF((PyObject *)__pyx_v_coord);
+  __Pyx_XDECREF(__pyx_v_hull);
+  __Pyx_XDECREF((PyObject *)__pyx_v_point);
+  __Pyx_XDECREF((PyObject *)__pyx_v_simplex);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "src/grid_project/core/utils.pyx":82
+ *     return dists_and_coord
+ * 
+ * def find_distance_2_old(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):             # <<<<<<<<<<<<<<
+ *     cdef list dists_from_point
+ *     cdef list temp
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_5find_distance_2_old(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_5find_distance_2_old = {"find_distance_2_old", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_5find_distance_2_old, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_5find_distance_2_old(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  PyArrayObject *__pyx_v_points = 0;
+  PyArrayObject *__pyx_v_mesh_coords = 0;
+  CYTHON_UNUSED PyArrayObject *__pyx_v_mesh = 0;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("find_distance_2_old (wrapper)", 0);
   {
     static PyObject **__pyx_pyargnames[] = {&__pyx_n_s_points,&__pyx_n_s_mesh_coords,&__pyx_n_s_mesh,0};
     PyObject* values[3] = {0,0,0};
@@ -2946,17 +3495,17 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_3find_distance_2(PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mesh_coords)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("find_distance_2", 1, 3, 3, 1); __PYX_ERR(0, 50, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("find_distance_2_old", 1, 3, 3, 1); __PYX_ERR(0, 82, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
         if (likely((values[2] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mesh)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("find_distance_2", 1, 3, 3, 2); __PYX_ERR(0, 50, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("find_distance_2_old", 1, 3, 3, 2); __PYX_ERR(0, 82, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "find_distance_2") < 0)) __PYX_ERR(0, 50, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "find_distance_2_old") < 0)) __PYX_ERR(0, 82, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 3) {
       goto __pyx_L5_argtuple_error;
@@ -2971,16 +3520,16 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_3find_distance_2(PyOb
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("find_distance_2", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 50, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("find_distance_2_old", 1, 3, 3, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 82, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("src.grid_project.core.utils.find_distance_2", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("src.grid_project.core.utils.find_distance_2_old", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_points), __pyx_ptype_5numpy_ndarray, 1, "points", 0))) __PYX_ERR(0, 50, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh_coords), __pyx_ptype_5numpy_ndarray, 1, "mesh_coords", 0))) __PYX_ERR(0, 50, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 50, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(__pyx_self, __pyx_v_points, __pyx_v_mesh_coords, __pyx_v_mesh);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_points), __pyx_ptype_5numpy_ndarray, 1, "points", 0))) __PYX_ERR(0, 82, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh_coords), __pyx_ptype_5numpy_ndarray, 1, "mesh_coords", 0))) __PYX_ERR(0, 82, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 82, __pyx_L1_error)
+  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_4find_distance_2_old(__pyx_self, __pyx_v_points, __pyx_v_mesh_coords, __pyx_v_mesh);
 
   /* function exit code */
   goto __pyx_L0;
@@ -2991,7 +3540,7 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_3find_distance_2(PyOb
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_points, PyArrayObject *__pyx_v_mesh_coords, PyArrayObject *__pyx_v_mesh) {
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4find_distance_2_old(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_points, PyArrayObject *__pyx_v_mesh_coords, CYTHON_UNUSED PyArrayObject *__pyx_v_mesh) {
   double __pyx_v_min_dist;
   PyArrayObject *__pyx_v_coord = 0;
   int __pyx_v_inside;
@@ -3020,21 +3569,21 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  __Pyx_RefNannySetupContext("find_distance_2", 0);
+  __Pyx_RefNannySetupContext("find_distance_2_old", 0);
 
-  /* "src/grid_project/core/utils.pyx":60
+  /* "src/grid_project/core/utils.pyx":92
  *     cdef double origin_dist
  *     cdef np.ndarray origin
  *     dists_and_coord = []  # Will contain distance of the point from the interface and from the origin             # <<<<<<<<<<<<<<
  *     cdef int i
  *     cdef np.ndarray point
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 60, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 92, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_dists_and_coord = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":65
+  /* "src/grid_project/core/utils.pyx":97
  *     cdef np.ndarray mesh_point
  * 
  *     for i, point in enumerate(points):             # <<<<<<<<<<<<<<
@@ -3046,26 +3595,26 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
     __pyx_t_1 = ((PyObject *)__pyx_v_points); __Pyx_INCREF(__pyx_t_1); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_1 = PyObject_GetIter(((PyObject *)__pyx_v_points)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 65, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_1 = PyObject_GetIter(((PyObject *)__pyx_v_points)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 97, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_4 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 65, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_1)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 97, __pyx_L1_error)
   }
   for (;;) {
     if (likely(!__pyx_t_4)) {
       if (likely(PyList_CheckExact(__pyx_t_1))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 65, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 97, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 65, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 97, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_1)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 65, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_1, __pyx_t_3); __Pyx_INCREF(__pyx_t_5); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 97, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 65, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_1, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 97, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -3075,19 +3624,19 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 65, __pyx_L1_error)
+          else __PYX_ERR(0, 97, __pyx_L1_error)
         }
         break;
       }
       __Pyx_GOTREF(__pyx_t_5);
     }
-    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 65, __pyx_L1_error)
+    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 97, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_point, ((PyArrayObject *)__pyx_t_5));
     __pyx_t_5 = 0;
     __pyx_v_i = __pyx_t_2;
     __pyx_t_2 = (__pyx_t_2 + 1);
 
-    /* "src/grid_project/core/utils.pyx":66
+    /* "src/grid_project/core/utils.pyx":98
  * 
  *     for i, point in enumerate(points):
  *         min_dist = 1000             # <<<<<<<<<<<<<<
@@ -3096,27 +3645,27 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
  */
     __pyx_v_min_dist = 1000.0;
 
-    /* "src/grid_project/core/utils.pyx":67
+    /* "src/grid_project/core/utils.pyx":99
  *     for i, point in enumerate(points):
  *         min_dist = 1000
  *         coord = point[0:3]             # <<<<<<<<<<<<<<
  *         # num = point[3]  # num is the number of particles at node coord
- *         inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
+ *         inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
  */
-    __pyx_t_5 = __Pyx_PyObject_GetSlice(((PyObject *)__pyx_v_point), 0, 3, NULL, NULL, &__pyx_slice_, 1, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 67, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetSlice(((PyObject *)__pyx_v_point), 0, 3, NULL, NULL, &__pyx_slice_, 1, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 67, __pyx_L1_error)
+    if (!(likely(((__pyx_t_5) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_5, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 99, __pyx_L1_error)
     __Pyx_XDECREF_SET(__pyx_v_coord, ((PyArrayObject *)__pyx_t_5));
     __pyx_t_5 = 0;
 
-    /* "src/grid_project/core/utils.pyx":69
+    /* "src/grid_project/core/utils.pyx":101
  *         coord = point[0:3]
  *         # num = point[3]  # num is the number of particles at node coord
- *         inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh             # <<<<<<<<<<<<<<
+ *         inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh             # <<<<<<<<<<<<<<
  * 
  *         for mesh_point in mesh_coords:
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_is_inside); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 69, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_6, __pyx_n_s_is_inside); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __pyx_t_7 = NULL;
     __pyx_t_8 = 0;
@@ -3132,22 +3681,22 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
     }
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_6)) {
-      PyObject *__pyx_temp[3] = {__pyx_t_7, ((PyObject *)__pyx_v_coord), ((PyObject *)__pyx_v_mesh)};
-      __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 69, __pyx_L1_error)
+      PyObject *__pyx_temp[3] = {__pyx_t_7, ((PyObject *)__pyx_v_coord), ((PyObject *)__pyx_v_mesh_coords)};
+      __pyx_t_5 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_5);
     } else
     #endif
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
-      PyObject *__pyx_temp[3] = {__pyx_t_7, ((PyObject *)__pyx_v_coord), ((PyObject *)__pyx_v_mesh)};
-      __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 69, __pyx_L1_error)
+      PyObject *__pyx_temp[3] = {__pyx_t_7, ((PyObject *)__pyx_v_coord), ((PyObject *)__pyx_v_mesh_coords)};
+      __pyx_t_5 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_5);
     } else
     #endif
     {
-      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 69, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 101, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       if (__pyx_t_7) {
         __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -3155,20 +3704,20 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
       __Pyx_INCREF(((PyObject *)__pyx_v_coord));
       __Pyx_GIVEREF(((PyObject *)__pyx_v_coord));
       PyTuple_SET_ITEM(__pyx_t_9, 0+__pyx_t_8, ((PyObject *)__pyx_v_coord));
-      __Pyx_INCREF(((PyObject *)__pyx_v_mesh));
-      __Pyx_GIVEREF(((PyObject *)__pyx_v_mesh));
-      PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, ((PyObject *)__pyx_v_mesh));
-      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 69, __pyx_L1_error)
+      __Pyx_INCREF(((PyObject *)__pyx_v_mesh_coords));
+      __Pyx_GIVEREF(((PyObject *)__pyx_v_mesh_coords));
+      PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, ((PyObject *)__pyx_v_mesh_coords));
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 101, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 69, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_5); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 101, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __pyx_v_inside = __pyx_t_10;
 
-    /* "src/grid_project/core/utils.pyx":71
- *         inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
+    /* "src/grid_project/core/utils.pyx":103
+ *         inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
  * 
  *         for mesh_point in mesh_coords:             # <<<<<<<<<<<<<<
  *             dist = norm(mesh_point, coord)
@@ -3178,26 +3727,26 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
       __pyx_t_5 = ((PyObject *)__pyx_v_mesh_coords); __Pyx_INCREF(__pyx_t_5); __pyx_t_11 = 0;
       __pyx_t_12 = NULL;
     } else {
-      __pyx_t_11 = -1; __pyx_t_5 = PyObject_GetIter(((PyObject *)__pyx_v_mesh_coords)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __pyx_t_11 = -1; __pyx_t_5 = PyObject_GetIter(((PyObject *)__pyx_v_mesh_coords)); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 103, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
-      __pyx_t_12 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 71, __pyx_L1_error)
+      __pyx_t_12 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 103, __pyx_L1_error)
     }
     for (;;) {
       if (likely(!__pyx_t_12)) {
         if (likely(PyList_CheckExact(__pyx_t_5))) {
           if (__pyx_t_11 >= PyList_GET_SIZE(__pyx_t_5)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_6 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_11); __Pyx_INCREF(__pyx_t_6); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 71, __pyx_L1_error)
+          __pyx_t_6 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_11); __Pyx_INCREF(__pyx_t_6); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 103, __pyx_L1_error)
           #else
-          __pyx_t_6 = PySequence_ITEM(__pyx_t_5, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 71, __pyx_L1_error)
+          __pyx_t_6 = PySequence_ITEM(__pyx_t_5, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 103, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_6);
           #endif
         } else {
           if (__pyx_t_11 >= PyTuple_GET_SIZE(__pyx_t_5)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_6 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_11); __Pyx_INCREF(__pyx_t_6); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 71, __pyx_L1_error)
+          __pyx_t_6 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_11); __Pyx_INCREF(__pyx_t_6); __pyx_t_11++; if (unlikely(0 < 0)) __PYX_ERR(0, 103, __pyx_L1_error)
           #else
-          __pyx_t_6 = PySequence_ITEM(__pyx_t_5, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 71, __pyx_L1_error)
+          __pyx_t_6 = PySequence_ITEM(__pyx_t_5, __pyx_t_11); __pyx_t_11++; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 103, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_6);
           #endif
         }
@@ -3207,24 +3756,24 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 71, __pyx_L1_error)
+            else __PYX_ERR(0, 103, __pyx_L1_error)
           }
           break;
         }
         __Pyx_GOTREF(__pyx_t_6);
       }
-      if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 71, __pyx_L1_error)
+      if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 103, __pyx_L1_error)
       __Pyx_XDECREF_SET(__pyx_v_mesh_point, ((PyArrayObject *)__pyx_t_6));
       __pyx_t_6 = 0;
 
-      /* "src/grid_project/core/utils.pyx":72
+      /* "src/grid_project/core/utils.pyx":104
  * 
  *         for mesh_point in mesh_coords:
  *             dist = norm(mesh_point, coord)             # <<<<<<<<<<<<<<
  * 
  *             if dist < min_dist:
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_norm); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 72, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_norm); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 104, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       __pyx_t_7 = NULL;
       __pyx_t_8 = 0;
@@ -3241,7 +3790,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_9)) {
         PyObject *__pyx_temp[3] = {__pyx_t_7, ((PyObject *)__pyx_v_mesh_point), ((PyObject *)__pyx_v_coord)};
-        __pyx_t_6 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 72, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 104, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
         __Pyx_GOTREF(__pyx_t_6);
       } else
@@ -3249,13 +3798,13 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_9)) {
         PyObject *__pyx_temp[3] = {__pyx_t_7, ((PyObject *)__pyx_v_mesh_point), ((PyObject *)__pyx_v_coord)};
-        __pyx_t_6 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 72, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 104, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
         __Pyx_GOTREF(__pyx_t_6);
       } else
       #endif
       {
-        __pyx_t_13 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 72, __pyx_L1_error)
+        __pyx_t_13 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 104, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_13);
         if (__pyx_t_7) {
           __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -3266,16 +3815,16 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
         __Pyx_INCREF(((PyObject *)__pyx_v_coord));
         __Pyx_GIVEREF(((PyObject *)__pyx_v_coord));
         PyTuple_SET_ITEM(__pyx_t_13, 1+__pyx_t_8, ((PyObject *)__pyx_v_coord));
-        __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_13, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 72, __pyx_L1_error)
+        __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_13, NULL); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 104, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_6);
         __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
       }
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-      __pyx_t_14 = __pyx_PyFloat_AsDouble(__pyx_t_6); if (unlikely((__pyx_t_14 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 72, __pyx_L1_error)
+      __pyx_t_14 = __pyx_PyFloat_AsDouble(__pyx_t_6); if (unlikely((__pyx_t_14 == (double)-1) && PyErr_Occurred())) __PYX_ERR(0, 104, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
       __pyx_v_dist = __pyx_t_14;
 
-      /* "src/grid_project/core/utils.pyx":74
+      /* "src/grid_project/core/utils.pyx":106
  *             dist = norm(mesh_point, coord)
  * 
  *             if dist < min_dist:             # <<<<<<<<<<<<<<
@@ -3285,7 +3834,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
       __pyx_t_10 = ((__pyx_v_dist < __pyx_v_min_dist) != 0);
       if (__pyx_t_10) {
 
-        /* "src/grid_project/core/utils.pyx":75
+        /* "src/grid_project/core/utils.pyx":107
  * 
  *             if dist < min_dist:
  *                 min_dist = dist             # <<<<<<<<<<<<<<
@@ -3294,7 +3843,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
  */
         __pyx_v_min_dist = __pyx_v_dist;
 
-        /* "src/grid_project/core/utils.pyx":74
+        /* "src/grid_project/core/utils.pyx":106
  *             dist = norm(mesh_point, coord)
  * 
  *             if dist < min_dist:             # <<<<<<<<<<<<<<
@@ -3303,8 +3852,8 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
  */
       }
 
-      /* "src/grid_project/core/utils.pyx":71
- *         inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
+      /* "src/grid_project/core/utils.pyx":103
+ *         inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
  * 
  *         for mesh_point in mesh_coords:             # <<<<<<<<<<<<<<
  *             dist = norm(mesh_point, coord)
@@ -3313,7 +3862,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
     }
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
 
-    /* "src/grid_project/core/utils.pyx":77
+    /* "src/grid_project/core/utils.pyx":109
  *                 min_dist = dist
  * 
  *         if inside:             # <<<<<<<<<<<<<<
@@ -3323,7 +3872,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
     __pyx_t_10 = (__pyx_v_inside != 0);
     if (__pyx_t_10) {
 
-      /* "src/grid_project/core/utils.pyx":78
+      /* "src/grid_project/core/utils.pyx":110
  * 
  *         if inside:
  *             min_dist *= -1             # <<<<<<<<<<<<<<
@@ -3332,7 +3881,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
  */
       __pyx_v_min_dist = (__pyx_v_min_dist * -1.0);
 
-      /* "src/grid_project/core/utils.pyx":77
+      /* "src/grid_project/core/utils.pyx":109
  *                 min_dist = dist
  * 
  *         if inside:             # <<<<<<<<<<<<<<
@@ -3341,16 +3890,16 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
  */
     }
 
-    /* "src/grid_project/core/utils.pyx":80
+    /* "src/grid_project/core/utils.pyx":112
  *             min_dist *= -1
  * 
  *         dists_and_coord.append((min_dist, coord))             # <<<<<<<<<<<<<<
  * 
  *     return dists_and_coord
  */
-    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_min_dist); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 80, __pyx_L1_error)
+    __pyx_t_5 = PyFloat_FromDouble(__pyx_v_min_dist); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 112, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 80, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 112, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_5);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_5);
@@ -3358,10 +3907,10 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
     __Pyx_GIVEREF(((PyObject *)__pyx_v_coord));
     PyTuple_SET_ITEM(__pyx_t_6, 1, ((PyObject *)__pyx_v_coord));
     __pyx_t_5 = 0;
-    __pyx_t_15 = __Pyx_PyList_Append(__pyx_v_dists_and_coord, __pyx_t_6); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 80, __pyx_L1_error)
+    __pyx_t_15 = __Pyx_PyList_Append(__pyx_v_dists_and_coord, __pyx_t_6); if (unlikely(__pyx_t_15 == ((int)-1))) __PYX_ERR(0, 112, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
 
-    /* "src/grid_project/core/utils.pyx":65
+    /* "src/grid_project/core/utils.pyx":97
  *     cdef np.ndarray mesh_point
  * 
  *     for i, point in enumerate(points):             # <<<<<<<<<<<<<<
@@ -3371,7 +3920,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":82
+  /* "src/grid_project/core/utils.pyx":114
  *         dists_and_coord.append((min_dist, coord))
  * 
  *     return dists_and_coord             # <<<<<<<<<<<<<<
@@ -3383,10 +3932,10 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
   __pyx_r = __pyx_v_dists_and_coord;
   goto __pyx_L0;
 
-  /* "src/grid_project/core/utils.pyx":50
- *     return node_count, dists_dict
+  /* "src/grid_project/core/utils.pyx":82
+ *     return dists_and_coord
  * 
- * def find_distance_2(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):             # <<<<<<<<<<<<<<
+ * def find_distance_2_old(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):             # <<<<<<<<<<<<<<
  *     cdef list dists_from_point
  *     cdef list temp
  */
@@ -3399,7 +3948,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_9);
   __Pyx_XDECREF(__pyx_t_13);
-  __Pyx_AddTraceback("src.grid_project.core.utils.find_distance_2", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("src.grid_project.core.utils.find_distance_2_old", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF((PyObject *)__pyx_v_coord);
@@ -3411,7 +3960,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
   return __pyx_r;
 }
 
-/* "src/grid_project/core/utils.pyx":84
+/* "src/grid_project/core/utils.pyx":116
  *     return dists_and_coord
  * 
  * def _is_inside_old(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
@@ -3420,10 +3969,10 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_2find_distance_2(CYTH
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_5_is_inside_old(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_3src_12grid_project_4core_5utils_4_is_inside_old[] = " Doesn't work correctly ";
-static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_5_is_inside_old = {"_is_inside_old", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_5_is_inside_old, METH_VARARGS|METH_KEYWORDS, __pyx_doc_3src_12grid_project_4core_5utils_4_is_inside_old};
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_5_is_inside_old(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_7_is_inside_old(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_3src_12grid_project_4core_5utils_6_is_inside_old[] = " Doesn't work correctly ";
+static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_7_is_inside_old = {"_is_inside_old", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_7_is_inside_old, METH_VARARGS|METH_KEYWORDS, __pyx_doc_3src_12grid_project_4core_5utils_6_is_inside_old};
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_7_is_inside_old(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_point = 0;
   PyArrayObject *__pyx_v_mesh = 0;
   int __pyx_lineno = 0;
@@ -3455,11 +4004,11 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_5_is_inside_old(PyObj
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mesh)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_is_inside_old", 1, 2, 2, 1); __PYX_ERR(0, 84, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_is_inside_old", 1, 2, 2, 1); __PYX_ERR(0, 116, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_is_inside_old") < 0)) __PYX_ERR(0, 84, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_is_inside_old") < 0)) __PYX_ERR(0, 116, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3472,15 +4021,15 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_5_is_inside_old(PyObj
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_is_inside_old", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 84, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_is_inside_old", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 116, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("src.grid_project.core.utils._is_inside_old", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 84, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 84, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(__pyx_self, __pyx_v_point, __pyx_v_mesh);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 116, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 116, __pyx_L1_error)
+  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_6_is_inside_old(__pyx_self, __pyx_v_point, __pyx_v_mesh);
 
   /* function exit code */
   goto __pyx_L0;
@@ -3491,7 +4040,7 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_5_is_inside_old(PyObj
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh) {
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside_old(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh) {
   int __pyx_v_x;
   int __pyx_v_y;
   int __pyx_v_z;
@@ -3515,7 +4064,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_is_inside_old", 0);
 
-  /* "src/grid_project/core/utils.pyx":90
+  /* "src/grid_project/core/utils.pyx":122
  *     cdef np.ndarray xz_proj
  *     cdef np.ndarray xy_proj
  *     x, y, z = point             # <<<<<<<<<<<<<<
@@ -3528,7 +4077,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
     if (unlikely(size != 3)) {
       if (size > 3) __Pyx_RaiseTooManyValuesError(3);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 90, __pyx_L1_error)
+      __PYX_ERR(0, 122, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -3544,16 +4093,16 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
     __Pyx_INCREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_t_3);
     #else
-    __pyx_t_1 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_1 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 122, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
-    __pyx_t_2 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_2 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 122, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PySequence_ITEM(sequence, 2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_3 = PySequence_ITEM(sequence, 2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 122, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     #endif
   } else {
     Py_ssize_t index = -1;
-    __pyx_t_4 = PyObject_GetIter(((PyObject *)__pyx_v_point)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 90, __pyx_L1_error)
+    __pyx_t_4 = PyObject_GetIter(((PyObject *)__pyx_v_point)); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 122, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __pyx_t_5 = Py_TYPE(__pyx_t_4)->tp_iternext;
     index = 0; __pyx_t_1 = __pyx_t_5(__pyx_t_4); if (unlikely(!__pyx_t_1)) goto __pyx_L3_unpacking_failed;
@@ -3562,7 +4111,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
     __Pyx_GOTREF(__pyx_t_2);
     index = 2; __pyx_t_3 = __pyx_t_5(__pyx_t_4); if (unlikely(!__pyx_t_3)) goto __pyx_L3_unpacking_failed;
     __Pyx_GOTREF(__pyx_t_3);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_5(__pyx_t_4), 3) < 0) __PYX_ERR(0, 90, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_5(__pyx_t_4), 3) < 0) __PYX_ERR(0, 122, __pyx_L1_error)
     __pyx_t_5 = NULL;
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     goto __pyx_L4_unpacking_done;
@@ -3570,91 +4119,91 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __pyx_t_5 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 90, __pyx_L1_error)
+    __PYX_ERR(0, 122, __pyx_L1_error)
     __pyx_L4_unpacking_done:;
   }
-  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_6 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyInt_As_int(__pyx_t_2); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 90, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_3); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 122, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_v_x = __pyx_t_6;
   __pyx_v_y = __pyx_t_7;
   __pyx_v_z = __pyx_t_8;
 
-  /* "src/grid_project/core/utils.pyx":91
+  /* "src/grid_project/core/utils.pyx":123
  *     cdef np.ndarray xy_proj
  *     x, y, z = point
  *     yz_proj = mesh.sum(axis=0)             # <<<<<<<<<<<<<<
  *     xz_proj = mesh.sum(axis=1)
  *     xy_proj = mesh.sum(axis=2)
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 91, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 91, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 91, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 123, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 91, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 123, __pyx_L1_error)
   __pyx_v_yz_proj = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":92
+  /* "src/grid_project/core/utils.pyx":124
  *     x, y, z = point
  *     yz_proj = mesh.sum(axis=0)
  *     xz_proj = mesh.sum(axis=1)             # <<<<<<<<<<<<<<
  *     xy_proj = mesh.sum(axis=2)
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 92, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 92, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 92, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 124, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 92, __pyx_L1_error)
+  if (!(likely(((__pyx_t_3) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_3, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 124, __pyx_L1_error)
   __pyx_v_xz_proj = ((PyArrayObject *)__pyx_t_3);
   __pyx_t_3 = 0;
 
-  /* "src/grid_project/core/utils.pyx":93
+  /* "src/grid_project/core/utils.pyx":125
  *     yz_proj = mesh.sum(axis=0)
  *     xz_proj = mesh.sum(axis=1)
  *     xy_proj = mesh.sum(axis=2)             # <<<<<<<<<<<<<<
  * 
  *     if yz_proj[y, z] > 0 and xz_proj[x, z] > 0 and xy_proj[x, y] > 0:
  */
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_2) < 0) __PYX_ERR(0, 93, __pyx_L1_error)
-  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 93, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_2, __pyx_n_s_axis, __pyx_int_2) < 0) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 125, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 93, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 125, __pyx_L1_error)
   __pyx_v_xy_proj = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":95
+  /* "src/grid_project/core/utils.pyx":127
  *     xy_proj = mesh.sum(axis=2)
  * 
  *     if yz_proj[y, z] > 0 and xz_proj[x, z] > 0 and xy_proj[x, y] > 0:             # <<<<<<<<<<<<<<
  *         return True
  * 
  */
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_z); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_z); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
@@ -3662,23 +4211,23 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_yz_proj), __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_yz_proj), __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   if (__pyx_t_10) {
   } else {
     __pyx_t_9 = __pyx_t_10;
     goto __pyx_L6_bool_binop_done;
   }
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_z); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_z); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_GIVEREF(__pyx_t_3);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_t_3);
@@ -3686,23 +4235,23 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
   PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_t_2);
   __pyx_t_3 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_xz_proj), __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_xz_proj), __pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_1 = PyObject_RichCompare(__pyx_t_2, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_10) {
   } else {
     __pyx_t_9 = __pyx_t_10;
     goto __pyx_L6_bool_binop_done;
   }
-  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_3 = PyTuple_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_GIVEREF(__pyx_t_1);
   PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_1);
@@ -3710,18 +4259,18 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
   PyTuple_SET_ITEM(__pyx_t_3, 1, __pyx_t_2);
   __pyx_t_1 = 0;
   __pyx_t_2 = 0;
-  __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_xy_proj), __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_xy_proj), __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_3 = PyObject_RichCompare(__pyx_t_2, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 95, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_3); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 127, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_9 = __pyx_t_10;
   __pyx_L6_bool_binop_done:;
   if (__pyx_t_9) {
 
-    /* "src/grid_project/core/utils.pyx":96
+    /* "src/grid_project/core/utils.pyx":128
  * 
  *     if yz_proj[y, z] > 0 and xz_proj[x, z] > 0 and xy_proj[x, y] > 0:
  *         return True             # <<<<<<<<<<<<<<
@@ -3733,7 +4282,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
     __pyx_r = Py_True;
     goto __pyx_L0;
 
-    /* "src/grid_project/core/utils.pyx":95
+    /* "src/grid_project/core/utils.pyx":127
  *     xy_proj = mesh.sum(axis=2)
  * 
  *     if yz_proj[y, z] > 0 and xz_proj[x, z] > 0 and xy_proj[x, y] > 0:             # <<<<<<<<<<<<<<
@@ -3742,19 +4291,19 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
  */
   }
 
-  /* "src/grid_project/core/utils.pyx":98
+  /* "src/grid_project/core/utils.pyx":130
  *         return True
  * 
  *     return False             # <<<<<<<<<<<<<<
  * 
- * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.ndarray:
+ * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.bool_:
  */
   __Pyx_XDECREF(__pyx_r);
   __Pyx_INCREF(Py_False);
   __pyx_r = Py_False;
   goto __pyx_L0;
 
-  /* "src/grid_project/core/utils.pyx":84
+  /* "src/grid_project/core/utils.pyx":116
  *     return dists_and_coord
  * 
  * def _is_inside_old(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
@@ -3779,24 +4328,24 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4_is_inside_old(CYTHO
   return __pyx_r;
 }
 
-/* "src/grid_project/core/utils.pyx":100
+/* "src/grid_project/core/utils.pyx":132
  *     return False
  * 
- * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.ndarray:             # <<<<<<<<<<<<<<
+ * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.bool_:             # <<<<<<<<<<<<<<
  *     cdef np.ndarray inside
  *     cdef list slice_index
  */
 
 /* Python wrapper */
-static PyArrayObject *__pyx_pw_3src_12grid_project_4core_5utils_7_is_inside(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_7_is_inside = {"_is_inside", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_7_is_inside, METH_VARARGS|METH_KEYWORDS, 0};
-static PyArrayObject *__pyx_pw_3src_12grid_project_4core_5utils_7_is_inside(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_9_is_inside(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_9_is_inside = {"_is_inside", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_9_is_inside, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_9_is_inside(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_point = 0;
   PyArrayObject *__pyx_v_mesh = 0;
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
   int __pyx_clineno = 0;
-  PyArrayObject *__pyx_r = 0;
+  PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("_is_inside (wrapper)", 0);
   {
@@ -3822,11 +4371,11 @@ static PyArrayObject *__pyx_pw_3src_12grid_project_4core_5utils_7_is_inside(PyOb
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mesh)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_is_inside", 1, 2, 2, 1); __PYX_ERR(0, 100, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_is_inside", 1, 2, 2, 1); __PYX_ERR(0, 132, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_is_inside") < 0)) __PYX_ERR(0, 100, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_is_inside") < 0)) __PYX_ERR(0, 132, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -3839,15 +4388,15 @@ static PyArrayObject *__pyx_pw_3src_12grid_project_4core_5utils_7_is_inside(PyOb
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_is_inside", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 100, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_is_inside", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 132, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("src.grid_project.core.utils._is_inside", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 100, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 100, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(__pyx_self, __pyx_v_point, __pyx_v_mesh);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 132, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_8_is_inside(__pyx_self, __pyx_v_point, __pyx_v_mesh);
 
   /* function exit code */
   goto __pyx_L0;
@@ -3858,13 +4407,13 @@ static PyArrayObject *__pyx_pw_3src_12grid_project_4core_5utils_7_is_inside(PyOb
   return __pyx_r;
 }
 
-static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh) {
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh) {
   PyArrayObject *__pyx_v_inside = 0;
   PyObject *__pyx_v_slice_index = 0;
   int __pyx_v_i;
   PyObject *__pyx_v_mesh_slice = NULL;
   PyObject *__pyx_v_hull = NULL;
-  PyArrayObject *__pyx_r = NULL;
+  PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
   PyObject *__pyx_t_1 = NULL;
   PyObject *__pyx_t_2 = NULL;
@@ -3880,16 +4429,16 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_is_inside", 0);
 
-  /* "src/grid_project/core/utils.pyx":104
+  /* "src/grid_project/core/utils.pyx":136
  *     cdef list slice_index
  * 
  *     inside = np.array((False, False, False))             # <<<<<<<<<<<<<<
  *     slice_index = [[1, 2],
  *                    [0, 2],
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_array); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_t_2 = NULL;
@@ -3904,21 +4453,21 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
   }
   __pyx_t_1 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_2, __pyx_tuple__3) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_tuple__3);
   __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 104, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 104, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 136, __pyx_L1_error)
   __pyx_v_inside = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":105
+  /* "src/grid_project/core/utils.pyx":137
  * 
  *     inside = np.array((False, False, False))
  *     slice_index = [[1, 2],             # <<<<<<<<<<<<<<
  *                    [0, 2],
  *                    [0, 1]]
  */
-  __pyx_t_1 = PyList_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_int_1);
   __Pyx_GIVEREF(__pyx_int_1);
@@ -3927,14 +4476,14 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
   __Pyx_GIVEREF(__pyx_int_2);
   PyList_SET_ITEM(__pyx_t_1, 1, __pyx_int_2);
 
-  /* "src/grid_project/core/utils.pyx":106
+  /* "src/grid_project/core/utils.pyx":138
  *     inside = np.array((False, False, False))
  *     slice_index = [[1, 2],
  *                    [0, 2],             # <<<<<<<<<<<<<<
  *                    [0, 1]]
  *     cdef int i
  */
-  __pyx_t_3 = PyList_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 106, __pyx_L1_error)
+  __pyx_t_3 = PyList_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 138, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(__pyx_int_0);
   __Pyx_GIVEREF(__pyx_int_0);
@@ -3943,14 +4492,14 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
   __Pyx_GIVEREF(__pyx_int_2);
   PyList_SET_ITEM(__pyx_t_3, 1, __pyx_int_2);
 
-  /* "src/grid_project/core/utils.pyx":107
+  /* "src/grid_project/core/utils.pyx":139
  *     slice_index = [[1, 2],
  *                    [0, 2],
  *                    [0, 1]]             # <<<<<<<<<<<<<<
  *     cdef int i
  *     for i in range(3):
  */
-  __pyx_t_2 = PyList_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 107, __pyx_L1_error)
+  __pyx_t_2 = PyList_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 139, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_INCREF(__pyx_int_0);
   __Pyx_GIVEREF(__pyx_int_0);
@@ -3959,14 +4508,14 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
   __Pyx_GIVEREF(__pyx_int_1);
   PyList_SET_ITEM(__pyx_t_2, 1, __pyx_int_1);
 
-  /* "src/grid_project/core/utils.pyx":105
+  /* "src/grid_project/core/utils.pyx":137
  * 
  *     inside = np.array((False, False, False))
  *     slice_index = [[1, 2],             # <<<<<<<<<<<<<<
  *                    [0, 2],
  *                    [0, 1]]
  */
-  __pyx_t_4 = PyList_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 105, __pyx_L1_error)
+  __pyx_t_4 = PyList_New(3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 137, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_GIVEREF(__pyx_t_1);
   PyList_SET_ITEM(__pyx_t_4, 0, __pyx_t_1);
@@ -3980,7 +4529,7 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
   __pyx_v_slice_index = ((PyObject*)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "src/grid_project/core/utils.pyx":109
+  /* "src/grid_project/core/utils.pyx":141
  *                    [0, 1]]
  *     cdef int i
  *     for i in range(3):             # <<<<<<<<<<<<<<
@@ -3990,16 +4539,16 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
   for (__pyx_t_5 = 0; __pyx_t_5 < 3; __pyx_t_5+=1) {
     __pyx_v_i = __pyx_t_5;
 
-    /* "src/grid_project/core/utils.pyx":110
+    /* "src/grid_project/core/utils.pyx":142
  *     cdef int i
  *     for i in range(3):
  *         mesh_slice = mesh[mesh[:, i] == point[i]]             # <<<<<<<<<<<<<<
  *         if len(mesh_slice) >= 3:
  *             hull = ConvexHull(mesh_slice[:, slice_index[i]])
  */
-    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 110, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_i); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 110, __pyx_L1_error)
+    __pyx_t_2 = PyTuple_New(2); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_INCREF(__pyx_slice__4);
     __Pyx_GIVEREF(__pyx_slice__4);
@@ -4007,43 +4556,43 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_2, 1, __pyx_t_4);
     __pyx_t_4 = 0;
-    __pyx_t_4 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_mesh), __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 110, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_mesh), __pyx_t_2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_GetItemInt(((PyObject *)__pyx_v_point), __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 110, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_GetItemInt(((PyObject *)__pyx_v_point), __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 0, 1, 1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_3 = PyObject_RichCompare(__pyx_t_4, __pyx_t_2, Py_EQ); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 110, __pyx_L1_error)
+    __pyx_t_3 = PyObject_RichCompare(__pyx_t_4, __pyx_t_2, Py_EQ); __Pyx_XGOTREF(__pyx_t_3); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-    __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_mesh), __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 110, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_mesh), __pyx_t_3); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_XDECREF_SET(__pyx_v_mesh_slice, __pyx_t_2);
     __pyx_t_2 = 0;
 
-    /* "src/grid_project/core/utils.pyx":111
+    /* "src/grid_project/core/utils.pyx":143
  *     for i in range(3):
  *         mesh_slice = mesh[mesh[:, i] == point[i]]
  *         if len(mesh_slice) >= 3:             # <<<<<<<<<<<<<<
  *             hull = ConvexHull(mesh_slice[:, slice_index[i]])
  *             inside[i] = point_in_hull(point[slice_index[i]], hull)
  */
-    __pyx_t_6 = PyObject_Length(__pyx_v_mesh_slice); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 111, __pyx_L1_error)
+    __pyx_t_6 = PyObject_Length(__pyx_v_mesh_slice); if (unlikely(__pyx_t_6 == ((Py_ssize_t)-1))) __PYX_ERR(0, 143, __pyx_L1_error)
     __pyx_t_7 = ((__pyx_t_6 >= 3) != 0);
     if (__pyx_t_7) {
 
-      /* "src/grid_project/core/utils.pyx":112
+      /* "src/grid_project/core/utils.pyx":144
  *         mesh_slice = mesh[mesh[:, i] == point[i]]
  *         if len(mesh_slice) >= 3:
  *             hull = ConvexHull(mesh_slice[:, slice_index[i]])             # <<<<<<<<<<<<<<
  *             inside[i] = point_in_hull(point[slice_index[i]], hull)
  * 
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 112, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 144, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_4 = __Pyx_GetItemInt_List(__pyx_v_slice_index, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 1, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_GetItemInt_List(__pyx_v_slice_index, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 1, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 144, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 112, __pyx_L1_error)
+      __pyx_t_1 = PyTuple_New(2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 144, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_INCREF(__pyx_slice__4);
       __Pyx_GIVEREF(__pyx_slice__4);
@@ -4051,7 +4600,7 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
       __Pyx_GIVEREF(__pyx_t_4);
       PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_t_4);
       __pyx_t_4 = 0;
-      __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_v_mesh_slice, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 112, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_PyObject_GetItem(__pyx_v_mesh_slice, __pyx_t_1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 144, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
       __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       __pyx_t_1 = NULL;
@@ -4067,24 +4616,24 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
       __pyx_t_2 = (__pyx_t_1) ? __Pyx_PyObject_Call2Args(__pyx_t_3, __pyx_t_1, __pyx_t_4) : __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_4);
       __Pyx_XDECREF(__pyx_t_1); __pyx_t_1 = 0;
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 112, __pyx_L1_error)
+      if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 144, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_2);
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
       __Pyx_XDECREF_SET(__pyx_v_hull, __pyx_t_2);
       __pyx_t_2 = 0;
 
-      /* "src/grid_project/core/utils.pyx":113
+      /* "src/grid_project/core/utils.pyx":145
  *         if len(mesh_slice) >= 3:
  *             hull = ConvexHull(mesh_slice[:, slice_index[i]])
  *             inside[i] = point_in_hull(point[slice_index[i]], hull)             # <<<<<<<<<<<<<<
  * 
  *     return inside.all()
  */
-      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_point_in_hull); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_point_in_hull); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 145, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_3);
-      __pyx_t_4 = __Pyx_GetItemInt_List(__pyx_v_slice_index, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 1, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __pyx_t_4 = __Pyx_GetItemInt_List(__pyx_v_slice_index, __pyx_v_i, int, 1, __Pyx_PyInt_From_int, 1, 1, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 145, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_1 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_point), __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 113, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_point), __pyx_t_4); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 145, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
       __pyx_t_4 = NULL;
@@ -4102,7 +4651,7 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
       #if CYTHON_FAST_PYCALL
       if (PyFunction_Check(__pyx_t_3)) {
         PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_1, __pyx_v_hull};
-        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 113, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 145, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -4111,14 +4660,14 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
       #if CYTHON_FAST_PYCCALL
       if (__Pyx_PyFastCFunction_Check(__pyx_t_3)) {
         PyObject *__pyx_temp[3] = {__pyx_t_4, __pyx_t_1, __pyx_v_hull};
-        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 113, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_3, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 145, __pyx_L1_error)
         __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
       } else
       #endif
       {
-        __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 113, __pyx_L1_error)
+        __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 145, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_9);
         if (__pyx_t_4) {
           __Pyx_GIVEREF(__pyx_t_4); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_4); __pyx_t_4 = NULL;
@@ -4129,15 +4678,15 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
         __Pyx_GIVEREF(__pyx_v_hull);
         PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, __pyx_v_hull);
         __pyx_t_1 = 0;
-        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 113, __pyx_L1_error)
+        __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_9, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 145, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_2);
         __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
       }
       __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-      if (unlikely(__Pyx_SetItemInt(((PyObject *)__pyx_v_inside), __pyx_v_i, __pyx_t_2, int, 1, __Pyx_PyInt_From_int, 0, 1, 1) < 0)) __PYX_ERR(0, 113, __pyx_L1_error)
+      if (unlikely(__Pyx_SetItemInt(((PyObject *)__pyx_v_inside), __pyx_v_i, __pyx_t_2, int, 1, __Pyx_PyInt_From_int, 0, 1, 1) < 0)) __PYX_ERR(0, 145, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-      /* "src/grid_project/core/utils.pyx":111
+      /* "src/grid_project/core/utils.pyx":143
  *     for i in range(3):
  *         mesh_slice = mesh[mesh[:, i] == point[i]]
  *         if len(mesh_slice) >= 3:             # <<<<<<<<<<<<<<
@@ -4147,15 +4696,15 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
     }
   }
 
-  /* "src/grid_project/core/utils.pyx":115
+  /* "src/grid_project/core/utils.pyx":147
  *             inside[i] = point_in_hull(point[slice_index[i]], hull)
  * 
  *     return inside.all()             # <<<<<<<<<<<<<<
  * 
  * def _is_inside_not_working_again(np.ndarray point, np.ndarray mesh):
  */
-  __Pyx_XDECREF(((PyObject *)__pyx_r));
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_inside), __pyx_n_s_all); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 115, __pyx_L1_error)
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_inside), __pyx_n_s_all); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_9 = NULL;
   if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
@@ -4169,18 +4718,17 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
   }
   __pyx_t_2 = (__pyx_t_9) ? __Pyx_PyObject_CallOneArg(__pyx_t_3, __pyx_t_9) : __Pyx_PyObject_CallNoArg(__pyx_t_3);
   __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
-  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 115, __pyx_L1_error)
+  if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (!(likely(((__pyx_t_2) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_2, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 115, __pyx_L1_error)
-  __pyx_r = ((PyArrayObject *)__pyx_t_2);
+  __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "src/grid_project/core/utils.pyx":100
+  /* "src/grid_project/core/utils.pyx":132
  *     return False
  * 
- * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.ndarray:             # <<<<<<<<<<<<<<
+ * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.bool_:             # <<<<<<<<<<<<<<
  *     cdef np.ndarray inside
  *     cdef list slice_index
  */
@@ -4199,12 +4747,12 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
   __Pyx_XDECREF(__pyx_v_slice_index);
   __Pyx_XDECREF(__pyx_v_mesh_slice);
   __Pyx_XDECREF(__pyx_v_hull);
-  __Pyx_XGIVEREF((PyObject *)__pyx_r);
+  __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-/* "src/grid_project/core/utils.pyx":117
+/* "src/grid_project/core/utils.pyx":149
  *     return inside.all()
  * 
  * def _is_inside_not_working_again(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
@@ -4213,9 +4761,9 @@ static PyArrayObject *__pyx_pf_3src_12grid_project_4core_5utils_6_is_inside(CYTH
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_9_is_inside_not_working_again(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_9_is_inside_not_working_again = {"_is_inside_not_working_again", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_9_is_inside_not_working_again, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_9_is_inside_not_working_again(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_11_is_inside_not_working_again(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_11_is_inside_not_working_again = {"_is_inside_not_working_again", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_11_is_inside_not_working_again, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_11_is_inside_not_working_again(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_point = 0;
   PyArrayObject *__pyx_v_mesh = 0;
   int __pyx_lineno = 0;
@@ -4247,11 +4795,11 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_9_is_inside_not_worki
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mesh)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_is_inside_not_working_again", 1, 2, 2, 1); __PYX_ERR(0, 117, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_is_inside_not_working_again", 1, 2, 2, 1); __PYX_ERR(0, 149, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_is_inside_not_working_again") < 0)) __PYX_ERR(0, 117, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_is_inside_not_working_again") < 0)) __PYX_ERR(0, 149, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4264,15 +4812,15 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_9_is_inside_not_worki
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_is_inside_not_working_again", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 117, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_is_inside_not_working_again", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 149, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("src.grid_project.core.utils._is_inside_not_working_again", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 117, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 117, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_working_again(__pyx_self, __pyx_v_point, __pyx_v_mesh);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 149, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 149, __pyx_L1_error)
+  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_10_is_inside_not_working_again(__pyx_self, __pyx_v_point, __pyx_v_mesh);
 
   /* function exit code */
   goto __pyx_L0;
@@ -4283,7 +4831,7 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_9_is_inside_not_worki
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_working_again(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh) {
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10_is_inside_not_working_again(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh) {
   int __pyx_v_yz_inside;
   int __pyx_v_xz_inside;
   int __pyx_v_xy_inside;
@@ -4307,21 +4855,21 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_is_inside_not_working_again", 0);
 
-  /* "src/grid_project/core/utils.pyx":123
+  /* "src/grid_project/core/utils.pyx":155
  *     cdef np.ndarray xy_proj
  * 
  *     yz_proj = make_coordinates(mesh.sum(axis=0))             # <<<<<<<<<<<<<<
  *     xz_proj = make_coordinates(mesh.sum(axis=1))
  *     xy_proj = make_coordinates(mesh.sum(axis=2))
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_make_coordinates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_make_coordinates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 123, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 123, __pyx_L1_error)
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 123, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 155, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4338,28 +4886,28 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 123, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 155, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 123, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 155, __pyx_L1_error)
   __pyx_v_yz_proj = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":124
+  /* "src/grid_project/core/utils.pyx":156
  * 
  *     yz_proj = make_coordinates(mesh.sum(axis=0))
  *     xz_proj = make_coordinates(mesh.sum(axis=1))             # <<<<<<<<<<<<<<
  *     xy_proj = make_coordinates(mesh.sum(axis=2))
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_make_coordinates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_make_coordinates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 124, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 124, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_empty_tuple, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 156, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_5, __pyx_empty_tuple, __pyx_t_4); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4376,28 +4924,28 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 156, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 124, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 156, __pyx_L1_error)
   __pyx_v_xz_proj = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":125
+  /* "src/grid_project/core/utils.pyx":157
  *     yz_proj = make_coordinates(mesh.sum(axis=0))
  *     xz_proj = make_coordinates(mesh.sum(axis=1))
  *     xy_proj = make_coordinates(mesh.sum(axis=2))             # <<<<<<<<<<<<<<
  * 
  *     yz_hull = ConvexHull(yz_proj)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_make_coordinates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_make_coordinates); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 125, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_axis, __pyx_int_2) < 0) __PYX_ERR(0, 125, __pyx_L1_error)
-  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 125, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_axis, __pyx_int_2) < 0) __PYX_ERR(0, 157, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_empty_tuple, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4414,21 +4962,21 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   __pyx_t_1 = (__pyx_t_4) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_4, __pyx_t_5) : __Pyx_PyObject_CallOneArg(__pyx_t_2, __pyx_t_5);
   __Pyx_XDECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 125, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 157, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 125, __pyx_L1_error)
+  if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 157, __pyx_L1_error)
   __pyx_v_xy_proj = ((PyArrayObject *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":127
+  /* "src/grid_project/core/utils.pyx":159
  *     xy_proj = make_coordinates(mesh.sum(axis=2))
  * 
  *     yz_hull = ConvexHull(yz_proj)             # <<<<<<<<<<<<<<
  *     xz_hull = ConvexHull(xz_proj)
  *     xy_hull = ConvexHull(xy_proj)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 127, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4442,20 +4990,20 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   }
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_5, ((PyObject *)__pyx_v_yz_proj)) : __Pyx_PyObject_CallOneArg(__pyx_t_2, ((PyObject *)__pyx_v_yz_proj));
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 127, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_yz_hull = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":128
+  /* "src/grid_project/core/utils.pyx":160
  * 
  *     yz_hull = ConvexHull(yz_proj)
  *     xz_hull = ConvexHull(xz_proj)             # <<<<<<<<<<<<<<
  *     xy_hull = ConvexHull(xy_proj)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 128, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4469,20 +5017,20 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   }
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_5, ((PyObject *)__pyx_v_xz_proj)) : __Pyx_PyObject_CallOneArg(__pyx_t_2, ((PyObject *)__pyx_v_xz_proj));
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 128, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 160, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_xz_hull = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":129
+  /* "src/grid_project/core/utils.pyx":161
  *     yz_hull = ConvexHull(yz_proj)
  *     xz_hull = ConvexHull(xz_proj)
  *     xy_hull = ConvexHull(xy_proj)             # <<<<<<<<<<<<<<
  * 
  *     yz_inside = point_in_hull(point[[1, 2]], yz_hull)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 129, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_ConvexHull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_2))) {
@@ -4496,22 +5044,22 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   }
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_2, __pyx_t_5, ((PyObject *)__pyx_v_xy_proj)) : __Pyx_PyObject_CallOneArg(__pyx_t_2, ((PyObject *)__pyx_v_xy_proj));
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 129, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 161, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   __pyx_v_xy_hull = __pyx_t_1;
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":131
+  /* "src/grid_project/core/utils.pyx":163
  *     xy_hull = ConvexHull(xy_proj)
  * 
  *     yz_inside = point_in_hull(point[[1, 2]], yz_hull)             # <<<<<<<<<<<<<<
  *     xz_inside = point_in_hull(point[[0, 2]], xz_hull)
  *     xy_inside = point_in_hull(point[[0, 1]], xy_hull)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_point_in_hull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_point_in_hull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = PyList_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_5 = PyList_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_INCREF(__pyx_int_1);
   __Pyx_GIVEREF(__pyx_int_1);
@@ -4519,7 +5067,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyList_SET_ITEM(__pyx_t_5, 1, __pyx_int_2);
-  __pyx_t_4 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_point), __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_point), __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_5 = NULL;
@@ -4537,7 +5085,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_4, __pyx_v_yz_hull};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4546,14 +5094,14 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_4, __pyx_v_yz_hull};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   } else
   #endif
   {
-    __pyx_t_3 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -4564,25 +5112,25 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
     __Pyx_GIVEREF(__pyx_v_yz_hull);
     PyTuple_SET_ITEM(__pyx_t_3, 1+__pyx_t_6, __pyx_v_yz_hull);
     __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 131, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 163, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 131, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 163, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_yz_inside = __pyx_t_7;
 
-  /* "src/grid_project/core/utils.pyx":132
+  /* "src/grid_project/core/utils.pyx":164
  * 
  *     yz_inside = point_in_hull(point[[1, 2]], yz_hull)
  *     xz_inside = point_in_hull(point[[0, 2]], xz_hull)             # <<<<<<<<<<<<<<
  *     xy_inside = point_in_hull(point[[0, 1]], xy_hull)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_point_in_hull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_point_in_hull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 164, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_3 = PyList_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_3 = PyList_New(2); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 164, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __Pyx_INCREF(__pyx_int_0);
   __Pyx_GIVEREF(__pyx_int_0);
@@ -4590,7 +5138,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   __Pyx_INCREF(__pyx_int_2);
   __Pyx_GIVEREF(__pyx_int_2);
   PyList_SET_ITEM(__pyx_t_3, 1, __pyx_int_2);
-  __pyx_t_4 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_point), __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_point), __pyx_t_3); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 164, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   __pyx_t_3 = NULL;
@@ -4608,7 +5156,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_t_4, __pyx_v_xz_hull};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 132, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 164, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4617,14 +5165,14 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_3, __pyx_t_4, __pyx_v_xz_hull};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 132, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 164, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   } else
   #endif
   {
-    __pyx_t_5 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 132, __pyx_L1_error)
+    __pyx_t_5 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 164, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     if (__pyx_t_3) {
       __Pyx_GIVEREF(__pyx_t_3); PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_3); __pyx_t_3 = NULL;
@@ -4635,25 +5183,25 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
     __Pyx_GIVEREF(__pyx_v_xz_hull);
     PyTuple_SET_ITEM(__pyx_t_5, 1+__pyx_t_6, __pyx_v_xz_hull);
     __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 132, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_5, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 164, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 132, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 164, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_xz_inside = __pyx_t_7;
 
-  /* "src/grid_project/core/utils.pyx":133
+  /* "src/grid_project/core/utils.pyx":165
  *     yz_inside = point_in_hull(point[[1, 2]], yz_hull)
  *     xz_inside = point_in_hull(point[[0, 2]], xz_hull)
  *     xy_inside = point_in_hull(point[[0, 1]], xy_hull)             # <<<<<<<<<<<<<<
  * 
  *     return yz_inside and xz_inside and xy_inside
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_point_in_hull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_point_in_hull); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  __pyx_t_5 = PyList_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_5 = PyList_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_INCREF(__pyx_int_0);
   __Pyx_GIVEREF(__pyx_int_0);
@@ -4661,7 +5209,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   __Pyx_INCREF(__pyx_int_1);
   __Pyx_GIVEREF(__pyx_int_1);
   PyList_SET_ITEM(__pyx_t_5, 1, __pyx_int_1);
-  __pyx_t_4 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_point), __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_point), __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   __pyx_t_5 = NULL;
@@ -4679,7 +5227,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_4, __pyx_v_xy_hull};
-    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 165, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
@@ -4688,14 +5236,14 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_2)) {
     PyObject *__pyx_temp[3] = {__pyx_t_5, __pyx_t_4, __pyx_v_xy_hull};
-    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_2, __pyx_temp+1-__pyx_t_6, 2+__pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 165, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   } else
   #endif
   {
-    __pyx_t_3 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 133, __pyx_L1_error)
+    __pyx_t_3 = PyTuple_New(2+__pyx_t_6); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 165, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -4706,16 +5254,16 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
     __Pyx_GIVEREF(__pyx_v_xy_hull);
     PyTuple_SET_ITEM(__pyx_t_3, 1+__pyx_t_6, __pyx_v_xy_hull);
     __pyx_t_4 = 0;
-    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 133, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_2, __pyx_t_3, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 165, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   }
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
-  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 133, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely((__pyx_t_7 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 165, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_xy_inside = __pyx_t_7;
 
-  /* "src/grid_project/core/utils.pyx":135
+  /* "src/grid_project/core/utils.pyx":167
  *     xy_inside = point_in_hull(point[[0, 1]], xy_hull)
  * 
  *     return yz_inside and xz_inside and xy_inside             # <<<<<<<<<<<<<<
@@ -4725,7 +5273,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   __Pyx_XDECREF(__pyx_r);
   if (__pyx_v_yz_inside) {
   } else {
-    __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_yz_inside); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 135, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_yz_inside); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 167, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_1 = __pyx_t_2;
     __pyx_t_2 = 0;
@@ -4733,13 +5281,13 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   }
   if (__pyx_v_xz_inside) {
   } else {
-    __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_xz_inside); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 135, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_xz_inside); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 167, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_1 = __pyx_t_2;
     __pyx_t_2 = 0;
     goto __pyx_L3_bool_binop_done;
   }
-  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_xy_inside); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 135, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyBool_FromLong(__pyx_v_xy_inside); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 167, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __pyx_t_1 = __pyx_t_2;
   __pyx_t_2 = 0;
@@ -4748,7 +5296,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "src/grid_project/core/utils.pyx":117
+  /* "src/grid_project/core/utils.pyx":149
  *     return inside.all()
  * 
  * def _is_inside_not_working_again(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
@@ -4777,7 +5325,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
   return __pyx_r;
 }
 
-/* "src/grid_project/core/utils.pyx":137
+/* "src/grid_project/core/utils.pyx":169
  *     return yz_inside and xz_inside and xy_inside
  * 
  * def point_in_hull(np.ndarray point, hull):             # <<<<<<<<<<<<<<
@@ -4786,9 +5334,9 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_8_is_inside_not_worki
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_11point_in_hull(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_11point_in_hull = {"point_in_hull", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_11point_in_hull, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_11point_in_hull(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_13point_in_hull(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_13point_in_hull = {"point_in_hull", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_13point_in_hull, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_13point_in_hull(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_point = 0;
   PyObject *__pyx_v_hull = 0;
   int __pyx_lineno = 0;
@@ -4820,11 +5368,11 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_11point_in_hull(PyObj
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_hull)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("point_in_hull", 1, 2, 2, 1); __PYX_ERR(0, 137, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("point_in_hull", 1, 2, 2, 1); __PYX_ERR(0, 169, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "point_in_hull") < 0)) __PYX_ERR(0, 137, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "point_in_hull") < 0)) __PYX_ERR(0, 169, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -4837,14 +5385,14 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_11point_in_hull(PyObj
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("point_in_hull", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 137, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("point_in_hull", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 169, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("src.grid_project.core.utils.point_in_hull", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 137, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_10point_in_hull(__pyx_self, __pyx_v_point, __pyx_v_hull);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 169, __pyx_L1_error)
+  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_12point_in_hull(__pyx_self, __pyx_v_point, __pyx_v_hull);
 
   /* function exit code */
   goto __pyx_L0;
@@ -4856,7 +5404,7 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_11point_in_hull(PyObj
 }
 static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2generator(__pyx_CoroutineObject *__pyx_generator, CYTHON_UNUSED PyThreadState *__pyx_tstate, PyObject *__pyx_sent_value); /* proto */
 
-/* "src/grid_project/core/utils.pyx":142
+/* "src/grid_project/core/utils.pyx":174
  * 
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)             # <<<<<<<<<<<<<<
@@ -4876,7 +5424,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_13point_in_hull_genex
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_3src_12grid_project_4core_5utils___pyx_scope_struct_1_genexpr *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 142, __pyx_L1_error)
+    __PYX_ERR(0, 174, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
@@ -4884,7 +5432,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_13point_in_hull_genex
   __Pyx_INCREF(((PyObject *)__pyx_cur_scope->__pyx_outer_scope));
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_outer_scope);
   {
-    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2generator, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_genexpr, __pyx_n_s_point_in_hull_locals_genexpr, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!gen)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_CoroutineObject *gen = __Pyx_Generator_New((__pyx_coroutine_body_t) __pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2generator, NULL, (PyObject *) __pyx_cur_scope, __pyx_n_s_genexpr, __pyx_n_s_point_in_hull_locals_genexpr, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!gen)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_DECREF(__pyx_cur_scope);
     __Pyx_RefNannyFinishContext();
     return (PyObject *) gen;
@@ -4927,25 +5475,25 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
     return NULL;
   }
   __pyx_L3_first_run:;
-  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 142, __pyx_L1_error)
+  if (unlikely(!__pyx_sent_value)) __PYX_ERR(0, 174, __pyx_L1_error)
 
-  /* "src/grid_project/core/utils.pyx":143
+  /* "src/grid_project/core/utils.pyx":175
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
  *         for eq in hull.equations)             # <<<<<<<<<<<<<<
  * 
  * def make_coordinates(mesh, keep_numbers=False):
  */
-  if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_hull)) { __Pyx_RaiseClosureNameError("hull"); __PYX_ERR(0, 143, __pyx_L1_error) }
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_hull, __pyx_n_s_equations); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+  if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_hull)) { __Pyx_RaiseClosureNameError("hull"); __PYX_ERR(0, 175, __pyx_L1_error) }
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_hull, __pyx_n_s_equations); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   if (likely(PyList_CheckExact(__pyx_t_1)) || PyTuple_CheckExact(__pyx_t_1)) {
     __pyx_t_2 = __pyx_t_1; __Pyx_INCREF(__pyx_t_2); __pyx_t_3 = 0;
     __pyx_t_4 = NULL;
   } else {
-    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 143, __pyx_L1_error)
+    __pyx_t_3 = -1; __pyx_t_2 = PyObject_GetIter(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
-    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 143, __pyx_L1_error)
+    __pyx_t_4 = Py_TYPE(__pyx_t_2)->tp_iternext; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 175, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   for (;;) {
@@ -4953,17 +5501,17 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
       if (likely(PyList_CheckExact(__pyx_t_2))) {
         if (__pyx_t_3 >= PyList_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 143, __pyx_L1_error)
+        __pyx_t_1 = PyList_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 175, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       } else {
         if (__pyx_t_3 >= PyTuple_GET_SIZE(__pyx_t_2)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 143, __pyx_L1_error)
+        __pyx_t_1 = PyTuple_GET_ITEM(__pyx_t_2, __pyx_t_3); __Pyx_INCREF(__pyx_t_1); __pyx_t_3++; if (unlikely(0 < 0)) __PYX_ERR(0, 175, __pyx_L1_error)
         #else
-        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 143, __pyx_L1_error)
+        __pyx_t_1 = PySequence_ITEM(__pyx_t_2, __pyx_t_3); __pyx_t_3++; if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 175, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_1);
         #endif
       }
@@ -4973,7 +5521,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 143, __pyx_L1_error)
+          else __PYX_ERR(0, 175, __pyx_L1_error)
         }
         break;
       }
@@ -4984,21 +5532,21 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
     __Pyx_GIVEREF(__pyx_t_1);
     __pyx_t_1 = 0;
 
-    /* "src/grid_project/core/utils.pyx":142
+    /* "src/grid_project/core/utils.pyx":174
  * 
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)             # <<<<<<<<<<<<<<
  *         for eq in hull.equations)
  * 
  */
-    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_dot); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_dot); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetSlice(__pyx_cur_scope->__pyx_v_eq, 0, -1L, NULL, NULL, &__pyx_slice__5, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetSlice(__pyx_cur_scope->__pyx_v_eq, 0, -1L, NULL, NULL, &__pyx_slice__5, 0, 1, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_point)) { __Pyx_RaiseClosureNameError("point"); __PYX_ERR(0, 142, __pyx_L1_error) }
+    if (unlikely(!__pyx_cur_scope->__pyx_outer_scope->__pyx_v_point)) { __Pyx_RaiseClosureNameError("point"); __PYX_ERR(0, 174, __pyx_L1_error) }
     __pyx_t_7 = NULL;
     __pyx_t_8 = 0;
     if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_6))) {
@@ -5014,7 +5562,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
     #if CYTHON_FAST_PYCALL
     if (PyFunction_Check(__pyx_t_6)) {
       PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_t_5, ((PyObject *)__pyx_cur_scope->__pyx_outer_scope->__pyx_v_point)};
-      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
@@ -5023,14 +5571,14 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
     #if CYTHON_FAST_PYCCALL
     if (__Pyx_PyFastCFunction_Check(__pyx_t_6)) {
       PyObject *__pyx_temp[3] = {__pyx_t_7, __pyx_t_5, ((PyObject *)__pyx_cur_scope->__pyx_outer_scope->__pyx_v_point)};
-      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyCFunction_FastCall(__pyx_t_6, __pyx_temp+1-__pyx_t_8, 2+__pyx_t_8); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
       __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     } else
     #endif
     {
-      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 142, __pyx_L1_error)
+      __pyx_t_9 = PyTuple_New(2+__pyx_t_8); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 174, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_9);
       if (__pyx_t_7) {
         __Pyx_GIVEREF(__pyx_t_7); PyTuple_SET_ITEM(__pyx_t_9, 0, __pyx_t_7); __pyx_t_7 = NULL;
@@ -5041,28 +5589,28 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
       __Pyx_GIVEREF(((PyObject *)__pyx_cur_scope->__pyx_outer_scope->__pyx_v_point));
       PyTuple_SET_ITEM(__pyx_t_9, 1+__pyx_t_8, ((PyObject *)__pyx_cur_scope->__pyx_outer_scope->__pyx_v_point));
       __pyx_t_5 = 0;
-      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+      __pyx_t_1 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_t_9, NULL); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_1);
       __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     }
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = __Pyx_GetItemInt(__pyx_cur_scope->__pyx_v_eq, -1L, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_GetItemInt(__pyx_cur_scope->__pyx_v_eq, -1L, long, 1, __Pyx_PyInt_From_long, 0, 1, 1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_9 = PyNumber_Add(__pyx_t_1, __pyx_t_6); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_t_9 = PyNumber_Add(__pyx_t_1, __pyx_t_6); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_9);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = PyFloat_FromDouble(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_tolerance); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_t_6 = PyFloat_FromDouble(__pyx_cur_scope->__pyx_outer_scope->__pyx_v_tolerance); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_1 = PyObject_RichCompare(__pyx_t_9, __pyx_t_6, Py_LE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_t_1 = PyObject_RichCompare(__pyx_t_9, __pyx_t_6, Py_LE); __Pyx_XGOTREF(__pyx_t_1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 142, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_IsTrue(__pyx_t_1); if (unlikely(__pyx_t_10 < 0)) __PYX_ERR(0, 174, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
     __pyx_t_11 = ((!__pyx_t_10) != 0);
     if (__pyx_t_11) {
 
-      /* "src/grid_project/core/utils.pyx":141
+      /* "src/grid_project/core/utils.pyx":173
  *     tolerance = 1e-12
  * 
  *     return all(             # <<<<<<<<<<<<<<
@@ -5071,7 +5619,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
  */
       __Pyx_XDECREF(__pyx_r);
 
-      /* "src/grid_project/core/utils.pyx":142
+      /* "src/grid_project/core/utils.pyx":174
  * 
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)             # <<<<<<<<<<<<<<
@@ -5084,7 +5632,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
       goto __pyx_L0;
     }
 
-    /* "src/grid_project/core/utils.pyx":143
+    /* "src/grid_project/core/utils.pyx":175
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
  *         for eq in hull.equations)             # <<<<<<<<<<<<<<
@@ -5094,7 +5642,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
   }
   /*else*/ {
 
-    /* "src/grid_project/core/utils.pyx":141
+    /* "src/grid_project/core/utils.pyx":173
  *     tolerance = 1e-12
  * 
  *     return all(             # <<<<<<<<<<<<<<
@@ -5103,7 +5651,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
  */
     __Pyx_XDECREF(__pyx_r);
 
-    /* "src/grid_project/core/utils.pyx":142
+    /* "src/grid_project/core/utils.pyx":174
  * 
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)             # <<<<<<<<<<<<<<
@@ -5116,7 +5664,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
     goto __pyx_L0;
   }
 
-  /* "src/grid_project/core/utils.pyx":143
+  /* "src/grid_project/core/utils.pyx":175
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
  *         for eq in hull.equations)             # <<<<<<<<<<<<<<
@@ -5126,7 +5674,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
   CYTHON_MAYBE_UNUSED_VAR(__pyx_cur_scope);
 
-  /* "src/grid_project/core/utils.pyx":142
+  /* "src/grid_project/core/utils.pyx":174
  * 
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)             # <<<<<<<<<<<<<<
@@ -5155,7 +5703,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
   return __pyx_r;
 }
 
-/* "src/grid_project/core/utils.pyx":137
+/* "src/grid_project/core/utils.pyx":169
  *     return yz_inside and xz_inside and xy_inside
  * 
  * def point_in_hull(np.ndarray point, hull):             # <<<<<<<<<<<<<<
@@ -5163,7 +5711,7 @@ static PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2gene
  *     tolerance = 1e-12
  */
 
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10point_in_hull(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyObject *__pyx_v_hull) {
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12point_in_hull(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyObject *__pyx_v_hull) {
   struct __pyx_obj_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_hull *__pyx_cur_scope;
   PyObject *__pyx_gb_3src_12grid_project_4core_5utils_13point_in_hull_2generator = 0;
   PyObject *__pyx_r = NULL;
@@ -5178,7 +5726,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10point_in_hull(CYTHO
   if (unlikely(!__pyx_cur_scope)) {
     __pyx_cur_scope = ((struct __pyx_obj_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_hull *)Py_None);
     __Pyx_INCREF(Py_None);
-    __PYX_ERR(0, 137, __pyx_L1_error)
+    __PYX_ERR(0, 169, __pyx_L1_error)
   } else {
     __Pyx_GOTREF(__pyx_cur_scope);
   }
@@ -5189,7 +5737,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10point_in_hull(CYTHO
   __Pyx_INCREF(__pyx_cur_scope->__pyx_v_hull);
   __Pyx_GIVEREF(__pyx_cur_scope->__pyx_v_hull);
 
-  /* "src/grid_project/core/utils.pyx":139
+  /* "src/grid_project/core/utils.pyx":171
  * def point_in_hull(np.ndarray point, hull):
  *     cdef double tolerance
  *     tolerance = 1e-12             # <<<<<<<<<<<<<<
@@ -5198,7 +5746,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10point_in_hull(CYTHO
  */
   __pyx_cur_scope->__pyx_v_tolerance = 1e-12;
 
-  /* "src/grid_project/core/utils.pyx":141
+  /* "src/grid_project/core/utils.pyx":173
  *     tolerance = 1e-12
  * 
  *     return all(             # <<<<<<<<<<<<<<
@@ -5207,23 +5755,23 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10point_in_hull(CYTHO
  */
   __Pyx_XDECREF(__pyx_r);
 
-  /* "src/grid_project/core/utils.pyx":142
+  /* "src/grid_project/core/utils.pyx":174
  * 
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)             # <<<<<<<<<<<<<<
  *         for eq in hull.equations)
  * 
  */
-  __pyx_t_1 = __pyx_pf_3src_12grid_project_4core_5utils_13point_in_hull_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_1 = __pyx_pf_3src_12grid_project_4core_5utils_13point_in_hull_genexpr(((PyObject*)__pyx_cur_scope)); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_Generator_Next(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_Generator_Next(__pyx_t_1); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_r = __pyx_t_2;
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "src/grid_project/core/utils.pyx":137
+  /* "src/grid_project/core/utils.pyx":169
  *     return yz_inside and xz_inside and xy_inside
  * 
  * def point_in_hull(np.ndarray point, hull):             # <<<<<<<<<<<<<<
@@ -5245,7 +5793,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10point_in_hull(CYTHO
   return __pyx_r;
 }
 
-/* "src/grid_project/core/utils.pyx":145
+/* "src/grid_project/core/utils.pyx":177
  *         for eq in hull.equations)
  * 
  * def make_coordinates(mesh, keep_numbers=False):             # <<<<<<<<<<<<<<
@@ -5254,10 +5802,10 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_10point_in_hull(CYTHO
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_13make_coordinates(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static char __pyx_doc_3src_12grid_project_4core_5utils_12make_coordinates[] = "\n    Converts the mesh to coordinates\n    Args:\n        mesh (np.ndarray):  Mesh to convert into 3D coordinates\n        keep_numbers (bool): Resulting tuples will also contain the number of particles at that coordinate if True\n\n    Returns:\n        np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh\n    ";
-static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_13make_coordinates = {"make_coordinates", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_13make_coordinates, METH_VARARGS|METH_KEYWORDS, __pyx_doc_3src_12grid_project_4core_5utils_12make_coordinates};
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_13make_coordinates(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_15make_coordinates(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static char __pyx_doc_3src_12grid_project_4core_5utils_14make_coordinates[] = "\n    Converts the mesh to coordinates\n    Args:\n        mesh (np.ndarray):  Mesh to convert into 3D coordinates\n        keep_numbers (bool): Resulting tuples will also contain the number of particles at that coordinate if True\n\n    Returns:\n        np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh\n    ";
+static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_15make_coordinates = {"make_coordinates", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_15make_coordinates, METH_VARARGS|METH_KEYWORDS, __pyx_doc_3src_12grid_project_4core_5utils_14make_coordinates};
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_15make_coordinates(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_mesh = 0;
   PyObject *__pyx_v_keep_numbers = 0;
   int __pyx_lineno = 0;
@@ -5294,7 +5842,7 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_13make_coordinates(Py
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "make_coordinates") < 0)) __PYX_ERR(0, 145, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "make_coordinates") < 0)) __PYX_ERR(0, 177, __pyx_L3_error)
       }
     } else {
       switch (PyTuple_GET_SIZE(__pyx_args)) {
@@ -5310,20 +5858,20 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_13make_coordinates(Py
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("make_coordinates", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 145, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("make_coordinates", 0, 1, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 177, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("src.grid_project.core.utils.make_coordinates", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(__pyx_self, __pyx_v_mesh, __pyx_v_keep_numbers);
+  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_14make_coordinates(__pyx_self, __pyx_v_mesh, __pyx_v_keep_numbers);
 
   /* function exit code */
   __Pyx_RefNannyFinishContext();
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_mesh, PyObject *__pyx_v_keep_numbers) {
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14make_coordinates(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_mesh, PyObject *__pyx_v_keep_numbers) {
   int __pyx_v_dim;
   PyObject *__pyx_v_coords = 0;
   PyObject *__pyx_v_i = NULL;
@@ -5357,32 +5905,32 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("make_coordinates", 0);
 
-  /* "src/grid_project/core/utils.pyx":158
+  /* "src/grid_project/core/utils.pyx":190
  *     cdef list coords
  * 
  *     dim = mesh.ndim             # <<<<<<<<<<<<<<
  *     coords = []
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_mesh, __pyx_n_s_ndim); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 158, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_mesh, __pyx_n_s_ndim); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 190, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 158, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 190, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_dim = __pyx_t_2;
 
-  /* "src/grid_project/core/utils.pyx":159
+  /* "src/grid_project/core/utils.pyx":191
  * 
  *     dim = mesh.ndim
  *     coords = []             # <<<<<<<<<<<<<<
  * 
  *     if dim == 2:
  */
-  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 159, __pyx_L1_error)
+  __pyx_t_1 = PyList_New(0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 191, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_coords = ((PyObject*)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/grid_project/core/utils.pyx":161
+  /* "src/grid_project/core/utils.pyx":193
  *     coords = []
  * 
  *     if dim == 2:             # <<<<<<<<<<<<<<
@@ -5392,7 +5940,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
   __pyx_t_3 = ((__pyx_v_dim == 2) != 0);
   if (__pyx_t_3) {
 
-    /* "src/grid_project/core/utils.pyx":162
+    /* "src/grid_project/core/utils.pyx":194
  * 
  *     if dim == 2:
  *         for i, col in enumerate(mesh):             # <<<<<<<<<<<<<<
@@ -5405,26 +5953,26 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
       __pyx_t_4 = __pyx_v_mesh; __Pyx_INCREF(__pyx_t_4); __pyx_t_5 = 0;
       __pyx_t_6 = NULL;
     } else {
-      __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_v_mesh); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 162, __pyx_L1_error)
+      __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_v_mesh); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 194, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 162, __pyx_L1_error)
+      __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 194, __pyx_L1_error)
     }
     for (;;) {
       if (likely(!__pyx_t_6)) {
         if (likely(PyList_CheckExact(__pyx_t_4))) {
           if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_7 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_7); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 162, __pyx_L1_error)
+          __pyx_t_7 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_7); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 194, __pyx_L1_error)
           #else
-          __pyx_t_7 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 162, __pyx_L1_error)
+          __pyx_t_7 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 194, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_7);
           #endif
         } else {
           if (__pyx_t_5 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_7); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 162, __pyx_L1_error)
+          __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_7); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 194, __pyx_L1_error)
           #else
-          __pyx_t_7 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 162, __pyx_L1_error)
+          __pyx_t_7 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 194, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_7);
           #endif
         }
@@ -5434,7 +5982,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 162, __pyx_L1_error)
+            else __PYX_ERR(0, 194, __pyx_L1_error)
           }
           break;
         }
@@ -5444,13 +5992,13 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
       __pyx_t_7 = 0;
       __Pyx_INCREF(__pyx_t_1);
       __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
-      __pyx_t_7 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 162, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 194, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_1);
       __pyx_t_1 = __pyx_t_7;
       __pyx_t_7 = 0;
 
-      /* "src/grid_project/core/utils.pyx":163
+      /* "src/grid_project/core/utils.pyx":195
  *     if dim == 2:
  *         for i, col in enumerate(mesh):
  *             for j, elem in enumerate(col):             # <<<<<<<<<<<<<<
@@ -5463,26 +6011,26 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
         __pyx_t_8 = __pyx_v_col; __Pyx_INCREF(__pyx_t_8); __pyx_t_9 = 0;
         __pyx_t_10 = NULL;
       } else {
-        __pyx_t_9 = -1; __pyx_t_8 = PyObject_GetIter(__pyx_v_col); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 163, __pyx_L1_error)
+        __pyx_t_9 = -1; __pyx_t_8 = PyObject_GetIter(__pyx_v_col); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 195, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
-        __pyx_t_10 = Py_TYPE(__pyx_t_8)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 163, __pyx_L1_error)
+        __pyx_t_10 = Py_TYPE(__pyx_t_8)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 195, __pyx_L1_error)
       }
       for (;;) {
         if (likely(!__pyx_t_10)) {
           if (likely(PyList_CheckExact(__pyx_t_8))) {
             if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_8)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_11 = PyList_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 163, __pyx_L1_error)
+            __pyx_t_11 = PyList_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 195, __pyx_L1_error)
             #else
-            __pyx_t_11 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 163, __pyx_L1_error)
+            __pyx_t_11 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 195, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_11);
             #endif
           } else {
             if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_8)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_11 = PyTuple_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 163, __pyx_L1_error)
+            __pyx_t_11 = PyTuple_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 195, __pyx_L1_error)
             #else
-            __pyx_t_11 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 163, __pyx_L1_error)
+            __pyx_t_11 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 195, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_11);
             #endif
           }
@@ -5492,7 +6040,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
             PyObject* exc_type = PyErr_Occurred();
             if (exc_type) {
               if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-              else __PYX_ERR(0, 163, __pyx_L1_error)
+              else __PYX_ERR(0, 195, __pyx_L1_error)
             }
             break;
           }
@@ -5502,34 +6050,34 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
         __pyx_t_11 = 0;
         __Pyx_INCREF(__pyx_t_7);
         __Pyx_XDECREF_SET(__pyx_v_j, __pyx_t_7);
-        __pyx_t_11 = __Pyx_PyInt_AddObjC(__pyx_t_7, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 163, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyInt_AddObjC(__pyx_t_7, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 195, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         __Pyx_DECREF(__pyx_t_7);
         __pyx_t_7 = __pyx_t_11;
         __pyx_t_11 = 0;
 
-        /* "src/grid_project/core/utils.pyx":164
+        /* "src/grid_project/core/utils.pyx":196
  *         for i, col in enumerate(mesh):
  *             for j, elem in enumerate(col):
  *                 if elem > 0:             # <<<<<<<<<<<<<<
  *                     coords.append((i, j)) if not keep_numbers else coords.append((i, j, mesh[i, j]))
  *     else:
  */
-        __pyx_t_11 = PyObject_RichCompare(__pyx_v_elem, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 164, __pyx_L1_error)
-        __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 164, __pyx_L1_error)
+        __pyx_t_11 = PyObject_RichCompare(__pyx_v_elem, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_11); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 196, __pyx_L1_error)
+        __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_11); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 196, __pyx_L1_error)
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
         if (__pyx_t_3) {
 
-          /* "src/grid_project/core/utils.pyx":165
+          /* "src/grid_project/core/utils.pyx":197
  *             for j, elem in enumerate(col):
  *                 if elem > 0:
  *                     coords.append((i, j)) if not keep_numbers else coords.append((i, j, mesh[i, j]))             # <<<<<<<<<<<<<<
  *     else:
  *         for i, mat in enumerate(mesh):
  */
-          __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_v_keep_numbers); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 165, __pyx_L1_error)
+          __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_v_keep_numbers); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 197, __pyx_L1_error)
           if (((!__pyx_t_3) != 0)) {
-            __pyx_t_11 = PyTuple_New(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 165, __pyx_L1_error)
+            __pyx_t_11 = PyTuple_New(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 197, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_11);
             __Pyx_INCREF(__pyx_v_i);
             __Pyx_GIVEREF(__pyx_v_i);
@@ -5537,11 +6085,11 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
             __Pyx_INCREF(__pyx_v_j);
             __Pyx_GIVEREF(__pyx_v_j);
             PyTuple_SET_ITEM(__pyx_t_11, 1, __pyx_v_j);
-            __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_coords, __pyx_t_11); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 165, __pyx_L1_error)
+            __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_coords, __pyx_t_11); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 197, __pyx_L1_error)
             __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
             __pyx_t_12 = __pyx_t_13;
           } else {
-            __pyx_t_11 = PyTuple_New(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 165, __pyx_L1_error)
+            __pyx_t_11 = PyTuple_New(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 197, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_11);
             __Pyx_INCREF(__pyx_v_i);
             __Pyx_GIVEREF(__pyx_v_i);
@@ -5549,10 +6097,10 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
             __Pyx_INCREF(__pyx_v_j);
             __Pyx_GIVEREF(__pyx_v_j);
             PyTuple_SET_ITEM(__pyx_t_11, 1, __pyx_v_j);
-            __pyx_t_14 = __Pyx_PyObject_GetItem(__pyx_v_mesh, __pyx_t_11); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 165, __pyx_L1_error)
+            __pyx_t_14 = __Pyx_PyObject_GetItem(__pyx_v_mesh, __pyx_t_11); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 197, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_14);
             __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-            __pyx_t_11 = PyTuple_New(3); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 165, __pyx_L1_error)
+            __pyx_t_11 = PyTuple_New(3); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 197, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_11);
             __Pyx_INCREF(__pyx_v_i);
             __Pyx_GIVEREF(__pyx_v_i);
@@ -5563,12 +6111,12 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
             __Pyx_GIVEREF(__pyx_t_14);
             PyTuple_SET_ITEM(__pyx_t_11, 2, __pyx_t_14);
             __pyx_t_14 = 0;
-            __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_coords, __pyx_t_11); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 165, __pyx_L1_error)
+            __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_coords, __pyx_t_11); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 197, __pyx_L1_error)
             __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
             __pyx_t_12 = __pyx_t_13;
           }
 
-          /* "src/grid_project/core/utils.pyx":164
+          /* "src/grid_project/core/utils.pyx":196
  *         for i, col in enumerate(mesh):
  *             for j, elem in enumerate(col):
  *                 if elem > 0:             # <<<<<<<<<<<<<<
@@ -5577,7 +6125,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
  */
         }
 
-        /* "src/grid_project/core/utils.pyx":163
+        /* "src/grid_project/core/utils.pyx":195
  *     if dim == 2:
  *         for i, col in enumerate(mesh):
  *             for j, elem in enumerate(col):             # <<<<<<<<<<<<<<
@@ -5588,7 +6136,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "src/grid_project/core/utils.pyx":162
+      /* "src/grid_project/core/utils.pyx":194
  * 
  *     if dim == 2:
  *         for i, col in enumerate(mesh):             # <<<<<<<<<<<<<<
@@ -5599,7 +6147,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-    /* "src/grid_project/core/utils.pyx":161
+    /* "src/grid_project/core/utils.pyx":193
  *     coords = []
  * 
  *     if dim == 2:             # <<<<<<<<<<<<<<
@@ -5609,7 +6157,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
     goto __pyx_L3;
   }
 
-  /* "src/grid_project/core/utils.pyx":167
+  /* "src/grid_project/core/utils.pyx":199
  *                     coords.append((i, j)) if not keep_numbers else coords.append((i, j, mesh[i, j]))
  *     else:
  *         for i, mat in enumerate(mesh):             # <<<<<<<<<<<<<<
@@ -5623,26 +6171,26 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
       __pyx_t_4 = __pyx_v_mesh; __Pyx_INCREF(__pyx_t_4); __pyx_t_5 = 0;
       __pyx_t_6 = NULL;
     } else {
-      __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_v_mesh); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 167, __pyx_L1_error)
+      __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_v_mesh); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 199, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_4);
-      __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 167, __pyx_L1_error)
+      __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 199, __pyx_L1_error)
     }
     for (;;) {
       if (likely(!__pyx_t_6)) {
         if (likely(PyList_CheckExact(__pyx_t_4))) {
           if (__pyx_t_5 >= PyList_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_7 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_7); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 167, __pyx_L1_error)
+          __pyx_t_7 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_7); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 199, __pyx_L1_error)
           #else
-          __pyx_t_7 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 167, __pyx_L1_error)
+          __pyx_t_7 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 199, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_7);
           #endif
         } else {
           if (__pyx_t_5 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
           #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-          __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_7); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 167, __pyx_L1_error)
+          __pyx_t_7 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_5); __Pyx_INCREF(__pyx_t_7); __pyx_t_5++; if (unlikely(0 < 0)) __PYX_ERR(0, 199, __pyx_L1_error)
           #else
-          __pyx_t_7 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 167, __pyx_L1_error)
+          __pyx_t_7 = PySequence_ITEM(__pyx_t_4, __pyx_t_5); __pyx_t_5++; if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 199, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_7);
           #endif
         }
@@ -5652,7 +6200,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
           PyObject* exc_type = PyErr_Occurred();
           if (exc_type) {
             if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-            else __PYX_ERR(0, 167, __pyx_L1_error)
+            else __PYX_ERR(0, 199, __pyx_L1_error)
           }
           break;
         }
@@ -5662,13 +6210,13 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
       __pyx_t_7 = 0;
       __Pyx_INCREF(__pyx_t_1);
       __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_1);
-      __pyx_t_7 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 167, __pyx_L1_error)
+      __pyx_t_7 = __Pyx_PyInt_AddObjC(__pyx_t_1, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 199, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_DECREF(__pyx_t_1);
       __pyx_t_1 = __pyx_t_7;
       __pyx_t_7 = 0;
 
-      /* "src/grid_project/core/utils.pyx":168
+      /* "src/grid_project/core/utils.pyx":200
  *     else:
  *         for i, mat in enumerate(mesh):
  *             for j, col in enumerate(mat):             # <<<<<<<<<<<<<<
@@ -5681,26 +6229,26 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
         __pyx_t_8 = __pyx_v_mat; __Pyx_INCREF(__pyx_t_8); __pyx_t_9 = 0;
         __pyx_t_10 = NULL;
       } else {
-        __pyx_t_9 = -1; __pyx_t_8 = PyObject_GetIter(__pyx_v_mat); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 168, __pyx_L1_error)
+        __pyx_t_9 = -1; __pyx_t_8 = PyObject_GetIter(__pyx_v_mat); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 200, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
-        __pyx_t_10 = Py_TYPE(__pyx_t_8)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 168, __pyx_L1_error)
+        __pyx_t_10 = Py_TYPE(__pyx_t_8)->tp_iternext; if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 200, __pyx_L1_error)
       }
       for (;;) {
         if (likely(!__pyx_t_10)) {
           if (likely(PyList_CheckExact(__pyx_t_8))) {
             if (__pyx_t_9 >= PyList_GET_SIZE(__pyx_t_8)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_11 = PyList_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 168, __pyx_L1_error)
+            __pyx_t_11 = PyList_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 200, __pyx_L1_error)
             #else
-            __pyx_t_11 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 168, __pyx_L1_error)
+            __pyx_t_11 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 200, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_11);
             #endif
           } else {
             if (__pyx_t_9 >= PyTuple_GET_SIZE(__pyx_t_8)) break;
             #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-            __pyx_t_11 = PyTuple_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 168, __pyx_L1_error)
+            __pyx_t_11 = PyTuple_GET_ITEM(__pyx_t_8, __pyx_t_9); __Pyx_INCREF(__pyx_t_11); __pyx_t_9++; if (unlikely(0 < 0)) __PYX_ERR(0, 200, __pyx_L1_error)
             #else
-            __pyx_t_11 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 168, __pyx_L1_error)
+            __pyx_t_11 = PySequence_ITEM(__pyx_t_8, __pyx_t_9); __pyx_t_9++; if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 200, __pyx_L1_error)
             __Pyx_GOTREF(__pyx_t_11);
             #endif
           }
@@ -5710,7 +6258,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
             PyObject* exc_type = PyErr_Occurred();
             if (exc_type) {
               if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-              else __PYX_ERR(0, 168, __pyx_L1_error)
+              else __PYX_ERR(0, 200, __pyx_L1_error)
             }
             break;
           }
@@ -5720,13 +6268,13 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
         __pyx_t_11 = 0;
         __Pyx_INCREF(__pyx_t_7);
         __Pyx_XDECREF_SET(__pyx_v_j, __pyx_t_7);
-        __pyx_t_11 = __Pyx_PyInt_AddObjC(__pyx_t_7, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 168, __pyx_L1_error)
+        __pyx_t_11 = __Pyx_PyInt_AddObjC(__pyx_t_7, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 200, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_11);
         __Pyx_DECREF(__pyx_t_7);
         __pyx_t_7 = __pyx_t_11;
         __pyx_t_11 = 0;
 
-        /* "src/grid_project/core/utils.pyx":169
+        /* "src/grid_project/core/utils.pyx":201
  *         for i, mat in enumerate(mesh):
  *             for j, col in enumerate(mat):
  *                 for k, elem in enumerate(col):             # <<<<<<<<<<<<<<
@@ -5739,26 +6287,26 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
           __pyx_t_14 = __pyx_v_col; __Pyx_INCREF(__pyx_t_14); __pyx_t_15 = 0;
           __pyx_t_16 = NULL;
         } else {
-          __pyx_t_15 = -1; __pyx_t_14 = PyObject_GetIter(__pyx_v_col); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 169, __pyx_L1_error)
+          __pyx_t_15 = -1; __pyx_t_14 = PyObject_GetIter(__pyx_v_col); if (unlikely(!__pyx_t_14)) __PYX_ERR(0, 201, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_14);
-          __pyx_t_16 = Py_TYPE(__pyx_t_14)->tp_iternext; if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 169, __pyx_L1_error)
+          __pyx_t_16 = Py_TYPE(__pyx_t_14)->tp_iternext; if (unlikely(!__pyx_t_16)) __PYX_ERR(0, 201, __pyx_L1_error)
         }
         for (;;) {
           if (likely(!__pyx_t_16)) {
             if (likely(PyList_CheckExact(__pyx_t_14))) {
               if (__pyx_t_15 >= PyList_GET_SIZE(__pyx_t_14)) break;
               #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-              __pyx_t_17 = PyList_GET_ITEM(__pyx_t_14, __pyx_t_15); __Pyx_INCREF(__pyx_t_17); __pyx_t_15++; if (unlikely(0 < 0)) __PYX_ERR(0, 169, __pyx_L1_error)
+              __pyx_t_17 = PyList_GET_ITEM(__pyx_t_14, __pyx_t_15); __Pyx_INCREF(__pyx_t_17); __pyx_t_15++; if (unlikely(0 < 0)) __PYX_ERR(0, 201, __pyx_L1_error)
               #else
-              __pyx_t_17 = PySequence_ITEM(__pyx_t_14, __pyx_t_15); __pyx_t_15++; if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 169, __pyx_L1_error)
+              __pyx_t_17 = PySequence_ITEM(__pyx_t_14, __pyx_t_15); __pyx_t_15++; if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 201, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_17);
               #endif
             } else {
               if (__pyx_t_15 >= PyTuple_GET_SIZE(__pyx_t_14)) break;
               #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-              __pyx_t_17 = PyTuple_GET_ITEM(__pyx_t_14, __pyx_t_15); __Pyx_INCREF(__pyx_t_17); __pyx_t_15++; if (unlikely(0 < 0)) __PYX_ERR(0, 169, __pyx_L1_error)
+              __pyx_t_17 = PyTuple_GET_ITEM(__pyx_t_14, __pyx_t_15); __Pyx_INCREF(__pyx_t_17); __pyx_t_15++; if (unlikely(0 < 0)) __PYX_ERR(0, 201, __pyx_L1_error)
               #else
-              __pyx_t_17 = PySequence_ITEM(__pyx_t_14, __pyx_t_15); __pyx_t_15++; if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 169, __pyx_L1_error)
+              __pyx_t_17 = PySequence_ITEM(__pyx_t_14, __pyx_t_15); __pyx_t_15++; if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 201, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_17);
               #endif
             }
@@ -5768,7 +6316,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
               PyObject* exc_type = PyErr_Occurred();
               if (exc_type) {
                 if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-                else __PYX_ERR(0, 169, __pyx_L1_error)
+                else __PYX_ERR(0, 201, __pyx_L1_error)
               }
               break;
             }
@@ -5778,34 +6326,34 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
           __pyx_t_17 = 0;
           __Pyx_INCREF(__pyx_t_11);
           __Pyx_XDECREF_SET(__pyx_v_k, __pyx_t_11);
-          __pyx_t_17 = __Pyx_PyInt_AddObjC(__pyx_t_11, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 169, __pyx_L1_error)
+          __pyx_t_17 = __Pyx_PyInt_AddObjC(__pyx_t_11, __pyx_int_1, 1, 0, 0); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 201, __pyx_L1_error)
           __Pyx_GOTREF(__pyx_t_17);
           __Pyx_DECREF(__pyx_t_11);
           __pyx_t_11 = __pyx_t_17;
           __pyx_t_17 = 0;
 
-          /* "src/grid_project/core/utils.pyx":170
+          /* "src/grid_project/core/utils.pyx":202
  *             for j, col in enumerate(mat):
  *                 for k, elem in enumerate(col):
  *                     if elem > 0:             # <<<<<<<<<<<<<<
  *                         coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))
  * 
  */
-          __pyx_t_17 = PyObject_RichCompare(__pyx_v_elem, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_17); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 170, __pyx_L1_error)
-          __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_17); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 170, __pyx_L1_error)
+          __pyx_t_17 = PyObject_RichCompare(__pyx_v_elem, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_17); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 202, __pyx_L1_error)
+          __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_17); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 202, __pyx_L1_error)
           __Pyx_DECREF(__pyx_t_17); __pyx_t_17 = 0;
           if (__pyx_t_3) {
 
-            /* "src/grid_project/core/utils.pyx":171
+            /* "src/grid_project/core/utils.pyx":203
  *                 for k, elem in enumerate(col):
  *                     if elem > 0:
  *                         coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))             # <<<<<<<<<<<<<<
  * 
  *     return np.array(coords, dtype=int)
  */
-            __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_v_keep_numbers); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 171, __pyx_L1_error)
+            __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_v_keep_numbers); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 203, __pyx_L1_error)
             if (((!__pyx_t_3) != 0)) {
-              __pyx_t_17 = PyTuple_New(3); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 171, __pyx_L1_error)
+              __pyx_t_17 = PyTuple_New(3); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 203, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_17);
               __Pyx_INCREF(__pyx_v_i);
               __Pyx_GIVEREF(__pyx_v_i);
@@ -5816,11 +6364,11 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
               __Pyx_INCREF(__pyx_v_k);
               __Pyx_GIVEREF(__pyx_v_k);
               PyTuple_SET_ITEM(__pyx_t_17, 2, __pyx_v_k);
-              __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_coords, __pyx_t_17); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 171, __pyx_L1_error)
+              __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_coords, __pyx_t_17); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 203, __pyx_L1_error)
               __Pyx_DECREF(__pyx_t_17); __pyx_t_17 = 0;
               __pyx_t_12 = __pyx_t_13;
             } else {
-              __pyx_t_17 = PyTuple_New(3); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 171, __pyx_L1_error)
+              __pyx_t_17 = PyTuple_New(3); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 203, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_17);
               __Pyx_INCREF(__pyx_v_i);
               __Pyx_GIVEREF(__pyx_v_i);
@@ -5831,10 +6379,10 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
               __Pyx_INCREF(__pyx_v_k);
               __Pyx_GIVEREF(__pyx_v_k);
               PyTuple_SET_ITEM(__pyx_t_17, 2, __pyx_v_k);
-              __pyx_t_18 = __Pyx_PyObject_GetItem(__pyx_v_mesh, __pyx_t_17); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 171, __pyx_L1_error)
+              __pyx_t_18 = __Pyx_PyObject_GetItem(__pyx_v_mesh, __pyx_t_17); if (unlikely(!__pyx_t_18)) __PYX_ERR(0, 203, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_18);
               __Pyx_DECREF(__pyx_t_17); __pyx_t_17 = 0;
-              __pyx_t_17 = PyTuple_New(4); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 171, __pyx_L1_error)
+              __pyx_t_17 = PyTuple_New(4); if (unlikely(!__pyx_t_17)) __PYX_ERR(0, 203, __pyx_L1_error)
               __Pyx_GOTREF(__pyx_t_17);
               __Pyx_INCREF(__pyx_v_i);
               __Pyx_GIVEREF(__pyx_v_i);
@@ -5848,12 +6396,12 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
               __Pyx_GIVEREF(__pyx_t_18);
               PyTuple_SET_ITEM(__pyx_t_17, 3, __pyx_t_18);
               __pyx_t_18 = 0;
-              __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_coords, __pyx_t_17); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 171, __pyx_L1_error)
+              __pyx_t_13 = __Pyx_PyList_Append(__pyx_v_coords, __pyx_t_17); if (unlikely(__pyx_t_13 == ((int)-1))) __PYX_ERR(0, 203, __pyx_L1_error)
               __Pyx_DECREF(__pyx_t_17); __pyx_t_17 = 0;
               __pyx_t_12 = __pyx_t_13;
             }
 
-            /* "src/grid_project/core/utils.pyx":170
+            /* "src/grid_project/core/utils.pyx":202
  *             for j, col in enumerate(mat):
  *                 for k, elem in enumerate(col):
  *                     if elem > 0:             # <<<<<<<<<<<<<<
@@ -5862,7 +6410,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
  */
           }
 
-          /* "src/grid_project/core/utils.pyx":169
+          /* "src/grid_project/core/utils.pyx":201
  *         for i, mat in enumerate(mesh):
  *             for j, col in enumerate(mat):
  *                 for k, elem in enumerate(col):             # <<<<<<<<<<<<<<
@@ -5873,7 +6421,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
         __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
         __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
 
-        /* "src/grid_project/core/utils.pyx":168
+        /* "src/grid_project/core/utils.pyx":200
  *     else:
  *         for i, mat in enumerate(mesh):
  *             for j, col in enumerate(mat):             # <<<<<<<<<<<<<<
@@ -5884,7 +6432,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
       __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-      /* "src/grid_project/core/utils.pyx":167
+      /* "src/grid_project/core/utils.pyx":199
  *                     coords.append((i, j)) if not keep_numbers else coords.append((i, j, mesh[i, j]))
  *     else:
  *         for i, mat in enumerate(mesh):             # <<<<<<<<<<<<<<
@@ -5897,7 +6445,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
   }
   __pyx_L3:;
 
-  /* "src/grid_project/core/utils.pyx":173
+  /* "src/grid_project/core/utils.pyx":205
  *                         coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))
  * 
  *     return np.array(coords, dtype=int)             # <<<<<<<<<<<<<<
@@ -5905,20 +6453,20 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
  * def _is_inside_not_right(np.ndarray point, np.ndarray mesh):
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_np); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 205, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_1, __pyx_n_s_array); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 205, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 205, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_coords);
   __Pyx_GIVEREF(__pyx_v_coords);
   PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_coords);
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 173, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 205, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 173, __pyx_L1_error)
-  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 173, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_dtype, ((PyObject *)(&PyInt_Type))) < 0) __PYX_ERR(0, 205, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_t_1, __pyx_t_7); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 205, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
@@ -5927,7 +6475,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
   __pyx_t_8 = 0;
   goto __pyx_L0;
 
-  /* "src/grid_project/core/utils.pyx":145
+  /* "src/grid_project/core/utils.pyx":177
  *         for eq in hull.equations)
  * 
  * def make_coordinates(mesh, keep_numbers=False):             # <<<<<<<<<<<<<<
@@ -5960,7 +6508,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
   return __pyx_r;
 }
 
-/* "src/grid_project/core/utils.pyx":175
+/* "src/grid_project/core/utils.pyx":207
  *     return np.array(coords, dtype=int)
  * 
  * def _is_inside_not_right(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
@@ -5969,9 +6517,9 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_12make_coordinates(CY
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_15_is_inside_not_right(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_15_is_inside_not_right = {"_is_inside_not_right", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_15_is_inside_not_right, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_15_is_inside_not_right(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_17_is_inside_not_right(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_17_is_inside_not_right = {"_is_inside_not_right", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_17_is_inside_not_right, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_17_is_inside_not_right(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_point = 0;
   PyArrayObject *__pyx_v_mesh = 0;
   int __pyx_lineno = 0;
@@ -6003,11 +6551,11 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_15_is_inside_not_righ
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_mesh)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("_is_inside_not_right", 1, 2, 2, 1); __PYX_ERR(0, 175, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("_is_inside_not_right", 1, 2, 2, 1); __PYX_ERR(0, 207, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_is_inside_not_right") < 0)) __PYX_ERR(0, 175, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "_is_inside_not_right") < 0)) __PYX_ERR(0, 207, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -6020,15 +6568,15 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_15_is_inside_not_righ
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("_is_inside_not_right", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 175, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("_is_inside_not_right", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 207, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("src.grid_project.core.utils._is_inside_not_right", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 175, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 175, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_right(__pyx_self, __pyx_v_point, __pyx_v_mesh);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_point), __pyx_ptype_5numpy_ndarray, 1, "point", 0))) __PYX_ERR(0, 207, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_mesh), __pyx_ptype_5numpy_ndarray, 1, "mesh", 0))) __PYX_ERR(0, 207, __pyx_L1_error)
+  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_16_is_inside_not_right(__pyx_self, __pyx_v_point, __pyx_v_mesh);
 
   /* function exit code */
   goto __pyx_L0;
@@ -6039,7 +6587,7 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_15_is_inside_not_righ
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_right(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh) {
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_16_is_inside_not_right(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_point, PyArrayObject *__pyx_v_mesh) {
   int __pyx_v_x;
   int __pyx_v_y;
   int __pyx_v_z;
@@ -6070,7 +6618,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("_is_inside_not_right", 0);
 
-  /* "src/grid_project/core/utils.pyx":182
+  /* "src/grid_project/core/utils.pyx":214
  *     cdef np.ndarray xz_proj
  *     cdef np.ndarray xy_proj
  *     x_inside, y_inside, z_inside = False, False, False             # <<<<<<<<<<<<<<
@@ -6084,7 +6632,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
   __pyx_v_y_inside = __pyx_t_2;
   __pyx_v_z_inside = __pyx_t_3;
 
-  /* "src/grid_project/core/utils.pyx":183
+  /* "src/grid_project/core/utils.pyx":215
  *     cdef np.ndarray xy_proj
  *     x_inside, y_inside, z_inside = False, False, False
  *     x, y, z = point             # <<<<<<<<<<<<<<
@@ -6097,7 +6645,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     if (unlikely(size != 3)) {
       if (size > 3) __Pyx_RaiseTooManyValuesError(3);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 183, __pyx_L1_error)
+      __PYX_ERR(0, 215, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -6113,16 +6661,16 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     __Pyx_INCREF(__pyx_t_5);
     __Pyx_INCREF(__pyx_t_6);
     #else
-    __pyx_t_4 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_4 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = PySequence_ITEM(sequence, 2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_6 = PySequence_ITEM(sequence, 2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     #endif
   } else {
     Py_ssize_t index = -1;
-    __pyx_t_7 = PyObject_GetIter(((PyObject *)__pyx_v_point)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 183, __pyx_L1_error)
+    __pyx_t_7 = PyObject_GetIter(((PyObject *)__pyx_v_point)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 215, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_8 = Py_TYPE(__pyx_t_7)->tp_iternext;
     index = 0; __pyx_t_4 = __pyx_t_8(__pyx_t_7); if (unlikely(!__pyx_t_4)) goto __pyx_L3_unpacking_failed;
@@ -6131,7 +6679,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     __Pyx_GOTREF(__pyx_t_5);
     index = 2; __pyx_t_6 = __pyx_t_8(__pyx_t_7); if (unlikely(!__pyx_t_6)) goto __pyx_L3_unpacking_failed;
     __Pyx_GOTREF(__pyx_t_6);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_8(__pyx_t_7), 3) < 0) __PYX_ERR(0, 183, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_8(__pyx_t_7), 3) < 0) __PYX_ERR(0, 215, __pyx_L1_error)
     __pyx_t_8 = NULL;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     goto __pyx_L4_unpacking_done;
@@ -6139,20 +6687,20 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __pyx_t_8 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 183, __pyx_L1_error)
+    __PYX_ERR(0, 215, __pyx_L1_error)
     __pyx_L4_unpacking_done:;
   }
-  __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-  __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 183, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 215, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __pyx_v_x = __pyx_t_9;
   __pyx_v_y = __pyx_t_10;
   __pyx_v_z = __pyx_t_11;
 
-  /* "src/grid_project/core/utils.pyx":184
+  /* "src/grid_project/core/utils.pyx":216
  *     x_inside, y_inside, z_inside = False, False, False
  *     x, y, z = point
  *     x_1, y_1, z_1 = point  # initialize to point's coordinates             # <<<<<<<<<<<<<<
@@ -6165,7 +6713,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     if (unlikely(size != 3)) {
       if (size > 3) __Pyx_RaiseTooManyValuesError(3);
       else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
-      __PYX_ERR(0, 184, __pyx_L1_error)
+      __PYX_ERR(0, 216, __pyx_L1_error)
     }
     #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
     if (likely(PyTuple_CheckExact(sequence))) {
@@ -6181,16 +6729,16 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     __Pyx_INCREF(__pyx_t_5);
     __Pyx_INCREF(__pyx_t_4);
     #else
-    __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 184, __pyx_L1_error)
+    __pyx_t_6 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 216, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 184, __pyx_L1_error)
+    __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 216, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = PySequence_ITEM(sequence, 2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 184, __pyx_L1_error)
+    __pyx_t_4 = PySequence_ITEM(sequence, 2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 216, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     #endif
   } else {
     Py_ssize_t index = -1;
-    __pyx_t_7 = PyObject_GetIter(((PyObject *)__pyx_v_point)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 184, __pyx_L1_error)
+    __pyx_t_7 = PyObject_GetIter(((PyObject *)__pyx_v_point)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 216, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __pyx_t_8 = Py_TYPE(__pyx_t_7)->tp_iternext;
     index = 0; __pyx_t_6 = __pyx_t_8(__pyx_t_7); if (unlikely(!__pyx_t_6)) goto __pyx_L5_unpacking_failed;
@@ -6199,7 +6747,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     __Pyx_GOTREF(__pyx_t_5);
     index = 2; __pyx_t_4 = __pyx_t_8(__pyx_t_7); if (unlikely(!__pyx_t_4)) goto __pyx_L5_unpacking_failed;
     __Pyx_GOTREF(__pyx_t_4);
-    if (__Pyx_IternextUnpackEndCheck(__pyx_t_8(__pyx_t_7), 3) < 0) __PYX_ERR(0, 184, __pyx_L1_error)
+    if (__Pyx_IternextUnpackEndCheck(__pyx_t_8(__pyx_t_7), 3) < 0) __PYX_ERR(0, 216, __pyx_L1_error)
     __pyx_t_8 = NULL;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     goto __pyx_L6_unpacking_done;
@@ -6207,80 +6755,80 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     __pyx_t_8 = NULL;
     if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
-    __PYX_ERR(0, 184, __pyx_L1_error)
+    __PYX_ERR(0, 216, __pyx_L1_error)
     __pyx_L6_unpacking_done:;
   }
-  __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyInt_As_int(__pyx_t_6); if (unlikely((__pyx_t_11 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 216, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-  __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyInt_As_int(__pyx_t_5); if (unlikely((__pyx_t_10 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 216, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 184, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_As_int(__pyx_t_4); if (unlikely((__pyx_t_9 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 216, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_v_x_1 = __pyx_t_11;
   __pyx_v_y_1 = __pyx_t_10;
   __pyx_v_z_1 = __pyx_t_9;
 
-  /* "src/grid_project/core/utils.pyx":185
+  /* "src/grid_project/core/utils.pyx":217
  *     x, y, z = point
  *     x_1, y_1, z_1 = point  # initialize to point's coordinates
  *     yz_proj = mesh.sum(axis=0)             # <<<<<<<<<<<<<<
  *     xz_proj = mesh.sum(axis=1)
  *     xy_proj = mesh.sum(axis=2)
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 217, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 185, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 217, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 185, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_empty_tuple, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 185, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_axis, __pyx_int_0) < 0) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_empty_tuple, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 217, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 185, __pyx_L1_error)
+  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 217, __pyx_L1_error)
   __pyx_v_yz_proj = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "src/grid_project/core/utils.pyx":186
+  /* "src/grid_project/core/utils.pyx":218
  *     x_1, y_1, z_1 = point  # initialize to point's coordinates
  *     yz_proj = mesh.sum(axis=0)
  *     xz_proj = mesh.sum(axis=1)             # <<<<<<<<<<<<<<
  *     xy_proj = mesh.sum(axis=2)
  * 
  */
-  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 186, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 186, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 186, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_empty_tuple, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 186, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_axis, __pyx_int_1) < 0) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_Call(__pyx_t_6, __pyx_empty_tuple, __pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 218, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 186, __pyx_L1_error)
+  if (!(likely(((__pyx_t_4) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_4, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 218, __pyx_L1_error)
   __pyx_v_xz_proj = ((PyArrayObject *)__pyx_t_4);
   __pyx_t_4 = 0;
 
-  /* "src/grid_project/core/utils.pyx":187
+  /* "src/grid_project/core/utils.pyx":219
  *     yz_proj = mesh.sum(axis=0)
  *     xz_proj = mesh.sum(axis=1)
  *     xy_proj = mesh.sum(axis=2)             # <<<<<<<<<<<<<<
  * 
  *     # cast a line from the point on yz plane in z direction
  */
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 187, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_mesh), __pyx_n_s_sum); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 219, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 187, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 219, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_axis, __pyx_int_2) < 0) __PYX_ERR(0, 187, __pyx_L1_error)
-  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_empty_tuple, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 187, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_axis, __pyx_int_2) < 0) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_6 = __Pyx_PyObject_Call(__pyx_t_4, __pyx_empty_tuple, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 219, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_6);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 187, __pyx_L1_error)
+  if (!(likely(((__pyx_t_6) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_6, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 219, __pyx_L1_error)
   __pyx_v_xy_proj = ((PyArrayObject *)__pyx_t_6);
   __pyx_t_6 = 0;
 
-  /* "src/grid_project/core/utils.pyx":190
+  /* "src/grid_project/core/utils.pyx":222
  * 
  *     # cast a line from the point on yz plane in z direction
  *     while not y_inside and y_1 < yz_proj.shape[0]:             # <<<<<<<<<<<<<<
@@ -6299,18 +6847,18 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     __pyx_L9_bool_binop_done:;
     if (!__pyx_t_3) break;
 
-    /* "src/grid_project/core/utils.pyx":191
+    /* "src/grid_project/core/utils.pyx":223
  *     # cast a line from the point on yz plane in z direction
  *     while not y_inside and y_1 < yz_proj.shape[0]:
  *         if yz_proj[y_1, z] > 0:             # <<<<<<<<<<<<<<
  *             y_inside = True
  *             break
  */
-    __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_y_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_y_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 223, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_z); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_z); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 223, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 223, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_6);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_6);
@@ -6318,16 +6866,16 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_5);
     __pyx_t_6 = 0;
     __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_yz_proj), __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_yz_proj), __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 223, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PyObject_RichCompare(__pyx_t_5, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_4 = PyObject_RichCompare(__pyx_t_5, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 223, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 191, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 223, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (__pyx_t_3) {
 
-      /* "src/grid_project/core/utils.pyx":192
+      /* "src/grid_project/core/utils.pyx":224
  *     while not y_inside and y_1 < yz_proj.shape[0]:
  *         if yz_proj[y_1, z] > 0:
  *             y_inside = True             # <<<<<<<<<<<<<<
@@ -6336,7 +6884,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
       __pyx_v_y_inside = 1;
 
-      /* "src/grid_project/core/utils.pyx":193
+      /* "src/grid_project/core/utils.pyx":225
  *         if yz_proj[y_1, z] > 0:
  *             y_inside = True
  *             break             # <<<<<<<<<<<<<<
@@ -6345,7 +6893,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
       goto __pyx_L8_break;
 
-      /* "src/grid_project/core/utils.pyx":191
+      /* "src/grid_project/core/utils.pyx":223
  *     # cast a line from the point on yz plane in z direction
  *     while not y_inside and y_1 < yz_proj.shape[0]:
  *         if yz_proj[y_1, z] > 0:             # <<<<<<<<<<<<<<
@@ -6354,7 +6902,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
     }
 
-    /* "src/grid_project/core/utils.pyx":194
+    /* "src/grid_project/core/utils.pyx":226
  *             y_inside = True
  *             break
  *         y_1 += 1  # go 1 point right in horizontal direction in yz plane             # <<<<<<<<<<<<<<
@@ -6365,7 +6913,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
   }
   __pyx_L8_break:;
 
-  /* "src/grid_project/core/utils.pyx":196
+  /* "src/grid_project/core/utils.pyx":228
  *         y_1 += 1  # go 1 point right in horizontal direction in yz plane
  * 
  *     while not z_inside and z_1 < xz_proj.shape[0]:             # <<<<<<<<<<<<<<
@@ -6384,18 +6932,18 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     __pyx_L14_bool_binop_done:;
     if (!__pyx_t_3) break;
 
-    /* "src/grid_project/core/utils.pyx":197
+    /* "src/grid_project/core/utils.pyx":229
  * 
  *     while not z_inside and z_1 < xz_proj.shape[0]:
  *         if xz_proj[x, z_1] > 0:             # <<<<<<<<<<<<<<
  *             z_inside = True
  *             break
  */
-    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_x); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_z_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_z_1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_6 = PyTuple_New(2); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_GIVEREF(__pyx_t_4);
     PyTuple_SET_ITEM(__pyx_t_6, 0, __pyx_t_4);
@@ -6403,16 +6951,16 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     PyTuple_SET_ITEM(__pyx_t_6, 1, __pyx_t_5);
     __pyx_t_4 = 0;
     __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_xz_proj), __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_xz_proj), __pyx_t_6); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
-    __pyx_t_6 = PyObject_RichCompare(__pyx_t_5, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_6 = PyObject_RichCompare(__pyx_t_5, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_6); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 197, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_6); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 229, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     if (__pyx_t_3) {
 
-      /* "src/grid_project/core/utils.pyx":198
+      /* "src/grid_project/core/utils.pyx":230
  *     while not z_inside and z_1 < xz_proj.shape[0]:
  *         if xz_proj[x, z_1] > 0:
  *             z_inside = True             # <<<<<<<<<<<<<<
@@ -6421,7 +6969,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
       __pyx_v_z_inside = 1;
 
-      /* "src/grid_project/core/utils.pyx":199
+      /* "src/grid_project/core/utils.pyx":231
  *         if xz_proj[x, z_1] > 0:
  *             z_inside = True
  *             break             # <<<<<<<<<<<<<<
@@ -6430,7 +6978,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
       goto __pyx_L13_break;
 
-      /* "src/grid_project/core/utils.pyx":197
+      /* "src/grid_project/core/utils.pyx":229
  * 
  *     while not z_inside and z_1 < xz_proj.shape[0]:
  *         if xz_proj[x, z_1] > 0:             # <<<<<<<<<<<<<<
@@ -6439,7 +6987,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
     }
 
-    /* "src/grid_project/core/utils.pyx":200
+    /* "src/grid_project/core/utils.pyx":232
  *             z_inside = True
  *             break
  *         z_1 += 1  # go 1 point right in horizontal direction in xz plane             # <<<<<<<<<<<<<<
@@ -6450,7 +6998,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
   }
   __pyx_L13_break:;
 
-  /* "src/grid_project/core/utils.pyx":202
+  /* "src/grid_project/core/utils.pyx":234
  *         z_1 += 1  # go 1 point right in horizontal direction in xz plane
  * 
  *     while not x_inside and x_1 < xy_proj.shape[0]:             # <<<<<<<<<<<<<<
@@ -6469,18 +7017,18 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     __pyx_L19_bool_binop_done:;
     if (!__pyx_t_3) break;
 
-    /* "src/grid_project/core/utils.pyx":203
+    /* "src/grid_project/core/utils.pyx":235
  * 
  *     while not x_inside and x_1 < xy_proj.shape[0]:
  *         if xy_proj[x_1, y] > 0:             # <<<<<<<<<<<<<<
  *             x_inside = True
  *             break
  */
-    __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_x_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 203, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyInt_From_int(__pyx_v_x_1); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 203, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_y); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 203, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(2); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_GIVEREF(__pyx_t_6);
     PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_6);
@@ -6488,16 +7036,16 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
     PyTuple_SET_ITEM(__pyx_t_4, 1, __pyx_t_5);
     __pyx_t_6 = 0;
     __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_xy_proj), __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 203, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetItem(((PyObject *)__pyx_v_xy_proj), __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __pyx_t_4 = PyObject_RichCompare(__pyx_t_5, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 203, __pyx_L1_error)
+    __pyx_t_4 = PyObject_RichCompare(__pyx_t_5, __pyx_int_0, Py_GT); __Pyx_XGOTREF(__pyx_t_4); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 203, __pyx_L1_error)
+    __pyx_t_3 = __Pyx_PyObject_IsTrue(__pyx_t_4); if (unlikely(__pyx_t_3 < 0)) __PYX_ERR(0, 235, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     if (__pyx_t_3) {
 
-      /* "src/grid_project/core/utils.pyx":204
+      /* "src/grid_project/core/utils.pyx":236
  *     while not x_inside and x_1 < xy_proj.shape[0]:
  *         if xy_proj[x_1, y] > 0:
  *             x_inside = True             # <<<<<<<<<<<<<<
@@ -6506,7 +7054,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
       __pyx_v_x_inside = 1;
 
-      /* "src/grid_project/core/utils.pyx":205
+      /* "src/grid_project/core/utils.pyx":237
  *         if xy_proj[x_1, y] > 0:
  *             x_inside = True
  *             break             # <<<<<<<<<<<<<<
@@ -6515,7 +7063,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
       goto __pyx_L18_break;
 
-      /* "src/grid_project/core/utils.pyx":203
+      /* "src/grid_project/core/utils.pyx":235
  * 
  *     while not x_inside and x_1 < xy_proj.shape[0]:
  *         if xy_proj[x_1, y] > 0:             # <<<<<<<<<<<<<<
@@ -6524,7 +7072,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
     }
 
-    /* "src/grid_project/core/utils.pyx":206
+    /* "src/grid_project/core/utils.pyx":238
  *             x_inside = True
  *             break
  *         x_1 += 1  # go 1 point right in horizontal direction in xy plane             # <<<<<<<<<<<<<<
@@ -6535,7 +7083,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
   }
   __pyx_L18_break:;
 
-  /* "src/grid_project/core/utils.pyx":208
+  /* "src/grid_project/core/utils.pyx":240
  *         x_1 += 1  # go 1 point right in horizontal direction in xy plane
  * 
  *     return x_inside and z_inside and y_inside             # <<<<<<<<<<<<<<
@@ -6545,7 +7093,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
   __Pyx_XDECREF(__pyx_r);
   if (__pyx_v_x_inside) {
   } else {
-    __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_x_inside); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 208, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_x_inside); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 240, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_4 = __pyx_t_5;
     __pyx_t_5 = 0;
@@ -6553,13 +7101,13 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
   }
   if (__pyx_v_z_inside) {
   } else {
-    __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_z_inside); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 208, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_z_inside); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 240, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __pyx_t_4 = __pyx_t_5;
     __pyx_t_5 = 0;
     goto __pyx_L22_bool_binop_done;
   }
-  __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_y_inside); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 208, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyBool_FromLong(__pyx_v_y_inside); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 240, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __pyx_t_4 = __pyx_t_5;
   __pyx_t_5 = 0;
@@ -6568,7 +7116,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
   __pyx_t_4 = 0;
   goto __pyx_L0;
 
-  /* "src/grid_project/core/utils.pyx":175
+  /* "src/grid_project/core/utils.pyx":207
  *     return np.array(coords, dtype=int)
  * 
  * def _is_inside_not_right(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
@@ -6593,7 +7141,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
   return __pyx_r;
 }
 
-/* "src/grid_project/core/utils.pyx":210
+/* "src/grid_project/core/utils.pyx":242
  *     return x_inside and z_inside and y_inside
  * 
  * def norm(np.ndarray p_1, np.ndarray p_2):             # <<<<<<<<<<<<<<
@@ -6602,9 +7150,9 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_14_is_inside_not_righ
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_17norm(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_17norm = {"norm", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_17norm, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_17norm(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_19norm(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_3src_12grid_project_4core_5utils_19norm = {"norm", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_3src_12grid_project_4core_5utils_19norm, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_19norm(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyArrayObject *__pyx_v_p_1 = 0;
   PyArrayObject *__pyx_v_p_2 = 0;
   int __pyx_lineno = 0;
@@ -6636,11 +7184,11 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_17norm(PyObject *__py
         case  1:
         if (likely((values[1] = __Pyx_PyDict_GetItemStr(__pyx_kwds, __pyx_n_s_p_2)) != 0)) kw_args--;
         else {
-          __Pyx_RaiseArgtupleInvalid("norm", 1, 2, 2, 1); __PYX_ERR(0, 210, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("norm", 1, 2, 2, 1); __PYX_ERR(0, 242, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "norm") < 0)) __PYX_ERR(0, 210, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_pyargnames, 0, values, pos_args, "norm") < 0)) __PYX_ERR(0, 242, __pyx_L3_error)
       }
     } else if (PyTuple_GET_SIZE(__pyx_args) != 2) {
       goto __pyx_L5_argtuple_error;
@@ -6653,15 +7201,15 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_17norm(PyObject *__py
   }
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("norm", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 210, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("norm", 1, 2, 2, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 242, __pyx_L3_error)
   __pyx_L3_error:;
   __Pyx_AddTraceback("src.grid_project.core.utils.norm", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_p_1), __pyx_ptype_5numpy_ndarray, 1, "p_1", 0))) __PYX_ERR(0, 210, __pyx_L1_error)
-  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_p_2), __pyx_ptype_5numpy_ndarray, 1, "p_2", 0))) __PYX_ERR(0, 210, __pyx_L1_error)
-  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_16norm(__pyx_self, __pyx_v_p_1, __pyx_v_p_2);
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_p_1), __pyx_ptype_5numpy_ndarray, 1, "p_1", 0))) __PYX_ERR(0, 242, __pyx_L1_error)
+  if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_p_2), __pyx_ptype_5numpy_ndarray, 1, "p_2", 0))) __PYX_ERR(0, 242, __pyx_L1_error)
+  __pyx_r = __pyx_pf_3src_12grid_project_4core_5utils_18norm(__pyx_self, __pyx_v_p_1, __pyx_v_p_2);
 
   /* function exit code */
   goto __pyx_L0;
@@ -6672,7 +7220,7 @@ static PyObject *__pyx_pw_3src_12grid_project_4core_5utils_17norm(PyObject *__py
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_16norm(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_p_1, PyArrayObject *__pyx_v_p_2) {
+static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_18norm(CYTHON_UNUSED PyObject *__pyx_self, PyArrayObject *__pyx_v_p_1, PyArrayObject *__pyx_v_p_2) {
   int __pyx_v_x_1;
   int __pyx_v_y_1;
   int __pyx_v_z_1;
@@ -6691,95 +7239,95 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_16norm(CYTHON_UNUSED 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("norm", 0);
 
-  /* "src/grid_project/core/utils.pyx":217
+  /* "src/grid_project/core/utils.pyx":249
  *     cdef int y_2
  *     cdef int z_2
  *     x_1 = p_1[0]             # <<<<<<<<<<<<<<
  *     y_1 = p_1[1]
  *     z_1 = p_1[2]
  */
-  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_1), 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_1), 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 217, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 249, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_x_1 = __pyx_t_2;
 
-  /* "src/grid_project/core/utils.pyx":218
+  /* "src/grid_project/core/utils.pyx":250
  *     cdef int z_2
  *     x_1 = p_1[0]
  *     y_1 = p_1[1]             # <<<<<<<<<<<<<<
  *     z_1 = p_1[2]
  *     x_2 = p_2[0]
  */
-  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_1), 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_1), 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 218, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 250, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_y_1 = __pyx_t_2;
 
-  /* "src/grid_project/core/utils.pyx":219
+  /* "src/grid_project/core/utils.pyx":251
  *     x_1 = p_1[0]
  *     y_1 = p_1[1]
  *     z_1 = p_1[2]             # <<<<<<<<<<<<<<
  *     x_2 = p_2[0]
  *     y_2 = p_2[1]
  */
-  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_1), 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_1), 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 251, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 219, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 251, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_z_1 = __pyx_t_2;
 
-  /* "src/grid_project/core/utils.pyx":220
+  /* "src/grid_project/core/utils.pyx":252
  *     y_1 = p_1[1]
  *     z_1 = p_1[2]
  *     x_2 = p_2[0]             # <<<<<<<<<<<<<<
  *     y_2 = p_2[1]
  *     z_2 = p_2[2]
  */
-  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_2), 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 220, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_2), 0, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 252, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 220, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 252, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_x_2 = __pyx_t_2;
 
-  /* "src/grid_project/core/utils.pyx":221
+  /* "src/grid_project/core/utils.pyx":253
  *     z_1 = p_1[2]
  *     x_2 = p_2[0]
  *     y_2 = p_2[1]             # <<<<<<<<<<<<<<
  *     z_2 = p_2[2]
  *     return np.sqrt((x_1 - x_2) * (x_1 - x_2) + (y_1 - y_2) * (y_1 - y_2) + (z_1 - z_2) * (z_1 - z_2))
  */
-  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_2), 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 221, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_2), 1, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 221, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 253, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_y_2 = __pyx_t_2;
 
-  /* "src/grid_project/core/utils.pyx":222
+  /* "src/grid_project/core/utils.pyx":254
  *     x_2 = p_2[0]
  *     y_2 = p_2[1]
  *     z_2 = p_2[2]             # <<<<<<<<<<<<<<
  *     return np.sqrt((x_1 - x_2) * (x_1 - x_2) + (y_1 - y_2) * (y_1 - y_2) + (z_1 - z_2) * (z_1 - z_2))
  */
-  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_2), 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetItemInt(((PyObject *)__pyx_v_p_2), 2, long, 1, __Pyx_PyInt_From_long, 0, 0, 1); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 254, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 222, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_t_1); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 254, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_z_2 = __pyx_t_2;
 
-  /* "src/grid_project/core/utils.pyx":223
+  /* "src/grid_project/core/utils.pyx":255
  *     y_2 = p_2[1]
  *     z_2 = p_2[2]
  *     return np.sqrt((x_1 - x_2) * (x_1 - x_2) + (y_1 - y_2) * (y_1 - y_2) + (z_1 - z_2) * (z_1 - z_2))             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 223, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 255, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 223, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_sqrt); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 255, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  __pyx_t_3 = __Pyx_PyInt_From_int(((((__pyx_v_x_1 - __pyx_v_x_2) * (__pyx_v_x_1 - __pyx_v_x_2)) + ((__pyx_v_y_1 - __pyx_v_y_2) * (__pyx_v_y_1 - __pyx_v_y_2))) + ((__pyx_v_z_1 - __pyx_v_z_2) * (__pyx_v_z_1 - __pyx_v_z_2)))); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 223, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(((((__pyx_v_x_1 - __pyx_v_x_2) * (__pyx_v_x_1 - __pyx_v_x_2)) + ((__pyx_v_y_1 - __pyx_v_y_2) * (__pyx_v_y_1 - __pyx_v_y_2))) + ((__pyx_v_z_1 - __pyx_v_z_2) * (__pyx_v_z_1 - __pyx_v_z_2)))); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 255, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = NULL;
   if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_4))) {
@@ -6794,14 +7342,14 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_16norm(CYTHON_UNUSED 
   __pyx_t_1 = (__pyx_t_5) ? __Pyx_PyObject_Call2Args(__pyx_t_4, __pyx_t_5, __pyx_t_3) : __Pyx_PyObject_CallOneArg(__pyx_t_4, __pyx_t_3);
   __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
   __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
-  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 223, __pyx_L1_error)
+  if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 255, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_r = __pyx_t_1;
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "src/grid_project/core/utils.pyx":210
+  /* "src/grid_project/core/utils.pyx":242
  *     return x_inside and z_inside and y_inside
  * 
  * def norm(np.ndarray p_1, np.ndarray p_2):             # <<<<<<<<<<<<<<
@@ -8126,6 +8674,7 @@ static struct PyModuleDef __pyx_moduledef = {
 static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ConvexHull, __pyx_k_ConvexHull, sizeof(__pyx_k_ConvexHull), 0, 0, 1, 1},
   {&__pyx_n_s_ImportError, __pyx_k_ImportError, sizeof(__pyx_k_ImportError), 0, 0, 1, 1},
+  {&__pyx_n_s_QJ, __pyx_k_QJ, sizeof(__pyx_k_QJ), 0, 0, 1, 1},
   {&__pyx_n_s_all, __pyx_k_all, sizeof(__pyx_k_all), 0, 0, 1, 1},
   {&__pyx_n_s_args, __pyx_k_args, sizeof(__pyx_k_args), 0, 0, 1, 1},
   {&__pyx_n_s_array, __pyx_k_array, sizeof(__pyx_k_array), 0, 0, 1, 1},
@@ -8147,6 +8696,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_equations, __pyx_k_equations, sizeof(__pyx_k_equations), 0, 0, 1, 1},
   {&__pyx_n_s_find_distance, __pyx_k_find_distance, sizeof(__pyx_k_find_distance), 0, 0, 1, 1},
   {&__pyx_n_s_find_distance_2, __pyx_k_find_distance_2, sizeof(__pyx_k_find_distance_2), 0, 0, 1, 1},
+  {&__pyx_n_s_find_distance_2_old, __pyx_k_find_distance_2_old, sizeof(__pyx_k_find_distance_2_old), 0, 0, 1, 1},
   {&__pyx_n_s_genexpr, __pyx_k_genexpr, sizeof(__pyx_k_genexpr), 0, 0, 1, 1},
   {&__pyx_n_s_get, __pyx_k_get, sizeof(__pyx_k_get), 0, 0, 1, 1},
   {&__pyx_kp_s_grid_project_core_utils_pyx, __pyx_k_grid_project_core_utils_pyx, sizeof(__pyx_k_grid_project_core_utils_pyx), 0, 0, 1, 0},
@@ -8164,6 +8714,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_main, __pyx_k_main, sizeof(__pyx_k_main), 0, 0, 1, 1},
   {&__pyx_n_s_make_coordinates, __pyx_k_make_coordinates, sizeof(__pyx_k_make_coordinates), 0, 0, 1, 1},
   {&__pyx_n_s_mat, __pyx_k_mat, sizeof(__pyx_k_mat), 0, 0, 1, 1},
+  {&__pyx_n_s_mean, __pyx_k_mean, sizeof(__pyx_k_mean), 0, 0, 1, 1},
   {&__pyx_n_s_mesh, __pyx_k_mesh, sizeof(__pyx_k_mesh), 0, 0, 1, 1},
   {&__pyx_n_s_mesh_coords, __pyx_k_mesh_coords, sizeof(__pyx_k_mesh_coords), 0, 0, 1, 1},
   {&__pyx_n_s_mesh_point, __pyx_k_mesh_point, sizeof(__pyx_k_mesh_point), 0, 0, 1, 1},
@@ -8186,9 +8737,13 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_point_in_hull, __pyx_k_point_in_hull, sizeof(__pyx_k_point_in_hull), 0, 0, 1, 1},
   {&__pyx_n_s_point_in_hull_locals_genexpr, __pyx_k_point_in_hull_locals_genexpr, sizeof(__pyx_k_point_in_hull_locals_genexpr), 0, 0, 1, 1},
   {&__pyx_n_s_points, __pyx_k_points, sizeof(__pyx_k_points), 0, 0, 1, 1},
+  {&__pyx_n_s_qhull_options, __pyx_k_qhull_options, sizeof(__pyx_k_qhull_options), 0, 0, 1, 1},
   {&__pyx_n_s_range, __pyx_k_range, sizeof(__pyx_k_range), 0, 0, 1, 1},
   {&__pyx_n_s_scipy_spatial, __pyx_k_scipy_spatial, sizeof(__pyx_k_scipy_spatial), 0, 0, 1, 1},
   {&__pyx_n_s_send, __pyx_k_send, sizeof(__pyx_k_send), 0, 0, 1, 1},
+  {&__pyx_n_s_sign, __pyx_k_sign, sizeof(__pyx_k_sign), 0, 0, 1, 1},
+  {&__pyx_n_s_simplex, __pyx_k_simplex, sizeof(__pyx_k_simplex), 0, 0, 1, 1},
+  {&__pyx_n_s_simplices, __pyx_k_simplices, sizeof(__pyx_k_simplices), 0, 0, 1, 1},
   {&__pyx_n_s_slice_index, __pyx_k_slice_index, sizeof(__pyx_k_slice_index), 0, 0, 1, 1},
   {&__pyx_n_s_sqrt, __pyx_k_sqrt, sizeof(__pyx_k_sqrt), 0, 0, 1, 1},
   {&__pyx_n_s_src_grid_project_core_utils, __pyx_k_src_grid_project_core_utils, sizeof(__pyx_k_src_grid_project_core_utils), 0, 0, 1, 1},
@@ -8222,7 +8777,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(0, 23, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 109, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 141, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 944, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;
@@ -8255,36 +8810,36 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "src/grid_project/core/utils.pyx":104
+  /* "src/grid_project/core/utils.pyx":136
  *     cdef list slice_index
  * 
  *     inside = np.array((False, False, False))             # <<<<<<<<<<<<<<
  *     slice_index = [[1, 2],
  *                    [0, 2],
  */
-  __pyx_tuple__3 = PyTuple_Pack(3, Py_False, Py_False, Py_False); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 104, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(3, Py_False, Py_False, Py_False); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
-  /* "src/grid_project/core/utils.pyx":110
+  /* "src/grid_project/core/utils.pyx":142
  *     cdef int i
  *     for i in range(3):
  *         mesh_slice = mesh[mesh[:, i] == point[i]]             # <<<<<<<<<<<<<<
  *         if len(mesh_slice) >= 3:
  *             hull = ConvexHull(mesh_slice[:, slice_index[i]])
  */
-  __pyx_slice__4 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__4)) __PYX_ERR(0, 110, __pyx_L1_error)
+  __pyx_slice__4 = PySlice_New(Py_None, Py_None, Py_None); if (unlikely(!__pyx_slice__4)) __PYX_ERR(0, 142, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__4);
   __Pyx_GIVEREF(__pyx_slice__4);
 
-  /* "src/grid_project/core/utils.pyx":142
+  /* "src/grid_project/core/utils.pyx":174
  * 
  *     return all(
  *         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)             # <<<<<<<<<<<<<<
  *         for eq in hull.equations)
  * 
  */
-  __pyx_slice__5 = PySlice_New(Py_None, __pyx_int_neg_1, Py_None); if (unlikely(!__pyx_slice__5)) __PYX_ERR(0, 142, __pyx_L1_error)
+  __pyx_slice__5 = PySlice_New(Py_None, __pyx_int_neg_1, Py_None); if (unlikely(!__pyx_slice__5)) __PYX_ERR(0, 174, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_slice__5);
   __Pyx_GIVEREF(__pyx_slice__5);
 
@@ -8322,101 +8877,113 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GIVEREF(__pyx_tuple__8);
   __pyx_codeobj__9 = (PyObject*)__Pyx_PyCode_New(3, 0, 15, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__8, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_find_distance, 7, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__9)) __PYX_ERR(0, 7, __pyx_L1_error)
 
-  /* "src/grid_project/core/utils.pyx":50
- *     return node_count, dists_dict
+  /* "src/grid_project/core/utils.pyx":49
  * 
- * def find_distance_2(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):             # <<<<<<<<<<<<<<
+ *     return node_count, dists_dict
+ * def find_distance_2(np.ndarray points, np.ndarray mesh_coords):             # <<<<<<<<<<<<<<
+ *     cdef list dists_and_coord
+ *     cdef double min_dist
+ */
+  __pyx_tuple__10 = PyTuple_Pack(12, __pyx_n_s_points, __pyx_n_s_mesh_coords, __pyx_n_s_dists_and_coord, __pyx_n_s_min_dist, __pyx_n_s_coord, __pyx_n_s_inside, __pyx_n_s_sign, __pyx_n_s_dist, __pyx_n_s_hull, __pyx_n_s_i, __pyx_n_s_point, __pyx_n_s_simplex); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__10);
+  __Pyx_GIVEREF(__pyx_tuple__10);
+  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(2, 0, 12, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_find_distance_2, 49, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 49, __pyx_L1_error)
+
+  /* "src/grid_project/core/utils.pyx":82
+ *     return dists_and_coord
+ * 
+ * def find_distance_2_old(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):             # <<<<<<<<<<<<<<
  *     cdef list dists_from_point
  *     cdef list temp
  */
-  __pyx_tuple__10 = PyTuple_Pack(15, __pyx_n_s_points, __pyx_n_s_mesh_coords, __pyx_n_s_mesh, __pyx_n_s_dists_from_point, __pyx_n_s_temp, __pyx_n_s_min_dist, __pyx_n_s_coord, __pyx_n_s_inside, __pyx_n_s_dist, __pyx_n_s_origin_dist, __pyx_n_s_origin, __pyx_n_s_dists_and_coord, __pyx_n_s_i, __pyx_n_s_point, __pyx_n_s_mesh_point); if (unlikely(!__pyx_tuple__10)) __PYX_ERR(0, 50, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__10);
-  __Pyx_GIVEREF(__pyx_tuple__10);
-  __pyx_codeobj__11 = (PyObject*)__Pyx_PyCode_New(3, 0, 15, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__10, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_find_distance_2, 50, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__11)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(15, __pyx_n_s_points, __pyx_n_s_mesh_coords, __pyx_n_s_mesh, __pyx_n_s_dists_from_point, __pyx_n_s_temp, __pyx_n_s_min_dist, __pyx_n_s_coord, __pyx_n_s_inside, __pyx_n_s_dist, __pyx_n_s_origin_dist, __pyx_n_s_origin, __pyx_n_s_dists_and_coord, __pyx_n_s_i, __pyx_n_s_point, __pyx_n_s_mesh_point); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 82, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__12);
+  __Pyx_GIVEREF(__pyx_tuple__12);
+  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(3, 0, 15, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_find_distance_2_old, 82, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 82, __pyx_L1_error)
 
-  /* "src/grid_project/core/utils.pyx":84
+  /* "src/grid_project/core/utils.pyx":116
  *     return dists_and_coord
  * 
  * def _is_inside_old(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
  *     """ Doesn't work correctly """
  *     cdef int x, y, z
  */
-  __pyx_tuple__12 = PyTuple_Pack(8, __pyx_n_s_point, __pyx_n_s_mesh, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_z, __pyx_n_s_yz_proj, __pyx_n_s_xz_proj, __pyx_n_s_xy_proj); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 84, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__12);
-  __Pyx_GIVEREF(__pyx_tuple__12);
-  __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_is_inside_old, 84, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __pyx_tuple__14 = PyTuple_Pack(8, __pyx_n_s_point, __pyx_n_s_mesh, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_z, __pyx_n_s_yz_proj, __pyx_n_s_xz_proj, __pyx_n_s_xy_proj); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__14);
+  __Pyx_GIVEREF(__pyx_tuple__14);
+  __pyx_codeobj__15 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__14, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_is_inside_old, 116, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__15)) __PYX_ERR(0, 116, __pyx_L1_error)
 
-  /* "src/grid_project/core/utils.pyx":100
+  /* "src/grid_project/core/utils.pyx":132
  *     return False
  * 
- * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.ndarray:             # <<<<<<<<<<<<<<
+ * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.bool_:             # <<<<<<<<<<<<<<
  *     cdef np.ndarray inside
  *     cdef list slice_index
  */
-  __pyx_tuple__14 = PyTuple_Pack(7, __pyx_n_s_point, __pyx_n_s_mesh, __pyx_n_s_inside, __pyx_n_s_slice_index, __pyx_n_s_i, __pyx_n_s_mesh_slice, __pyx_n_s_hull); if (unlikely(!__pyx_tuple__14)) __PYX_ERR(0, 100, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__14);
-  __Pyx_GIVEREF(__pyx_tuple__14);
-  __pyx_codeobj__15 = (PyObject*)__Pyx_PyCode_New(2, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__14, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_is_inside, 100, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__15)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_tuple__16 = PyTuple_Pack(7, __pyx_n_s_point, __pyx_n_s_mesh, __pyx_n_s_inside, __pyx_n_s_slice_index, __pyx_n_s_i, __pyx_n_s_mesh_slice, __pyx_n_s_hull); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 132, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__16);
+  __Pyx_GIVEREF(__pyx_tuple__16);
+  __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(2, 0, 7, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_is_inside, 132, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) __PYX_ERR(0, 132, __pyx_L1_error)
 
-  /* "src/grid_project/core/utils.pyx":117
+  /* "src/grid_project/core/utils.pyx":149
  *     return inside.all()
  * 
  * def _is_inside_not_working_again(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
  *     cdef bint yz_inside, xz_inside, xy_inside
  *     cdef np.ndarray yz_proj
  */
-  __pyx_tuple__16 = PyTuple_Pack(11, __pyx_n_s_point, __pyx_n_s_mesh, __pyx_n_s_yz_inside, __pyx_n_s_xz_inside, __pyx_n_s_xy_inside, __pyx_n_s_yz_proj, __pyx_n_s_xz_proj, __pyx_n_s_xy_proj, __pyx_n_s_yz_hull, __pyx_n_s_xz_hull, __pyx_n_s_xy_hull); if (unlikely(!__pyx_tuple__16)) __PYX_ERR(0, 117, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__16);
-  __Pyx_GIVEREF(__pyx_tuple__16);
-  __pyx_codeobj__17 = (PyObject*)__Pyx_PyCode_New(2, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__16, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_is_inside_not_working_again, 117, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__17)) __PYX_ERR(0, 117, __pyx_L1_error)
+  __pyx_tuple__18 = PyTuple_Pack(11, __pyx_n_s_point, __pyx_n_s_mesh, __pyx_n_s_yz_inside, __pyx_n_s_xz_inside, __pyx_n_s_xy_inside, __pyx_n_s_yz_proj, __pyx_n_s_xz_proj, __pyx_n_s_xy_proj, __pyx_n_s_yz_hull, __pyx_n_s_xz_hull, __pyx_n_s_xy_hull); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 149, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__18);
+  __Pyx_GIVEREF(__pyx_tuple__18);
+  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(2, 0, 11, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_is_inside_not_working_again, 149, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 149, __pyx_L1_error)
 
-  /* "src/grid_project/core/utils.pyx":137
+  /* "src/grid_project/core/utils.pyx":169
  *     return yz_inside and xz_inside and xy_inside
  * 
  * def point_in_hull(np.ndarray point, hull):             # <<<<<<<<<<<<<<
  *     cdef double tolerance
  *     tolerance = 1e-12
  */
-  __pyx_tuple__18 = PyTuple_Pack(5, __pyx_n_s_point, __pyx_n_s_hull, __pyx_n_s_tolerance, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__18)) __PYX_ERR(0, 137, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__18);
-  __Pyx_GIVEREF(__pyx_tuple__18);
-  __pyx_codeobj__19 = (PyObject*)__Pyx_PyCode_New(2, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__18, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_point_in_hull, 137, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__19)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_tuple__20 = PyTuple_Pack(5, __pyx_n_s_point, __pyx_n_s_hull, __pyx_n_s_tolerance, __pyx_n_s_genexpr, __pyx_n_s_genexpr); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 169, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__20);
+  __Pyx_GIVEREF(__pyx_tuple__20);
+  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(2, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_point_in_hull, 169, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 169, __pyx_L1_error)
 
-  /* "src/grid_project/core/utils.pyx":145
+  /* "src/grid_project/core/utils.pyx":177
  *         for eq in hull.equations)
  * 
  * def make_coordinates(mesh, keep_numbers=False):             # <<<<<<<<<<<<<<
  *     """
  *     Converts the mesh to coordinates
  */
-  __pyx_tuple__20 = PyTuple_Pack(10, __pyx_n_s_mesh, __pyx_n_s_keep_numbers, __pyx_n_s_dim, __pyx_n_s_coords, __pyx_n_s_i, __pyx_n_s_col, __pyx_n_s_j, __pyx_n_s_elem, __pyx_n_s_mat, __pyx_n_s_k); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(0, 145, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__20);
-  __Pyx_GIVEREF(__pyx_tuple__20);
-  __pyx_codeobj__21 = (PyObject*)__Pyx_PyCode_New(2, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__20, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_make_coordinates, 145, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__21)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_tuple__22 = PyTuple_Pack(10, __pyx_n_s_mesh, __pyx_n_s_keep_numbers, __pyx_n_s_dim, __pyx_n_s_coords, __pyx_n_s_i, __pyx_n_s_col, __pyx_n_s_j, __pyx_n_s_elem, __pyx_n_s_mat, __pyx_n_s_k); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 177, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__22);
+  __Pyx_GIVEREF(__pyx_tuple__22);
+  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(2, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_make_coordinates, 177, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 177, __pyx_L1_error)
 
-  /* "src/grid_project/core/utils.pyx":175
+  /* "src/grid_project/core/utils.pyx":207
  *     return np.array(coords, dtype=int)
  * 
  * def _is_inside_not_right(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
  *     cdef int x, y, z
  *     cdef int x_1, y_1, z_1  # to check if point is inside
  */
-  __pyx_tuple__22 = PyTuple_Pack(14, __pyx_n_s_point, __pyx_n_s_mesh, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_z, __pyx_n_s_x_1, __pyx_n_s_y_1, __pyx_n_s_z_1, __pyx_n_s_x_inside, __pyx_n_s_y_inside, __pyx_n_s_z_inside, __pyx_n_s_yz_proj, __pyx_n_s_xz_proj, __pyx_n_s_xy_proj); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(0, 175, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__22);
-  __Pyx_GIVEREF(__pyx_tuple__22);
-  __pyx_codeobj__23 = (PyObject*)__Pyx_PyCode_New(2, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__22, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_is_inside_not_right, 175, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__23)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_tuple__24 = PyTuple_Pack(14, __pyx_n_s_point, __pyx_n_s_mesh, __pyx_n_s_x, __pyx_n_s_y, __pyx_n_s_z, __pyx_n_s_x_1, __pyx_n_s_y_1, __pyx_n_s_z_1, __pyx_n_s_x_inside, __pyx_n_s_y_inside, __pyx_n_s_z_inside, __pyx_n_s_yz_proj, __pyx_n_s_xz_proj, __pyx_n_s_xy_proj); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(0, 207, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__24);
+  __Pyx_GIVEREF(__pyx_tuple__24);
+  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(2, 0, 14, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_is_inside_not_right, 207, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 207, __pyx_L1_error)
 
-  /* "src/grid_project/core/utils.pyx":210
+  /* "src/grid_project/core/utils.pyx":242
  *     return x_inside and z_inside and y_inside
  * 
  * def norm(np.ndarray p_1, np.ndarray p_2):             # <<<<<<<<<<<<<<
  *     cdef int x_1
  *     cdef int y_1
  */
-  __pyx_tuple__24 = PyTuple_Pack(8, __pyx_n_s_p_1, __pyx_n_s_p_2, __pyx_n_s_x_1, __pyx_n_s_y_1, __pyx_n_s_z_1, __pyx_n_s_x_2, __pyx_n_s_y_2, __pyx_n_s_z_2); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(0, 210, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_tuple__24);
-  __Pyx_GIVEREF(__pyx_tuple__24);
-  __pyx_codeobj__25 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__24, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_norm, 210, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__25)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_tuple__26 = PyTuple_Pack(8, __pyx_n_s_p_1, __pyx_n_s_p_2, __pyx_n_s_x_1, __pyx_n_s_y_1, __pyx_n_s_z_1, __pyx_n_s_x_2, __pyx_n_s_y_2, __pyx_n_s_z_2); if (unlikely(!__pyx_tuple__26)) __PYX_ERR(0, 242, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__26);
+  __Pyx_GIVEREF(__pyx_tuple__26);
+  __pyx_codeobj__27 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__26, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_norm, 242, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__27)) __PYX_ERR(0, 242, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -8476,7 +9043,7 @@ static int __Pyx_modinit_type_init_code(void) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("__Pyx_modinit_type_init_code", 0);
   /*--- Type init code ---*/
-  if (PyType_Ready(&__pyx_type_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_hull) < 0) __PYX_ERR(0, 137, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_hull) < 0) __PYX_ERR(0, 169, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_hull.tp_print = 0;
   #endif
@@ -8484,7 +9051,7 @@ static int __Pyx_modinit_type_init_code(void) {
     __pyx_type_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_hull.tp_getattro = __Pyx_PyObject_GenericGetAttrNoDict;
   }
   __pyx_ptype_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_hull = &__pyx_type_3src_12grid_project_4core_5utils___pyx_scope_struct__point_in_hull;
-  if (PyType_Ready(&__pyx_type_3src_12grid_project_4core_5utils___pyx_scope_struct_1_genexpr) < 0) __PYX_ERR(0, 142, __pyx_L1_error)
+  if (PyType_Ready(&__pyx_type_3src_12grid_project_4core_5utils___pyx_scope_struct_1_genexpr) < 0) __PYX_ERR(0, 174, __pyx_L1_error)
   #if PY_VERSION_HEX < 0x030800B1
   __pyx_type_3src_12grid_project_4core_5utils___pyx_scope_struct_1_genexpr.tp_print = 0;
   #endif
@@ -8829,100 +9396,112 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_find_distance, __pyx_t_2) < 0) __PYX_ERR(0, 7, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "src/grid_project/core/utils.pyx":50
- *     return node_count, dists_dict
+  /* "src/grid_project/core/utils.pyx":49
  * 
- * def find_distance_2(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):             # <<<<<<<<<<<<<<
+ *     return node_count, dists_dict
+ * def find_distance_2(np.ndarray points, np.ndarray mesh_coords):             # <<<<<<<<<<<<<<
+ *     cdef list dists_and_coord
+ *     cdef double min_dist
+ */
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_3find_distance_2, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_find_distance_2, __pyx_t_2) < 0) __PYX_ERR(0, 49, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+
+  /* "src/grid_project/core/utils.pyx":82
+ *     return dists_and_coord
+ * 
+ * def find_distance_2_old(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):             # <<<<<<<<<<<<<<
  *     cdef list dists_from_point
  *     cdef list temp
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_3find_distance_2, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 50, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_5find_distance_2_old, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_find_distance_2, __pyx_t_2) < 0) __PYX_ERR(0, 50, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_find_distance_2_old, __pyx_t_2) < 0) __PYX_ERR(0, 82, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "src/grid_project/core/utils.pyx":84
+  /* "src/grid_project/core/utils.pyx":116
  *     return dists_and_coord
  * 
  * def _is_inside_old(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
  *     """ Doesn't work correctly """
  *     cdef int x, y, z
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_5_is_inside_old, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 84, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_7_is_inside_old, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 116, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_is_inside_old, __pyx_t_2) < 0) __PYX_ERR(0, 84, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_is_inside_old, __pyx_t_2) < 0) __PYX_ERR(0, 116, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "src/grid_project/core/utils.pyx":100
+  /* "src/grid_project/core/utils.pyx":132
  *     return False
  * 
- * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.ndarray:             # <<<<<<<<<<<<<<
+ * def _is_inside(np.ndarray point, np.ndarray mesh) -> np.bool_:             # <<<<<<<<<<<<<<
  *     cdef np.ndarray inside
  *     cdef list slice_index
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_7_is_inside, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 100, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_9_is_inside, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 132, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_is_inside, __pyx_t_2) < 0) __PYX_ERR(0, 100, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_is_inside, __pyx_t_2) < 0) __PYX_ERR(0, 132, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "src/grid_project/core/utils.pyx":117
+  /* "src/grid_project/core/utils.pyx":149
  *     return inside.all()
  * 
  * def _is_inside_not_working_again(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
  *     cdef bint yz_inside, xz_inside, xy_inside
  *     cdef np.ndarray yz_proj
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_9_is_inside_not_working_again, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 117, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_11_is_inside_not_working_again, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_is_inside_not_working_again, __pyx_t_2) < 0) __PYX_ERR(0, 117, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_is_inside_not_working_again, __pyx_t_2) < 0) __PYX_ERR(0, 149, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "src/grid_project/core/utils.pyx":137
+  /* "src/grid_project/core/utils.pyx":169
  *     return yz_inside and xz_inside and xy_inside
  * 
  * def point_in_hull(np.ndarray point, hull):             # <<<<<<<<<<<<<<
  *     cdef double tolerance
  *     tolerance = 1e-12
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_11point_in_hull, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 137, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_13point_in_hull, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_point_in_hull, __pyx_t_2) < 0) __PYX_ERR(0, 137, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_point_in_hull, __pyx_t_2) < 0) __PYX_ERR(0, 169, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "src/grid_project/core/utils.pyx":145
+  /* "src/grid_project/core/utils.pyx":177
  *         for eq in hull.equations)
  * 
  * def make_coordinates(mesh, keep_numbers=False):             # <<<<<<<<<<<<<<
  *     """
  *     Converts the mesh to coordinates
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_13make_coordinates, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 145, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_15make_coordinates, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 177, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_make_coordinates, __pyx_t_2) < 0) __PYX_ERR(0, 145, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_make_coordinates, __pyx_t_2) < 0) __PYX_ERR(0, 177, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "src/grid_project/core/utils.pyx":175
+  /* "src/grid_project/core/utils.pyx":207
  *     return np.array(coords, dtype=int)
  * 
  * def _is_inside_not_right(np.ndarray point, np.ndarray mesh):             # <<<<<<<<<<<<<<
  *     cdef int x, y, z
  *     cdef int x_1, y_1, z_1  # to check if point is inside
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_15_is_inside_not_right, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 175, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_17_is_inside_not_right, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_is_inside_not_right, __pyx_t_2) < 0) __PYX_ERR(0, 175, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_is_inside_not_right, __pyx_t_2) < 0) __PYX_ERR(0, 207, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "src/grid_project/core/utils.pyx":210
+  /* "src/grid_project/core/utils.pyx":242
  *     return x_inside and z_inside and y_inside
  * 
  * def norm(np.ndarray p_1, np.ndarray p_2):             # <<<<<<<<<<<<<<
  *     cdef int x_1
  *     cdef int y_1
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_17norm, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 210, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_3src_12grid_project_4core_5utils_19norm, NULL, __pyx_n_s_src_grid_project_core_utils); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 242, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_norm, __pyx_t_2) < 0) __PYX_ERR(0, 210, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_norm, __pyx_t_2) < 0) __PYX_ERR(0, 242, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
   /* "src/grid_project/core/utils.pyx":1
@@ -9868,6 +10447,35 @@ static PyObject *__Pyx_PyDict_GetItem(PyObject *d, PyObject* key) {
 }
 #endif
 
+/* ObjectGetItem */
+#if CYTHON_USE_TYPE_SLOTS
+static PyObject *__Pyx_PyObject_GetIndex(PyObject *obj, PyObject* index) {
+    PyObject *runerr;
+    Py_ssize_t key_value;
+    PySequenceMethods *m = Py_TYPE(obj)->tp_as_sequence;
+    if (unlikely(!(m && m->sq_item))) {
+        PyErr_Format(PyExc_TypeError, "'%.200s' object is not subscriptable", Py_TYPE(obj)->tp_name);
+        return NULL;
+    }
+    key_value = __Pyx_PyIndex_AsSsize_t(index);
+    if (likely(key_value != -1 || !(runerr = PyErr_Occurred()))) {
+        return __Pyx_GetItemInt_Fast(obj, key_value, 0, 1, 1);
+    }
+    if (PyErr_GivenExceptionMatches(runerr, PyExc_OverflowError)) {
+        PyErr_Clear();
+        PyErr_Format(PyExc_IndexError, "cannot fit '%.200s' into an index-sized integer", Py_TYPE(index)->tp_name);
+    }
+    return NULL;
+}
+static PyObject *__Pyx_PyObject_GetItem(PyObject *obj, PyObject* key) {
+    PyMappingMethods *m = Py_TYPE(obj)->tp_as_mapping;
+    if (likely(m && m->mp_subscript)) {
+        return m->mp_subscript(obj, key);
+    }
+    return __Pyx_PyObject_GetIndex(obj, key);
+}
+#endif
+
 /* RaiseTooManyValuesToUnpack */
 static CYTHON_INLINE void __Pyx_RaiseTooManyValuesError(Py_ssize_t expected) {
     PyErr_Format(PyExc_ValueError,
@@ -9927,35 +10535,6 @@ static int __Pyx_IternextUnpackEndCheck(PyObject *retval, Py_ssize_t expected) {
     }
     return 0;
 }
-
-/* ObjectGetItem */
-#if CYTHON_USE_TYPE_SLOTS
-static PyObject *__Pyx_PyObject_GetIndex(PyObject *obj, PyObject* index) {
-    PyObject *runerr;
-    Py_ssize_t key_value;
-    PySequenceMethods *m = Py_TYPE(obj)->tp_as_sequence;
-    if (unlikely(!(m && m->sq_item))) {
-        PyErr_Format(PyExc_TypeError, "'%.200s' object is not subscriptable", Py_TYPE(obj)->tp_name);
-        return NULL;
-    }
-    key_value = __Pyx_PyIndex_AsSsize_t(index);
-    if (likely(key_value != -1 || !(runerr = PyErr_Occurred()))) {
-        return __Pyx_GetItemInt_Fast(obj, key_value, 0, 1, 1);
-    }
-    if (PyErr_GivenExceptionMatches(runerr, PyExc_OverflowError)) {
-        PyErr_Clear();
-        PyErr_Format(PyExc_IndexError, "cannot fit '%.200s' into an index-sized integer", Py_TYPE(index)->tp_name);
-    }
-    return NULL;
-}
-static PyObject *__Pyx_PyObject_GetItem(PyObject *obj, PyObject* key) {
-    PyMappingMethods *m = Py_TYPE(obj)->tp_as_mapping;
-    if (likely(m && m->mp_subscript)) {
-        return m->mp_subscript(obj, key);
-    }
-    return __Pyx_PyObject_GetIndex(obj, key);
-}
-#endif
 
 /* SetItemInt */
 static int __Pyx_SetItemInt_Generic(PyObject *o, PyObject *j, PyObject *v) {

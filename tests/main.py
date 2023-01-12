@@ -156,8 +156,7 @@ def _normalize_density_2(dists_and_coord, bin_count=12):
                 res_densities += [density] * len(temp)
 
     res_densities = np.array(res_densities)
-    plt.hist(res_densities, bins=20)
-    plt.show()
+
     res_dists = np.array(res_dists)
 
     # Second part
@@ -166,13 +165,14 @@ def _normalize_density_2(dists_and_coord, bin_count=12):
     dist = np.round(res_dists[sort_index])
 
     min_d, max_d = int(dist.min()), int(dist.max()) + 1  # considering range limits
+
     # dens_fin = np.zeros((max_d - min_d))
     dens_fin = np.empty(BOX_DIM)  # Distances are indices of the array.
     dist_fin = np.empty(BOX_DIM)
     dens_fin.fill(np.nan)
     dist_fin.fill(np.nan)
     offset = 25  # Array has an offset of 25 to account for negative distances
-
+    print(min_d, max_d)
     for j in range(min_d, max_d):
         indices = np.argwhere(dist == j)
         dens_fin[offset + j] = dens[indices].mean()
@@ -194,7 +194,7 @@ def rdf():
     plt.show()
 
 
-def _is_inside(point, mesh):
+def _is_inside_old(point, mesh):
     x, y, z = point
     # yz_proj = mesh.sum(axis=0)
     # xz_proj = mesh.sum(axis=1)
@@ -229,7 +229,7 @@ def inside_or_outside(points, mesh_coords, mesh):
     for i, point in enumerate(points):
         coord = point[0:3]
         # num = point[3]  # num is the number of particles at node coord
-        inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
+        inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
         if inside:
             inside_coords.append(coord)
         else:
@@ -270,29 +270,92 @@ def norm(p_1, p_2):
     z_2 = p_2[2]
     return np.sqrt((x_1 - x_2) * (x_1 - x_2) + (y_1 - y_2) * (y_1 - y_2) + (z_1 - z_2) * (z_1 - z_2))
 
+# def _is_inside(points, mesh):
+#     hull = ConvexHull(mesh)
+#     from scipy.spatial import Delaunay
+#
+#     if not isinstance(mesh, Delaunay):
+#         hull = Delaunay(mesh, qhull_options='QJ Qbb Pp')
+#     print(hull.find_simplex(points).max())
+#     return hull.find_simplex(points) - 100 >= 0
 
+def _is_inside(point, mesh):
+    inside = np.array((False, False, False))
+    slice_index = [[1, 2], [0, 2], [0, 1]]
+    for i in range(3):
+        mesh_slice = mesh[mesh[:, i] == point[i]]
+        if len(mesh_slice) >= 3:
+            hull = ConvexHull(mesh_slice[:, slice_index[i]], qhull_options='QJ')
+            inside[i] = point_in_hull(point[slice_index[i]], hull)
+
+    return inside.all()
+
+def find_distance_3(points, mesh_coords):
+    hull = ConvexHull(mesh_coords, qhull_options='QJ')
+    dists_and_coord = []
+
+    for i, point in enumerate(points):
+        min_dist = 1000
+        coord = point[0:3]
+        # num = point[3]  # num is the number of particles at node coord
+        inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
+
+        for simplex in hull.simplices:
+            # p_0, p_1, p_2 = mesh_coords[simplex]
+            # # Calculating normal of the simplex
+            # perpend = np.cross(p_1 - p_0, p_2 - p_0)
+            # normal = perpend / np.linalg.norm(perpend)
+            # # calculate distance
+            # sign = np.sign(np.dot(coord - p_0, normal))
+            dist = norm(coord, mesh_coords[simplex].mean(axis=0))
+            if dist < min_dist:
+                min_dist = dist
+            sign = -1 if inside else 1
+
+        dists_and_coord.append((sign * min_dist, coord))
+
+    return dists_and_coord
+
+def test_find_distance_3():
+    selection_coords = np.load('selection_coords_1.npy')
+    mesh_coordinates = np.load('mesh_coordinates_1.npy')
+    # data = find_distance_3(selection_coords, mesh_coordinates)
+    # with open(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\data\\new_distances_.pickle',
+    #           'wb') as file:
+    #     pickle.dump(data, file)
+    with open(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\data\\new_distances_.pickle', 'rb') as file:
+        data = pickle.load(file)
+
+    dens, dist = _normalize_density_2(data)
+    print(dens)
+    plt.plot(range(-25, 95), dens)
+    plt.show()
 def test_is_inside():
     selection_coords = np.load('selection_coords_1.npy')
     mesh_coordinates = np.load('mesh_coordinates_1.npy')
     interface = np.load('interface_1.npy')
 
-    inside, outside = find_distance_2(selection_coords, mesh_coordinates, interface)
-    #
-    np.save('inside_1.npy', inside)
-    np.save('outside_1.npy', outside)
+    # inside = selection_coords[classification]
+    # outside = selection_coords[~classification]
+    # print(inside.shape)
+    # inside, outside = inside_or_outside(selection_coords, mesh_coordinates, interface)
+
+    # np.save('inside_4.npy', inside)
+    # np.save('outside_4.npy', outside)
     # inside, outside = np.load('inside.npy'), np.load('outside.npy')
 
-    fig = plt.figure()
-    ax = fig.add_subplot(projection='3d', proj_type='ortho')
-    ax.scatter(inside[:, 0], inside[:, 1], inside[:, 2], color='green', alpha=1, s=.2)
-    ax.scatter(outside[25000:, 0], outside[25000:, 1], outside[25000:, 2], color='red', alpha=1, s=.2)
-
-    plt.show()
+    # fig = plt.figure()
+    # ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    # ax.scatter(inside[:, 0], inside[:, 1], inside[:, 2], color='green', alpha=1, s=.2)
+    # ax.scatter(outside[:, 0], outside[:, 1], outside[:, 2], color='red', alpha=1, s=.2)
+    #
+    # plt.show()
 
 
 if __name__ == '__main__':
-    test_is_inside()
+    # test_is_inside()
     # main()
+    test_find_distance_3()
     # with open(f'{DATA_DIR}/water_rescale_1_new.pickle', 'rb') as file:
     #     o = pickle.load(file)
     # print(o)
