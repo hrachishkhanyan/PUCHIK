@@ -113,6 +113,7 @@ def find_distance_2_old(np.ndarray points, np.ndarray mesh_coords, np.ndarray me
 
     return dists_and_coord
 
+
 def _is_inside_old(np.ndarray point, np.ndarray mesh):
     """ Doesn't work correctly """
     cdef int x, y, z
@@ -129,7 +130,12 @@ def _is_inside_old(np.ndarray point, np.ndarray mesh):
 
     return False
 
+
 def _is_inside(np.ndarray point, np.ndarray mesh) -> np.bool_:
+    hull = ConvexHull(mesh)
+    return point_in_hull(point, hull)
+
+def _is_inside_meh(np.ndarray point, np.ndarray mesh) -> np.bool_:
     cdef np.ndarray inside
     cdef list slice_index
 
@@ -141,7 +147,7 @@ def _is_inside(np.ndarray point, np.ndarray mesh) -> np.bool_:
     for i in range(3):
         mesh_slice = mesh[mesh[:, i] == point[i]]
         if len(mesh_slice) >= 3:
-            hull = ConvexHull(mesh_slice[:, slice_index[i]])
+            hull = ConvexHull(mesh_slice[:, slice_index[i]], qhull_options='QJ')
             inside[i] = point_in_hull(point[slice_index[i]], hull)
 
     return inside.all()

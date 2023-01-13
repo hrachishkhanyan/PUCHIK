@@ -16,6 +16,7 @@ from grid_project.settings import DEBUG
 from grid_project.utilities.universal_functions import extract_hull  # , _is_inside
 
 from grid_project.core.utils import find_distance_2  # , norm, _is_inside
+from scipy.spatial import ConvexHull
 
 np.seterr(invalid='ignore', divide='ignore')
 
@@ -516,14 +517,14 @@ class Mesh:
         # implementing generalized normalization
         mesh_coordinates = self.make_coordinates(mesh)
         # inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
-
+        hull = ConvexHull(mesh_coordinates)
         selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
 
         selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
 
         # res, d = find_distance_2(selection_coords, mesh_coordinates, interface)  # first method
 
-        res = find_distance_2(selection_coords, mesh_coordinates, mesh)  # This and next line are second method
+        res = find_distance_2(selection_coords, mesh_coordinates)  # This and next line are second method
         res, d = self._normalize_density_2(res, bin_count=norm_bin_count)
 
         return res, d  # Return density and according distance

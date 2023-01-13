@@ -221,7 +221,7 @@ def point_in_hull(point, hull, tolerance=1e-12):
         for eq in hull.equations)
 
 
-def inside_or_outside(points, mesh_coords, mesh):
+def inside_or_outside(points, mesh_coords):
     dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
     inside_coords = []
     outside_coords = []
@@ -279,7 +279,12 @@ def norm(p_1, p_2):
 #     print(hull.find_simplex(points).max())
 #     return hull.find_simplex(points) - 100 >= 0
 
+
 def _is_inside(point, mesh):
+    hull = ConvexHull(mesh)
+    return point_in_hull(point, hull)
+
+def _is_inside_nope(point, mesh):
     inside = np.array((False, False, False))
     slice_index = [[1, 2], [0, 2], [0, 1]]
     for i in range(3):
@@ -331,31 +336,44 @@ def test_find_distance_3():
     plt.plot(range(-25, 95), dens)
     plt.show()
 def test_is_inside():
-    selection_coords = np.load('selection_coords_1.npy')
-    mesh_coordinates = np.load('mesh_coordinates_1.npy')
-    interface = np.load('interface_1.npy')
+    selection_coords = np.load('C:\\Users\\hrach\\Documents\\Simulations\\TX100\\grid_project_test\\selection_1980.npy')
+    mesh_coordinates = np.load('C:\\Users\\hrach\\Documents\\Simulations\\TX100\\grid_project_test\\mesh_1980.npy')
+    # interface = np.load('interface_1.npy')
 
     # inside = selection_coords[classification]
     # outside = selection_coords[~classification]
     # print(inside.shape)
-    # inside, outside = inside_or_outside(selection_coords, mesh_coordinates, interface)
-
+    inside, outside = inside_or_outside(selection_coords, mesh_coordinates)
+    hull = ConvexHull(mesh_coordinates, qhull_options='Qa QJ Q6')
     # np.save('inside_4.npy', inside)
     # np.save('outside_4.npy', outside)
     # inside, outside = np.load('inside.npy'), np.load('outside.npy')
 
-    # fig = plt.figure()
-    # ax = fig.add_subplot(projection='3d', proj_type='ortho')
-    # ax.scatter(inside[:, 0], inside[:, 1], inside[:, 2], color='green', alpha=1, s=.2)
-    # ax.scatter(outside[:, 0], outside[:, 1], outside[:, 2], color='red', alpha=1, s=.2)
-    #
-    # plt.show()
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d', proj_type='ortho')
+    for i in hull.simplices:
+        plt.plot(mesh_coordinates[i, 0], mesh_coordinates[i, 1], mesh_coordinates[i, 2], 'r-', alpha=0.2)
+    ax.scatter(inside[:, 0], inside[:, 1], inside[:, 2], color='green', alpha=1, s=.2)
+    ax.scatter(outside[:, 0], outside[:, 1], outside[:, 2], color='blue', alpha=1, s=.2)
 
+    plt.show()
+
+
+def func(coords, mesh, hull):
+    fig = plt.figure()
+    ax = fig.add_subplot(projection='3d', proj_type='ortho')
+
+    for i in hull.simplices:
+        plt.plot(mesh[i, 0], mesh[i, 1], mesh[i, 2], 'r-')
+    ax.scatter(coords[:, 0], coords[:, 1], coords[:, 2], color='green', alpha=1, s=.2)
+    ax.scatter(mesh[:, 0], mesh[:, 1], mesh[:, 2], color='red', alpha=1, s=.2)
+
+    plt.show()
 
 if __name__ == '__main__':
-    # test_is_inside()
+    test_is_inside()
     # main()
-    test_find_distance_3()
+    # test_find_distance_3()
     # with open(f'{DATA_DIR}/water_rescale_1_new.pickle', 'rb') as file:
     #     o = pickle.load(file)
     # print(o)
