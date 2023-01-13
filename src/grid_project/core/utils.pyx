@@ -65,7 +65,7 @@ def find_distance_2(np.ndarray points, np.ndarray mesh_coords):
         min_dist = 1000
         coord = point[0:3]
         # num = point[3]  # num is the number of particles at node coord
-        inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
+        inside = _is_inside(coord, hull)  # flag to determine if the point is inside the mesh
 
         for simplex in hull.simplices:
             dist = norm(coord, mesh_coords[simplex].mean(axis=0))
@@ -131,8 +131,7 @@ def _is_inside_old(np.ndarray point, np.ndarray mesh):
     return False
 
 
-def _is_inside(np.ndarray point, np.ndarray mesh) -> np.bool_:
-    hull = ConvexHull(mesh)
+def _is_inside(np.ndarray point, ConvexHull hull) -> np.bool_:
     return point_in_hull(point, hull)
 
 def _is_inside_meh(np.ndarray point, np.ndarray mesh) -> np.bool_:
