@@ -225,11 +225,11 @@ def inside_or_outside(points, mesh_coords):
     dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
     inside_coords = []
     outside_coords = []
-
+    hull = ConvexHull(mesh_coords, qhull_options='QJ')
     for i, point in enumerate(points):
         coord = point[0:3]
         # num = point[3]  # num is the number of particles at node coord
-        inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
+        inside = _is_inside(coord, hull)  # flag to determine if the point is inside the mesh
         if inside:
             inside_coords.append(coord)
         else:

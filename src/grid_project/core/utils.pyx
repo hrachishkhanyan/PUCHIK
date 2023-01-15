@@ -55,11 +55,12 @@ def find_distance_2(np.ndarray points, np.ndarray mesh_coords):
     cdef int sign
     cdef double dist
     dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
-    hull = ConvexHull(mesh_coords, qhull_options='QJ')
+    hull = ConvexHull(mesh_coords, qhull_options='Q0')
 
     cdef int i
     cdef np.ndarray point
     cdef np.ndarray simplex
+    cdef int vertex
 
     for i, point in enumerate(points):
         min_dist = 1000
@@ -68,7 +69,15 @@ def find_distance_2(np.ndarray points, np.ndarray mesh_coords):
         inside = _is_inside(coord, hull)  # flag to determine if the point is inside the mesh
 
         for simplex in hull.simplices:
+            # Calculate distance between centroid of simplices and coordinates
             dist = norm(coord, mesh_coords[simplex].mean(axis=0))
+
+            if dist < min_dist:
+                min_dist = dist
+
+        for vertex in hull.vertices:
+            # Calculate distances between vertices and coordinates
+            dist = norm(coord, mesh_coords[vertex])
 
             if dist < min_dist:
                 min_dist = dist
@@ -131,7 +140,7 @@ def _is_inside_old(np.ndarray point, np.ndarray mesh):
     return False
 
 
-def _is_inside(np.ndarray point, ConvexHull hull) -> np.bool_:
+def _is_inside(np.ndarray point, hull) -> np.bool_:
     return point_in_hull(point, hull)
 
 def _is_inside_meh(np.ndarray point, np.ndarray mesh) -> np.bool_:

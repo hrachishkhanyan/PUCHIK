@@ -1,4 +1,5 @@
 import pickle
+import warnings
 from functools import partial, reduce
 from multiprocessing import Pool, cpu_count
 import operator
@@ -422,7 +423,9 @@ class Mesh:
 
         for j in range(min_d, max_d):
             indices = np.argwhere(dist == j)
-            dens_fin[offset + j] = dens[indices].mean()
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', r'Mean of empty slice')
+                dens_fin[offset + j] = dens[indices].mean()
             dist_fin[offset + j] = j
 
         return dens_fin, dist_fin
@@ -517,7 +520,6 @@ class Mesh:
         # implementing generalized normalization
         mesh_coordinates = self.make_coordinates(mesh)
         # inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
-        hull = ConvexHull(mesh_coordinates)
         selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
 
         selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
@@ -555,8 +557,9 @@ class Mesh:
         res = np.array(res)
         temp_dens = res[:, 0]
         # temp_dist = res[:, 1]  # not needed?
-
-        densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dens))  # there will be nan's because of nan's
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', r'Mean of empty slice')
+            densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dens))  # there will be nan's because of nan's
         # distances = temp_dist.mean(axis=0, where=~np.isnan(temp_dist))
 
         densities = np.nan_to_num(densities, nan=0.)  # replacing nan's with 0's
