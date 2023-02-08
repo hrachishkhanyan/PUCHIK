@@ -46,6 +46,19 @@ def find_distance(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
         # dists += (temp * num)
 
     return node_count, dists_dict
+
+def norm(np.ndarray point, np.ndarray plane) -> float:
+    cdef np.ndarray p0
+    cdef np.ndarray p1
+    cdef np.ndarray p2
+    cdef np.ndarray normal
+    cdef np.ndarray n
+    p0, p1, p2 = plane
+    normal = np.cross(p1 - p0, p2 - p0)
+    n = normal / np.abs(normal)
+    dist = np.abs(np.dot(point - p0, n))
+    return dist
+
 def find_distance_2(np.ndarray points, np.ndarray mesh_coords):
     cdef list dists_and_coord
     cdef double min_dist
