@@ -1,5 +1,6 @@
 import numpy as np
 cimport numpy as np
+from pygel3d import hmesh
 from scipy.spatial import ConvexHull
 
 np.import_array()
@@ -59,82 +60,76 @@ def norm(np.ndarray point, np.ndarray plane) -> float:
     dist = np.abs(np.dot(point - p0, n))
     return dist
 
-def find_distance_2(np.ndarray points, np.ndarray mesh_coords):
-    cdef list dists_and_coord
-    cdef double min_dist
-    # cdef int num
-    cdef np.ndarray coord
-    cdef bint inside
-    cdef int sign
-    cdef double dist
-    dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
-    hull = ConvexHull(mesh_coords, qhull_options='Q0')
+def find_distance_2(hull, np.ndarray points):
+    cdef list res
+    cdef np.ndarray p
+    cdef float d
+    cdef np.ndarray s
+    # Construct PyGEL Manifold from the convex hull
+    m = hmesh.Manifold()
+    for s in hull.simplices:
+        m.add_face(hull.points[s])
 
-    cdef int i
-    cdef np.ndarray point
-    cdef np.ndarray simplex
-    cdef int vertex
+    dist = hmesh.MeshDistance(m)
+    res = []
+    for p in points:
+        # Get the distance to the point
+        # But don't trust its sign, because of possible
+        # wrong orientation of mesh face
+        d = dist.signed_distance(p)
 
-    for i, point in enumerate(points):
-        min_dist = 1000
-        coord = point[0:3]
-        # num = point[3]  # num is the number of particles at node coord
-        inside = _is_inside(coord, hull)  # flag to determine if the point is inside the mesh
+        # Correct the sign with ray inside test
+        if dist.ray_inside_test(p):
+            if d > 0:
+                d *= -1
+        else:
+            if d < 0:
+                d *= -1
 
-        for simplex in hull.simplices:
-            # Calculate distance between centroid of simplices and coordinates
-            dist = norm(coord, mesh_coords[simplex].mean(axis=0))
+        res.append((d, p))
 
-            if dist < min_dist:
-                min_dist = dist
-
-        for vertex in hull.vertices:
-            # Calculate distances between vertices and coordinates
-            dist = norm(coord, mesh_coords[vertex])
-
-            if dist < min_dist:
-                min_dist = dist
-
-        sign = -1 if inside else 1
-
-        dists_and_coord.append((sign * min_dist, coord))
-
-    return dists_and_coord
-
-def find_distance_2_old(np.ndarray points, np.ndarray mesh_coords, np.ndarray mesh):
-    cdef list dists_from_point
-    cdef list temp
-    cdef double min_dist
-    # cdef int num
-    cdef np.ndarray coord
-    cdef bint inside
-    cdef double dist
-    cdef double origin_dist
-    cdef np.ndarray origin
-    dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
-    cdef int i
-    cdef np.ndarray point
-    cdef np.ndarray mesh_point
-
-    for i, point in enumerate(points):
-        min_dist = 1000
-        coord = point[0:3]
-        # num = point[3]  # num is the number of particles at node coord
-        inside = _is_inside(coord, mesh_coords)  # flag to determine if the point is inside the mesh
-
-        for mesh_point in mesh_coords:
-            dist = norm(mesh_point, coord)
-
-            if dist < min_dist:
-                min_dist = dist
-
-        if inside:
-            min_dist *= -1
-
-        dists_and_coord.append((min_dist, coord))
-
-    return dists_and_coord
-
+    return res
+# def find_distance_2(np.ndarray points, np.ndarray mesh_coords):
+#     cdef list dists_and_coord
+#     cdef double min_dist
+#     # cdef int num
+#     cdef np.ndarray coord
+#     cdef bint inside
+#     cdef int sign
+#     cdef double dist
+#     dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
+#     hull = ConvexHull(mesh_coords, qhull_options='Q0')
+#
+#     cdef int i
+#     cdef np.ndarray point
+#     cdef np.ndarray simplex
+#     cdef int vertex
+#
+#     for i, point in enumerate(points):
+#         min_dist = 1000
+#         coord = point[0:3]
+#         # num = point[3]  # num is the number of particles at node coord
+#         inside = _is_inside(coord, hull)  # flag to determine if the point is inside the mesh
+#
+#         for simplex in hull.simplices:
+#             # Calculate distance between centroid of simplices and coordinates
+#             dist = norm(coord, mesh_coords[simplex].mean(axis=0))
+#
+#             if dist < min_dist:
+#                 min_dist = dist
+#
+#         for vertex in hull.vertices:
+#             # Calculate distances between vertices and coordinates
+#             dist = norm(coord, mesh_coords[vertex])
+#
+#             if dist < min_dist:
+#                 min_dist = dist
+#
+#         sign = -1 if inside else 1
+#
+#         dists_and_coord.append((sign * min_dist, coord))
+#
+#     return dists_and_coord
 
 def _is_inside_old(np.ndarray point, np.ndarray mesh):
     """ Doesn't work correctly """

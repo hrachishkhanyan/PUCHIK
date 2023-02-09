@@ -1,4 +1,5 @@
 import pickle
+from sys import argv # for benchmarking only
 import warnings
 from functools import partial, reduce
 from multiprocessing import Pool, cpu_count
@@ -16,8 +17,11 @@ from grid_project.utilities.decorators import timer, logger
 from grid_project.volume.monte_carlo import monte_carlo_volume
 from grid_project.settings import DEBUG
 from grid_project.utilities.universal_functions import extract_hull  # , _is_inside
+if argv[1] == 'cy':
+    from grid_project.core.utils import find_distance_2  #, norm, _is_inside
+elif argv[1] == 'py':
+    from grid_project.core.pyutils import find_distance_2  #, norm, _is_inside
 
-from grid_project.core.utils import find_distance_2, norm, _is_inside
 from scipy.spatial import ConvexHull
 
 np.seterr(invalid='ignore', divide='ignore')
@@ -86,7 +90,7 @@ class Mesh:
         Returns:
             Dimensions of the box as an int
         """
-        return int(np.ceil(self.u.dimensions[0]))
+        return int(np.ceil(self.u.trajectory[0].dimensions[0]))
 
     @logger(DEBUG)
     def calculate_volume(self, number=100_000, units='nm', method='mc', rescale=None):
@@ -275,44 +279,6 @@ class Mesh:
         interface_hull += transposed
         return interface_hull
 
-    def norm(self, point, plane):
-        p0, p1, p2 = plane
-        normal = np.cross(p1 - p0, p2 - p0)
-        n = normal / np.linalg.norm(normal)
-        dist = np.abs(np.dot(point - p0, n))
-        return dist
-
-    def find_distance_2(self, hull, points, mesh):
-        # Construct PyGEL Manifold from the convex hull
-        m = hmesh.Manifold()
-        for s in hull.simplices:
-            m.add_face(hull.points[s])
-        outside = []
-        inside = []
-        dist = hmesh.MeshDistance(m)
-        res = []
-        for p in points:
-            # Get the distance to the point
-            # But don't trust its sign, because of possible
-            # wrong orientation of mesh face
-            d = dist.signed_distance(p)
-
-            # Correct the sign with ray inside test
-            if dist.ray_inside_test(p):
-                if d > 0:
-                    d *= -1
-            else:
-                if d < 0:
-                    d *= -1
-            if d < 0:
-                inside.append(p)
-            else:
-                outside.append(p)
-            res.append((d, p))
-        inside = np.array(inside)
-        outside = np.array(outside)
-        return res
-
     # def find_distance_2(self, points, mesh_coords):
     #
     #     dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
@@ -464,29 +430,26 @@ class Mesh:
 
             selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
             selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
-            np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\selection_coords_1.npy', selection_coords)
-            np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\mesh_coordinates_1.npy', mesh_coordinates)
-            np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\interface_1.npy', mesh)
+
             # res[index] = find_distance_2(selection_coords, mesh_coordinates, interface)
             res[index] = find_distance_2(selection_coords, mesh_coordinates, mesh)
 
-            # res[index], dist[index] = self._normalize_density_2(res[index], bin_count=norm_bin_count)
+            res[index], dist[index] = self._normalize_density_2(res[index], bin_count=norm_bin_count)
             index += 1
 
-        with open(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\data\\water_rescale_1_new_.pickle',
-                  'wb') as file:
-            pickle.dump(res, file)
         # This can be a general function
-        temp_dens = np.array([elem[0] for elem in res])
-        temp_dist = np.array([elem[1] for elem in res])
+        res = np.array(res)
+        temp_dens = res[:, 0]
+        # temp_dist = res[:, 1]  # not needed?
 
-        densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dist))  # there will be nan's because of nan's
-        distances = temp_dist.mean(axis=0, where=~np.isnan(temp_dist))
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', r'Mean of empty slice')
+            densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dens))  # there will be nan's because of nan's
+        # distances = temp_dist.mean(axis=0, where=~np.isnan(temp_dist))
 
-        densities = np.nan_to_num(densities, nan=0.)  # replacing nan's with 0's
-        distances = np.nan_to_num(distances, nan=0.)
+        densities = np.nan_to_num(densities, nan=0.)
 
-        return densities, distances  # Return densities and according distances
+        return densities, np.arange(-25, self._get_int_dim() - 25)  # Return densities and according distances
 
     def _calc_dens_mp(self, frame_num, selection, interface_selection, ratio, norm_bin_count):
         """
@@ -522,13 +485,13 @@ class Mesh:
         except:
             print('Cannot construct the hull')
             return
-        res = self.find_distance_2(hull, selection_coords, mesh_coordinates)  # This and next line are second method
+        res = find_distance_2(hull, selection_coords, mesh_coordinates)  # This and next line are second method
         res, d = self._normalize_density_2(res, bin_count=norm_bin_count)
 
         return res, d  # Return density and according distance
 
     # @timer
-    def calculate_density_mp(self, selection=None, interface_selection=None, ratio=0.4, start=0, skip=1,
+    def calculate_density_mp(self, selection=None, interface_selection=None, ratio=0.4, start=0, skip=1, end=None,
                              norm_bin_count=20, cpu_count=CPU_COUNT):
         """
         Calculates density of selection from the interface
@@ -539,7 +502,7 @@ class Mesh:
         :param skip: Skip every n-th frame
         :return:
         """
-        n_frames = self.u.trajectory.n_frames
+        n_frames = self.u.trajectory.n_frames if end is None else end
 
         dens_per_frame = partial(self._calc_dens_mp,
                                  selection=selection,
@@ -576,8 +539,7 @@ class Mesh:
         res = np.array(list(res.keys())), np.array(list(res.values())) / len(frame_range)
         return res
         """
-        np.save(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\100pc_tyl\dens.npy', densities)
-        return densities, np.arange(-25, 95)  # Because of offset 25 in normalization
+        return densities, np.arange(-25, self._get_int_dim() - 25)  # Return densities and according distances
 
     def interface(self, data=None):
         mesh = self.calculate_interface() if data is None else data
@@ -650,21 +612,21 @@ def main(*args, **kwargs):
     # dens, dist = mesh.calculate_density_mp(selection='resname TIP3 and not type H',
     #                                        interface_selection=interface_selection, skip=skip)  # , number_of_frames=1)
     #
-    # dens_1, dist_1 = mesh.calculate_density_mp(
-    #     f'resname TY79 and not name {TYL7_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-    #     start=start,
-    #     ratio=ratio,
-    #     skip=skip)  # hydrophilic
+    dens_1, dist_1 = mesh.calculate_density_mp(
+        f'resname TY79 and not name {TYL7_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+        start=start,
+        ratio=ratio,
+        skip=skip)  # hydrophilic
     dens_2, dist_2 = mesh.calculate_density_mp(
         f'resname TY79 and name {TYL7_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
         start=start,
         ratio=ratio,
         skip=skip)  # hydrophobic
-    # dens_3, dist_3 = mesh.calculate_density_mp(
-    #     f'resname TX0 and not name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-    #     start=start,
-    #     ratio=ratio,
-    #     skip=skip)  # hydrophilic
+    dens_3, dist_3 = mesh.calculate_density_mp(
+        f'resname TX0 and not name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+        start=start,
+        ratio=ratio,
+        skip=skip)  # hydrophilic
     dens_4, dist_4 = mesh.calculate_density_mp(
         f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
         start=start,
@@ -681,9 +643,9 @@ def main(*args, **kwargs):
     from matplotlib import pyplot as plt
     # plt.plot(dist, dens, label='Water')
 
-    # plt.plot(dist_1[:-1], dens_1, label='TY7 hydrophilic')
+    plt.plot(dist_1[:-1], dens_1, label='TY7 hydrophilic')
     plt.plot(dist_2[:-1], dens_2, label='TY7 hydrophobic')
-    # plt.plot(dist_3[:-1], dens_3, label='TX0 hydrophilic')
+    plt.plot(dist_3[:-1], dens_3, label='TX0 hydrophilic')
     plt.plot(dist_4[:-1], dens_4, label='TX0 hydrophobic')
     plt.legend()
     plt.xlim(-15, 50)
