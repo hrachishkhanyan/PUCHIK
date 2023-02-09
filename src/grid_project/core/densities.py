@@ -287,6 +287,7 @@ class Mesh:
         m = hmesh.Manifold()
         for s in hull.simplices:
             m.add_face(hull.points[s])
+        outside = []
         inside = []
         dist = hmesh.MeshDistance(m)
         res = []
@@ -305,7 +306,11 @@ class Mesh:
                     d *= -1
             if d < 0:
                 inside.append(p)
+            else:
+                outside.append(p)
             res.append((d, p))
+        inside = np.array(inside)
+        outside = np.array(outside)
         return res
 
     # def find_distance_2(self, points, mesh_coords):
@@ -451,7 +456,7 @@ class Mesh:
             frame_num = i * skip if number_of_frames is None else i
             self.u.trajectory[frame_num]
             mesh = self.calculate_mesh(selection=interface_selection, main_structure=True,
-                                       rescale=self.interface_rescale)[:, :, :, 1]
+                                       rescale=self.interface_rescale)[:, :, :, self.main_structure]
             # interface = self.calculate_interface()
 
             # mesh_coordinates = self.make_coordinates(interface)
@@ -496,12 +501,15 @@ class Mesh:
         """
 
         self.u.trajectory[frame_num]
-
+        mesh_coords = []
         mesh = self.calculate_mesh(selection=interface_selection, main_structure=True,
-                                   rescale=self.interface_rescale)[:, :, :,
-               1]  # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
+                                   rescale=self.interface_rescale)[:, :, :, self.main_structure]  # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
         # implementing generalized normalization
-        mesh_coordinates = self.make_coordinates(mesh)
+        for index, struct in enumerate(self.main_structure):
+            mesh_coords.extend(self.make_coordinates(mesh[:, :, :, index]))
+        # mesh_coordinates = self.make_coordinates(mesh)
+        mesh_coordinates = np.array(mesh_coords)
+
         # inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
         selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
 
@@ -509,7 +517,11 @@ class Mesh:
         # selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
 
         # res, d = find_distance_2(selection_coords, mesh_coordinates, interface)  # first method
-        hull = ConvexHull(mesh_coordinates, qhull_options='Q0')
+        try:
+            hull = ConvexHull(mesh_coordinates)#, qhull_options='Q0')
+        except:
+            print('Cannot construct the hull')
+            return
         res = self.find_distance_2(hull, selection_coords, mesh_coordinates)  # This and next line are second method
         res, d = self._normalize_density_2(res, bin_count=norm_bin_count)
 
@@ -595,43 +607,45 @@ def main(*args, **kwargs):
     rescale = 1
     skip = 2000
     start = 2000
-    # system = ['TY79', 'TX0']
-    system = ['TRITO']
+    system = ['TY79', 'TX0']
+    # system = ['TRITO']
 
-    # interface_selection = f'resname TY79 and name {TY_CARBON} or resname TX0 and name {TX100_CARBON}'
-    interface_selection = f'resname TRITO and name O1 and not type H'
+    interface_selection = f'(resname TY79 and name {TYL7_HYDROPHOBIC}) or (resname TX0 and name {TX100_HYDROPHOBIC}) and not type H O'
+    # interface_selection = f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O'
+
+    # interface_selection = f'resname TRITO and name O1 and not type H'
     surf_ratio = 'NA'
     ratio = 0.6
-    # mesh = Mesh(
-    #     traj=fr'{paths["mix"]}\25tyl_75TX\centered_whole_skip_10.xtc',
-    #     top=fr'{paths["mix"]}\25tyl_75TX\centered.gro',
-    #     rescale=rescale)
     mesh = Mesh(
-        traj=fr'{paths["tx100"]}\\triton_micelle_production.xtc',
-        top=fr'{paths["tx100"]}\\triton_micelle_production999.gro',
+        traj=fr'{paths["mix"]}\25tyl_75TX\centered_whole_skip_10.xtc',
+        top=fr'{paths["mix"]}\25tyl_75TX\centered.gro',
         rescale=rescale)
+    # mesh = Mesh(
+    #     traj=fr'{paths["tx100"]}\\triton_micelle_production.xtc',
+    #     top=fr'{paths["tx100"]}\\triton_micelle_production999.gro',
+    #     rescale=rescale)
 
     mesh.interface_rescale = rescale
     mesh.select_atoms('not type H')
     mesh.select_structure(*system)
 
-    dens, dist = mesh.calculate_density_mp(selection='resname SOL and not type H',
-                                           interface_selection=interface_selection,
-                                           start=start,
-                                           ratio=ratio,
-                                           skip=skip
-                                           )
+    # dens, dist = mesh.calculate_density_mp(selection='resname SOL and not type H',
+    #                                        interface_selection=interface_selection,
+    #                                        start=start,
+    #                                        ratio=ratio,
+    #                                        skip=skip
+    #                                        )
 
-    dens_1, dist_1 = mesh.calculate_density_mp(
-        f'resname TRITO and not name {TRITO_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-        start=start,
-        ratio=ratio,
-        skip=skip)  # hydrophilic
-    dens_2, dist_2 = mesh.calculate_density_mp(
-        f'resname TRITO and name {TRITO_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-        start=start,
-        ratio=ratio,
-        skip=skip)  # hydrophobic
+    # dens_1, dist_1 = mesh.calculate_density_mp(
+    #     f'resname TRITO and not name {TRITO_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    #     start=start,
+    #     ratio=ratio,
+    #     skip=skip)  # hydrophilic
+    # dens_2, dist_2 = mesh.calculate_density_mp(
+    #     f'resname TRITO and name {TRITO_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    #     start=start,
+    #     ratio=ratio,
+    #     skip=skip)  # hydrophobic
 
     # dens, dist = mesh.calculate_density_mp(selection='resname TIP3 and not type H',
     #                                        interface_selection=interface_selection, skip=skip)  # , number_of_frames=1)
@@ -641,21 +655,21 @@ def main(*args, **kwargs):
     #     start=start,
     #     ratio=ratio,
     #     skip=skip)  # hydrophilic
-    # dens_2, dist_2 = mesh.calculate_density_mp(
-    #     f'resname TY79 and name {TYL7_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-    #     start=start,
-    #     ratio=ratio,
-    #     skip=skip)  # hydrophobic
+    dens_2, dist_2 = mesh.calculate_density_mp(
+        f'resname TY79 and name {TYL7_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+        start=start,
+        ratio=ratio,
+        skip=skip)  # hydrophobic
     # dens_3, dist_3 = mesh.calculate_density_mp(
     #     f'resname TX0 and not name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
     #     start=start,
     #     ratio=ratio,
     #     skip=skip)  # hydrophilic
-    # dens_4, dist_4 = mesh.calculate_density_mp(
-    #     f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-    #     start=start,
-    #     ratio=ratio,
-    #     skip=skip)  # hydrophobic
+    dens_4, dist_4 = mesh.calculate_density_mp(
+        f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+        start=start,
+        ratio=ratio,
+        skip=skip)  # hydrophobic
 
     # np.save(
     #     f'{BASE_DATA_SAVE_DIR}/{"_".join(system)}_data_{rescale}_rescaled_{str(ratio).replace("․", "_")}.npy',
@@ -665,12 +679,12 @@ def main(*args, **kwargs):
     # plt.hist([i[0] for i in res[1].values()])
 
     from matplotlib import pyplot as plt
-    plt.plot(dist, dens, label='Water')
+    # plt.plot(dist, dens, label='Water')
 
-    plt.plot(dist_1, dens_1, label='TY7 hydrophilic')
-    plt.plot(dist_2, dens_2, label='TY7 hydrophobic')
+    # plt.plot(dist_1[:-1], dens_1, label='TY7 hydrophilic')
+    plt.plot(dist_2[:-1], dens_2, label='TY7 hydrophobic')
     # plt.plot(dist_3[:-1], dens_3, label='TX0 hydrophilic')
-    # plt.plot(dist_4[:-1], dens_4, label='TX0 hydrophobic')
+    plt.plot(dist_4[:-1], dens_4, label='TX0 hydrophobic')
     plt.legend()
     plt.xlim(-15, 50)
     # plt.plot(dist_1, dens_1)
