@@ -1,7 +1,7 @@
 from pygel3d import hmesh
 
 
-def find_distance_2(self, hull, points):
+def find_distance_2(hull, points):
     # Construct PyGEL Manifold from the convex hull
     m = hmesh.Manifold()
     for s in hull.simplices:
