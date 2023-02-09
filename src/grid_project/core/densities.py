@@ -421,12 +421,16 @@ class Mesh:
         for i in loop_range:
             frame_num = i * skip if number_of_frames is None else i
             self.u.trajectory[frame_num]
+            mesh_coords = []
+
             mesh = self.calculate_mesh(selection=interface_selection, main_structure=True,
                                        rescale=self.interface_rescale)[:, :, :, self.main_structure]
             # interface = self.calculate_interface()
 
             # mesh_coordinates = self.make_coordinates(interface)
-            mesh_coordinates = self.make_coordinates(mesh)
+            for index, struct in enumerate(self.main_structure):
+                mesh_coords.extend(self.make_coordinates(mesh[:, :, :, index]))
+            mesh_coordinates = np.array(mesh_coords)
 
             selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
             selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
