@@ -64,7 +64,7 @@ def find_distance_2(hull, np.ndarray points):
     cdef list res
     cdef np.ndarray p
     cdef float d
-    cdef np.ndarray s
+
     # Construct PyGEL Manifold from the convex hull
     m = hmesh.Manifold()
     for s in hull.simplices:

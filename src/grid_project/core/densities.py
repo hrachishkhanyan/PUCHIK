@@ -430,9 +430,13 @@ class Mesh:
 
             selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
             selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
-
+            try:
+                hull = ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
+            except:
+                print('Cannot construct the hull')
+                return
             # res[index] = find_distance_2(selection_coords, mesh_coordinates, interface)
-            res[index] = find_distance_2(selection_coords, mesh_coordinates, mesh)
+            res[index] = find_distance_2(hull, selection_coords)
 
             res[index], dist[index] = self._normalize_density_2(res[index], bin_count=norm_bin_count)
             index += 1
@@ -485,7 +489,7 @@ class Mesh:
         except:
             print('Cannot construct the hull')
             return
-        res = find_distance_2(hull, selection_coords, mesh_coordinates)  # This and next line are second method
+        res = find_distance_2(hull, selection_coords)  # This and next line are second method
         res, d = self._normalize_density_2(res, bin_count=norm_bin_count)
 
         return res, d  # Return density and according distance
