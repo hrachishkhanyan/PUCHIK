@@ -1,5 +1,5 @@
 import pickle
-from sys import argv # for benchmarking only
+from sys import argv  # for benchmarking only
 import warnings
 from functools import partial, reduce
 from multiprocessing import Pool, cpu_count
@@ -17,10 +17,11 @@ from grid_project.utilities.decorators import timer, logger
 from grid_project.volume.monte_carlo import monte_carlo_volume
 from grid_project.settings import DEBUG
 from grid_project.utilities.universal_functions import extract_hull  # , _is_inside
-if argv[1] == 'cy':
-    from grid_project.core.utils import find_distance_2  #, norm, _is_inside
-elif argv[1] == 'py':
-    from grid_project.core.pyutils import find_distance_2  #, norm, _is_inside
+
+# if argv[1] == 'cy':
+from grid_project.core.utils import find_distance_2  # , norm, _is_inside
+# elif argv[1] == 'py':
+#     from grid_project.core.pyutils import find_distance_2  # , norm, _is_inside
 
 from scipy.spatial import ConvexHull
 
@@ -412,7 +413,7 @@ class Mesh:
         res = [None] * frame_count
         dist = [None] * frame_count
         # dists_dict_list = [{}] * (frame_count + 1)
-        index = 0  # index of the frame
+        j = 0  # index of the frame
         loop_range = range(0, frame_count) if number_of_frames is None else np.linspace(0, self.length,
                                                                                         number_of_frames,
                                                                                         dtype=int,
@@ -428,22 +429,23 @@ class Mesh:
             # interface = self.calculate_interface()
 
             # mesh_coordinates = self.make_coordinates(interface)
-            for index, struct in enumerate(self.main_structure):
+            for index, _ in enumerate(self.main_structure):
                 mesh_coords.extend(self.make_coordinates(mesh[:, :, :, index]))
             mesh_coordinates = np.array(mesh_coords)
 
             selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
-            selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
+            selection_coords = self.make_coordinates(selection_mesh)
             try:
                 hull = ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
             except:
                 print('Cannot construct the hull')
                 return
             # res[index] = find_distance_2(selection_coords, mesh_coordinates, interface)
-            res[index] = find_distance_2(hull, selection_coords)
+            print(j)
+            res[j] = find_distance_2(hull, selection_coords)
 
-            res[index], dist[index] = self._normalize_density_2(res[index], bin_count=norm_bin_count)
-            index += 1
+            res[j], dist[j] = self._normalize_density_2(res[j], bin_count=norm_bin_count)
+            j += 1
 
         # This can be a general function
         res = np.array(res)
@@ -474,7 +476,8 @@ class Mesh:
         self.u.trajectory[frame_num]
         mesh_coords = []
         mesh = self.calculate_mesh(selection=interface_selection, main_structure=True,
-                                   rescale=self.interface_rescale)[:, :, :, self.main_structure]  # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
+                                   rescale=self.interface_rescale)[:, :, :,
+               self.main_structure]  # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
         # implementing generalized normalization
         for index, struct in enumerate(self.main_structure):
             mesh_coords.extend(self.make_coordinates(mesh[:, :, :, index]))
@@ -489,7 +492,7 @@ class Mesh:
 
         # res, d = find_distance_2(selection_coords, mesh_coordinates, interface)  # first method
         try:
-            hull = ConvexHull(mesh_coordinates)#, qhull_options='Q0')
+            hull = ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
         except:
             print('Cannot construct the hull')
             return
@@ -620,26 +623,26 @@ def main(*args, **kwargs):
     # dens, dist = mesh.calculate_density_mp(selection='resname TIP3 and not type H',
     #                                        interface_selection=interface_selection, skip=skip)  # , number_of_frames=1)
     #
-    dens_1, dist_1 = mesh.calculate_density_mp(
-        f'resname TY79 and not name {TYL7_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-        start=start,
-        ratio=ratio,
-        skip=skip)  # hydrophilic
-    dens_2, dist_2 = mesh.calculate_density_mp(
-        f'resname TY79 and name {TYL7_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-        start=start,
-        ratio=ratio,
-        skip=skip)  # hydrophobic
-    dens_3, dist_3 = mesh.calculate_density_mp(
-        f'resname TX0 and not name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-        start=start,
-        ratio=ratio,
-        skip=skip)  # hydrophilic
-    dens_4, dist_4 = mesh.calculate_density_mp(
-        f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-        start=start,
-        ratio=ratio,
-        skip=skip)  # hydrophobic
+    dens_1, dist_1 = mesh.calculate_density(selection=f'resname TY79 and not name {TYL7_HYDROPHOBIC} and not type H O',
+                                            interface_selection=interface_selection,
+                                            start=start,
+                                            number_of_frames=1,
+                                            skip=skip)  # hydrophilic
+    # dens_2, dist_2 = mesh.calculate_density_mp(
+    #     f'resname TY79 and name {TYL7_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    #     start=start,
+    #     ratio=ratio,
+    #     skip=skip)  # hydrophobic
+    # dens_3, dist_3 = mesh.calculate_density_mp(
+    #     f'resname TX0 and not name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    #     start=start,
+    #     ratio=ratio,
+    #     skip=skip)  # hydrophilic
+    # dens_4, dist_4 = mesh.calculate_density_mp(
+    #     f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    #     start=start,
+    #     ratio=ratio,
+    #     skip=skip)  # hydrophobic
 
     # np.save(
     #     f'{BASE_DATA_SAVE_DIR}/{"_".join(system)}_data_{rescale}_rescaled_{str(ratio).replace("․", "_")}.npy',

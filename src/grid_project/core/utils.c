@@ -3431,8 +3431,8 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4find_distance_2(CYTH
   PyObject *__pyx_v_res = 0;
   PyArrayObject *__pyx_v_p = 0;
   float __pyx_v_d;
-  PyArrayObject *__pyx_v_s = 0;
   PyObject *__pyx_v_m = NULL;
+  PyObject *__pyx_v_s = NULL;
   PyObject *__pyx_v_dist = NULL;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
@@ -3452,7 +3452,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4find_distance_2(CYTH
   __Pyx_RefNannySetupContext("find_distance_2", 0);
 
   /* "src/grid_project/core/utils.pyx":69
- *     cdef np.ndarray s
+ * 
  *     # Construct PyGEL Manifold from the convex hull
  *     m = hmesh.Manifold()             # <<<<<<<<<<<<<<
  *     for s in hull.simplices:
@@ -3530,8 +3530,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4find_distance_2(CYTH
       }
       __Pyx_GOTREF(__pyx_t_1);
     }
-    if (!(likely(((__pyx_t_1) == Py_None) || likely(__Pyx_TypeTest(__pyx_t_1, __pyx_ptype_5numpy_ndarray))))) __PYX_ERR(0, 70, __pyx_L1_error)
-    __Pyx_XDECREF_SET(__pyx_v_s, ((PyArrayObject *)__pyx_t_1));
+    __Pyx_XDECREF_SET(__pyx_v_s, __pyx_t_1);
     __pyx_t_1 = 0;
 
     /* "src/grid_project/core/utils.pyx":71
@@ -3545,7 +3544,7 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4find_distance_2(CYTH
     __Pyx_GOTREF(__pyx_t_2);
     __pyx_t_6 = __Pyx_PyObject_GetAttrStr(__pyx_v_hull, __pyx_n_s_points); if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 71, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
-    __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_6, ((PyObject *)__pyx_v_s)); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 71, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_t_6, __pyx_v_s); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 71, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __pyx_t_6 = NULL;
@@ -3855,8 +3854,8 @@ static PyObject *__pyx_pf_3src_12grid_project_4core_5utils_4find_distance_2(CYTH
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_res);
   __Pyx_XDECREF((PyObject *)__pyx_v_p);
-  __Pyx_XDECREF((PyObject *)__pyx_v_s);
   __Pyx_XDECREF(__pyx_v_m);
+  __Pyx_XDECREF(__pyx_v_s);
   __Pyx_XDECREF(__pyx_v_dist);
   __Pyx_XGIVEREF(__pyx_r);
   __Pyx_RefNannyFinishContext();
@@ -8982,7 +8981,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *     cdef list res
  *     cdef np.ndarray p
  */
-  __pyx_tuple__12 = PyTuple_Pack(8, __pyx_n_s_hull, __pyx_n_s_points, __pyx_n_s_res, __pyx_n_s_p, __pyx_n_s_d, __pyx_n_s_s, __pyx_n_s_m, __pyx_n_s_dist); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 63, __pyx_L1_error)
+  __pyx_tuple__12 = PyTuple_Pack(8, __pyx_n_s_hull, __pyx_n_s_points, __pyx_n_s_res, __pyx_n_s_p, __pyx_n_s_d, __pyx_n_s_m, __pyx_n_s_s, __pyx_n_s_dist); if (unlikely(!__pyx_tuple__12)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__12);
   __Pyx_GIVEREF(__pyx_tuple__12);
   __pyx_codeobj__13 = (PyObject*)__Pyx_PyCode_New(2, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__12, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_grid_project_core_utils_pyx, __pyx_n_s_find_distance_2, 63, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__13)) __PYX_ERR(0, 63, __pyx_L1_error)
