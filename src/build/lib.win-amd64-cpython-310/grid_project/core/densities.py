@@ -1,4 +1,5 @@
 import pickle
+# from sys import argv  # for benchmarking only
 import warnings
 from functools import partial, reduce
 from multiprocessing import Pool, cpu_count
@@ -8,6 +9,7 @@ from MDAnalysis.analysis.distances import self_distance_array
 from MDAnalysis.transformations.wrap import wrap
 import MDAnalysis as mda
 import numpy as np
+from pygel3d import hmesh
 # from numpy.linalg import norm
 
 # Local imports
@@ -16,7 +18,11 @@ from grid_project.volume.monte_carlo import monte_carlo_volume
 from grid_project.settings import DEBUG
 from grid_project.utilities.universal_functions import extract_hull  # , _is_inside
 
+# if argv[1] == 'cy':
 from grid_project.core.utils import find_distance_2  # , norm, _is_inside
+# elif argv[1] == 'py':
+#    from grid_project.core.pyutils import find_distance_2  # , norm, _is_inside
+from grid_project.core.utils import norm, _is_inside
 from scipy.spatial import ConvexHull
 
 np.seterr(invalid='ignore', divide='ignore')
@@ -43,7 +49,7 @@ class Mesh:
         self.grid_matrix = None
         self.u: mda.Universe = mda.Universe(top, traj) if top else mda.Universe(traj)
         self.ag = None
-        self.dim = self.u.dimensions
+        self.dim = None
         self.mesh = None
         self.rescale = rescale
         self.interface_rescale = 1  # this is for calculating a rescaled interface then upscaling it
@@ -51,6 +57,7 @@ class Mesh:
         self.unique_resnames = None
         self.main_structure = []
         self.interface_borders = None  # defined in calculate_interface method
+        self.current_frame = 0
 
     def select_atoms(self, sel):
         """
@@ -75,7 +82,6 @@ class Mesh:
         :param auto: Determine automatically if True
         :return: None
         """
-
         self.main_structure = np.where(np.in1d(self.unique_resnames, res_names))[0]
 
     def _get_int_dim(self):
@@ -85,6 +91,7 @@ class Mesh:
         Returns:
             Dimensions of the box as an int
         """
+
         return int(np.ceil(self.u.dimensions[0]))
 
     @logger(DEBUG)
@@ -134,7 +141,7 @@ class Mesh:
         return grid_matrix
 
     @staticmethod
-    def check_cube(x: float, y: float, z: float, rescale=1) -> tuple:
+    def check_cube(x: float, y: float, z: float) -> tuple:
         """
         Find to which cube does the atom belong to
         Args:
@@ -150,9 +157,9 @@ class Mesh:
         # n_x = round(x / rescale_coef)
         # n_y = round(y / rescale_coef)
         # n_z = round(z / rescale_coef)
-        n_x = int(x / rescale)
-        n_y = int(y / rescale)
-        n_z = int(z / rescale)
+        n_x = int(x)
+        n_y = int(y)
+        n_z = int(z)
 
         return n_x, n_y, n_z
 
@@ -186,19 +193,17 @@ class Mesh:
         """
         return int(np.ceil(self_distance_array(self.ag.positions).min()))
 
-
     def _calc_density(self, mol_type, grid_dim, min_distance_coeff):
         """ Not sure what's this for. May delete it later """
         density_matrix = self.make_grid(grid_dim, dim=min_distance_coeff, d4=False)
         for atom in self.ag:
-            # print(atom.position)
             x, y, z = self.check_cube(*atom.position, rescale=min_distance_coeff)
             if atom.type == mol_type:
                 density_matrix[x, y, z] += 1
 
         return density_matrix
 
-    def _calc_mesh(self, grid_dim, rescale, ag, diff=False):
+    def _calc_mesh(self, grid_dim, selection, diff=False):
         """
         Calculates the mesh according the atom positions in the box
 
@@ -210,20 +215,19 @@ class Mesh:
         Returns:
             np.ndarray: The grid
         """
-        grid_matrix = self.make_grid(grid_dim, dim=rescale, d4=len(self.unique_resnames))
+        self.u.trajectory[self.current_frame]
+        atom_group = self.u.select_atoms(selection)
 
-        if ag is None:
-            ag = self.ag
-
-        for atom in ag:
-            x, y, z = self.check_cube(*atom.position, rescale=rescale)
+        grid_matrix = self.make_grid(grid_dim, d4=len(self.unique_resnames))
+        for atom in atom_group:
+            x, y, z = self.check_cube(*atom.position)
             res_number = 0 if not diff else np.where(self.unique_resnames == atom.resname)
             grid_matrix[x, y, z, res_number] += 1
 
         return grid_matrix
 
     # @logger(DEBUG)
-    def calculate_mesh(self, selection=None, main_structure=False, rescale=None):
+    def calculate_mesh(self, selection=None, main_structure=False):
         """
         Calculates the mesh using _calc_mesh private method
         Args:
@@ -234,11 +238,13 @@ class Mesh:
             np.ndarray: Returns the grid matrix
         """
         # find closest atoms and rescale positions according to this
-        grid_dim = self._get_int_dim()  # get one dimension
-        atom_group = self.u.select_atoms(selection) if selection is not None else self.ag
+        # get one dimension
 
+        # print(atom_group.universe.trajectory.frame)
+        # self.u.trajectory[atom_group.universe.trajectory.frame]
         # define the matrices
-        grid_matrix = self._calc_mesh(grid_dim, rescale, atom_group, main_structure)
+
+        grid_matrix = self._calc_mesh(self._get_int_dim(), selection, main_structure)
 
         if main_structure:  # if selection is None, then it's the main structure
             self.grid_matrix = grid_matrix
@@ -275,69 +281,6 @@ class Mesh:
         interface_hull += transposed
         return interface_hull
 
-    def find_distance_2(self, points, mesh_coords, mesh):
-        dists_and_coord = []  # Will contain distance of the point from the interface and from the origin
-
-        for i, point in enumerate(points):
-            min_dist = 1000
-            coord = point[0:3]
-            num = point[3]  # num is the number of particles at node coord
-            inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
-
-            for mesh_point in mesh_coords:
-                dist = norm(mesh_point, coord)
-
-                if dist < min_dist:
-                    min_dist = dist
-
-            if inside:
-                min_dist *= -1
-
-            dists_and_coord.append((min_dist, coord))
-
-        return dists_and_coord
-
-    # @logger(DEBUG)
-    # def _find_distance(self, points, mesh_coords, mesh):
-    #     """
-    #     Finds the distances between points and mesh coordinates
-    #     :param points (ndarray): Coordinates of points that is an ndarray containing 3D coordinates
-    #     :param mesh_coords (ndarray): Mesh coordinates. Is an ndarray containing 3D coordinates
-    #     :param mesh (ndarray): Mesh in 3D matrix form. Needed to quickly determine whether the point is inside structure
-    #     or outside
-    #     :return tuple: length 2 tuple. First value is the number of particles in each node. Second is a dictionary with
-    #     keys as distances and values as lists of nodes at that distance
-    #     """
-    #     # TODO! Move irrelevant pieces to a separate function
-    #     # dists = []
-    #     dists_dict = {}
-    #     node_count = []
-    #
-    #     for i, point in enumerate(points):
-    #         min_dist = 1000  # some starting distance. FIXME take from the existing ones
-    #         coord = point[0:3]
-    #         num = point[3]  # num is the number of particles at node coord
-    #         inside = _is_inside(coord, mesh)  # flag to determine if the point is inside the mesh
-    #
-    #         for mesh_point in mesh_coords:
-    #             dist = norm(mesh_point, coord)
-    #
-    #             if dist < min_dist:
-    #                 min_dist = dist
-    #         if inside:
-    #             min_dist *= -1  # distance from interface is negative if inside
-    #
-    #         temp = [min_dist]
-    #         node_count += temp
-    #
-    #         if not dists_dict.get(min_dist):  # Check if the distance is in the dictionary
-    #             dists_dict[min_dist] = []  # create it if not
-    #
-    #         dists_dict[min_dist] += (temp * num)
-    #         # dists += (temp * num)
-    #
-    #     return node_count, dists_dict
-
     # @logger(DEBUG)
     def _normalize_density(self, node_count, dist_dict):
         # Normalization !TODO Generalize
@@ -357,16 +300,18 @@ class Mesh:
         # Տուփը բաժանում ենք N հավասար խորանարդերի։ Հաշվում ենք բոլոր տուփերի միջև դիստանցիաները ու դրանց համապատասխան
         # մասնիկների քանակները։ Մասնիկները քանակը բաժանում ենք խորանարդի ծավալի վրա ու ^ այս դիստանցիաներից յուրաքանչյուրին
         # վերագրում ենք այդ խտությունը
-
+        dimension_extra = 120 - self._get_int_dim()  # TODO: change this
         res_dists = []
         res_densities = []
-        number_matrix = np.empty(shape=(self._get_int_dim(),) * 3 + (2,))
+        number_matrix = np.empty(shape=(self._get_int_dim() + dimension_extra,) * 3 + (2,))
         number_matrix.fill(np.nan)
         bin_size = self._get_int_dim() // bin_count
 
         for dc in dists_and_coord:
             x, y, z = dc[1]
+
             number_matrix[x, y, z, 1] = dc[0]
+
             if np.isnan(number_matrix[x, y, z, 0]):
                 number_matrix[x, y, z, 0] = 0
             number_matrix[x, y, z, 0] += 1
@@ -384,7 +329,6 @@ class Mesh:
                     temp = list(dists[~np.isnan(dists)])
                     res_dists += temp
                     res_densities += [density] * len(temp)
-
         res_densities = np.array(res_densities)
         res_dists = np.array(res_dists)
 
@@ -393,19 +337,21 @@ class Mesh:
         dens = res_densities[sort_index]
         dist = np.round(res_dists[sort_index])
         min_d, max_d = int(dist.min()), int(dist.max()) + 1  # considering range limit exclusion
-        dens_fin = np.empty(self._get_int_dim())  # Distances are indices of the array.
-        dist_fin = np.empty(self._get_int_dim())
+
+        offset = 25  # Array has an offset of 35 to account for negative distances
+        dens_fin = np.empty(self._get_int_dim() + dimension_extra + offset)  # Distances are indices of the array.
+        dist_fin = np.empty(self._get_int_dim() + dimension_extra + offset)
         dens_fin.fill(np.nan)
         dist_fin.fill(np.nan)
-        offset = 25  # Array has an offset of 25 to account for negative distances
 
         for j in range(min_d, max_d):
             indices = np.argwhere(dist == j)
             with warnings.catch_warnings():
                 warnings.filterwarnings('ignore', r'Mean of empty slice')
-                dens_fin[offset + j] = dens[indices].mean()
-            dist_fin[offset + j] = j
 
+                dens_fin[offset + j] = dens[indices].mean()
+
+            dist_fin[offset + j] = j
         return dens_fin, dist_fin
 
     def _extract_from_mesh(self, mol_type):
@@ -418,7 +364,8 @@ class Mesh:
 
         return self.grid_matrix[:, :, :, mol_index]
 
-    def calculate_density(self, interface_selection, selection=None, start=0, skip=1, number_of_frames=None, norm_bin_count=20):
+    def calculate_density(self, interface_selection, selection=None, start=0, skip=1, number_of_frames=None,
+                          norm_bin_count=20):
         """
         Calculates the density of selection from interface
 
@@ -437,7 +384,7 @@ class Mesh:
         res = [None] * frame_count
         dist = [None] * frame_count
         # dists_dict_list = [{}] * (frame_count + 1)
-        index = 0  # index of the frame
+        j = 0  # index of the frame
         loop_range = range(0, frame_count) if number_of_frames is None else np.linspace(0, self.length,
                                                                                         number_of_frames,
                                                                                         dtype=int,
@@ -446,38 +393,42 @@ class Mesh:
         for i in loop_range:
             frame_num = i * skip if number_of_frames is None else i
             self.u.trajectory[frame_num]
-            mesh = self.calculate_mesh(selection=interface_selection, main_structure=True,
-                                       rescale=self.interface_rescale)[:, :, :, 1]
+            mesh_coords = []
+
+            mesh = self.calculate_mesh(selection=interface_selection, main_structure=True)[:, :, :, self.main_structure]
             # interface = self.calculate_interface()
 
             # mesh_coordinates = self.make_coordinates(interface)
-            mesh_coordinates = self.make_coordinates(mesh)
+            for index, _ in enumerate(self.main_structure):
+                mesh_coords.extend(self.make_coordinates(mesh[:, :, :, index]))
+            mesh_coordinates = np.array(mesh_coords)
 
-            selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
-            selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
-            np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\selection_coords_1.npy', selection_coords)
-            np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\mesh_coordinates_1.npy', mesh_coordinates)
-            np.save(r'C:\Users\hrach\PycharmProjects\md_grid_project\tests\interface_1.npy', mesh)
+            selection_mesh = self.calculate_mesh(selection)[:, :, :, 0]
+            selection_coords = self.make_coordinates(selection_mesh)
+            try:
+                hull = ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
+            except:
+                print('Cannot construct the hull')
+                return
             # res[index] = find_distance_2(selection_coords, mesh_coordinates, interface)
-            res[index] = find_distance_2(selection_coords, mesh_coordinates, mesh)
+            res[j] = find_distance_2(hull, selection_coords)
 
-            # res[index], dist[index] = self._normalize_density_2(res[index], bin_count=norm_bin_count)
-            index += 1
-
-        with open(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\data\\water_rescale_1_new_.pickle',
-                  'wb') as file:
-            pickle.dump(res, file)
+            res[j], dist[j] = self._normalize_density_2(res[j], bin_count=norm_bin_count)
+            j += 1
+        print(res)
         # This can be a general function
-        temp_dens = np.array([elem[0] for elem in res])
-        temp_dist = np.array([elem[1] for elem in res])
+        res = np.array(res)
+        temp_dens = res[:, 0]
+        # temp_dist = res[:, 1]  # not needed?
 
-        densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dist))  # there will be nan's because of nan's
-        distances = temp_dist.mean(axis=0, where=~np.isnan(temp_dist))
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', r'Mean of empty slice')
+            densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dens))  # there will be nan's because of nan's
+        # distances = temp_dist.mean(axis=0, where=~np.isnan(temp_dist))
 
-        densities = np.nan_to_num(densities, nan=0.)  # replacing nan's with 0's
-        distances = np.nan_to_num(distances, nan=0.)
+        densities = np.nan_to_num(densities, nan=0.)
 
-        return densities, distances  # Return densities and according distances
+        return densities, np.arange(-25, self._get_int_dim())  # Return densities and according distances
 
     def _calc_dens_mp(self, frame_num, selection, interface_selection, ratio, norm_bin_count):
         """
@@ -490,27 +441,36 @@ class Mesh:
         Returns:
             tuple: Density array and corresponding distances
         """
+        self.current_frame = frame_num
 
-        self.u.trajectory[frame_num]
-
-        mesh = self.calculate_mesh(selection=interface_selection, main_structure=True,
-                                   rescale=self.interface_rescale)[:, :, :, 1]        # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
+        mesh_coords = []
+        mesh = self.calculate_mesh(selection=interface_selection, main_structure=True)[:, :, :,
+               self.main_structure]  # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
         # implementing generalized normalization
-        mesh_coordinates = self.make_coordinates(mesh)
-        # inverse = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
-        selection_mesh = self.calculate_mesh(selection, rescale=self.rescale)[:, :, :, 0]
+        for index, struct in enumerate(self.main_structure):
+            mesh_coords.extend(self.make_coordinates(mesh[:, :, :, index]))
+        # mesh_coordinates = self.make_coordinates(mesh)
+        mesh_coordinates = np.array(mesh_coords)
 
-        selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
+        selection_mesh = self.calculate_mesh(selection)[:, :, :, 0]
+
+        selection_coords = self.make_coordinates(selection_mesh)
+
+        # selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
 
         # res, d = find_distance_2(selection_coords, mesh_coordinates, interface)  # first method
-
-        res = find_distance_2(selection_coords, mesh_coordinates)  # This and next line are second method
+        try:
+            hull = ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
+        except Exception as m:
+            print('Cannot construct the hull', m)
+            return
+        res = find_distance_2(hull, selection_coords)  # This and next line are second method
         res, d = self._normalize_density_2(res, bin_count=norm_bin_count)
 
         return res, d  # Return density and according distance
 
     # @timer
-    def calculate_density_mp(self, selection=None, interface_selection=None, ratio=0.4, start=0, skip=1,
+    def calculate_density_mp(self, selection=None, interface_selection=None, ratio=0.4, start=0, skip=1, end=None,
                              norm_bin_count=20, cpu_count=CPU_COUNT):
         """
         Calculates density of selection from the interface
@@ -521,7 +481,7 @@ class Mesh:
         :param skip: Skip every n-th frame
         :return:
         """
-        n_frames = self.u.trajectory.n_frames
+        n_frames = self.u.trajectory.n_frames if end is None else end
 
         dens_per_frame = partial(self._calc_dens_mp,
                                  selection=selection,
@@ -535,18 +495,20 @@ class Mesh:
         res = np.array(res)
         temp_dens = res[:, 0]
         # temp_dist = res[:, 1]  # not needed?
+
         with warnings.catch_warnings():
             warnings.filterwarnings('ignore', r'Mean of empty slice')
             densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dens))  # there will be nan's because of nan's
         # distances = temp_dist.mean(axis=0, where=~np.isnan(temp_dist))
 
         densities = np.nan_to_num(densities, nan=0.)  # replacing nan's with 0's
+
         # distances = np.nan_to_num(distances, nan=0.)
         # with open(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\data\\water_rescale_1_new.pickle',
         #           'wb') as file:
         #     pickle.dump(res, file)
         """  First method
-        
+
         densities = [elem[0] for elem in res]
         dists = [elem[1] for elem in res]
         dists_dict_list = [self._normalize_density(densities[index], d) for index, d in enumerate(dists)]
@@ -557,8 +519,7 @@ class Mesh:
         res = np.array(list(res.keys())), np.array(list(res.values())) / len(frame_range)
         return res
         """
-        np.save(r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\100pc_tyl\dens.npy', densities)
-        return densities, np.arange(-25, 95)  # Because of offset 25 in normalization
+        return densities, np.arange(-25, len(densities) - 25)  # Return densities and according distances
 
     def interface(self, data=None):
         mesh = self.calculate_interface() if data is None else data
@@ -576,63 +537,98 @@ class Mesh:
 
 
 def main(*args, **kwargs):
-    from src.test.mol_parts import TYL3_HYDROPHOBIC, TX100_HYDROPHOBIC
+    from src.test.mol_parts import TYL3_HYDROPHOBIC, TX100_HYDROPHOBIC, TYL7_HYDROPHOBIC, TX100_OXYGEN, TY7_OXYGEN, \
+        TY_CARBON, TX100_CARBON
     from grid_project.settings import BASE_DATA_SAVE_DIR
     TRITO_HYDROPHOBIC = 'C19 C20 C21 C22 C23 C24 C25 C26 C27 C28 C29 C30 C31'
 
     paths = {
         'tx100': r'C:\Users\hrach\Documents\Simulations\TX100',
-        'mix': r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3'
+        'mix': r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_7'
     }
     rescale = 1
-    skip = 200
-    system = ['TRITO']
-    interface_selection = f'resname TRITO and name {TRITO_HYDROPHOBIC} and not type H'
-    # interface_selection = f'resname TY39 and name {TYL3_HYDROPHOBIC} and not type H'
+    skip = 1500
+    start = 10
+    system = ['TY79', 'TX0']
+    # system = ['TRITO']
+
+    interface_selection = f'(resname TY79 and name {TYL7_HYDROPHOBIC}) or (resname TX0 and name {TX100_HYDROPHOBIC}) and not type H O'
+    # interface_selection = f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O'
+
+    # interface_selection = f'resname TRITO and name O1 and not type H'
     surf_ratio = 'NA'
     ratio = 0.6
     mesh = Mesh(
-        traj=fr'{paths["tx100"]}\triton_micelle_production.xtc',
-        top=fr'{paths["tx100"]}\triton_micelle_production999.gro',
+        traj=fr'{paths["mix"]}\50tyl_50TX\centered_whole_skip_20.xtc',
+        top=fr'{paths["mix"]}\50tyl_50TX\centered.gro',
         rescale=rescale)
+    print(mesh.u.trajectory)
+    # mesh = Mesh(
+    #     traj=fr'{paths["tx100"]}\\triton_micelle_production.xtc',
+    #     top=fr'{paths["tx100"]}\\triton_micelle_production999.gro',
+    #     rescale=rescale)
+
     mesh.interface_rescale = rescale
     mesh.select_atoms('not type H')
     mesh.select_structure(*system)
 
-    # dens, dist = mesh.calculate_density(selection='resname SOL and not type H',
-    #                                     interface_selection=interface_selection, number_of_frames=1)
+    # dens, dist = mesh.calculate_density_mp(selection='resname SOL and not type H',
+    #                                        interface_selection=interface_selection,
+    #                                        start=start,
+    #                                        ratio=ratio,
+    #                                        skip=skip
+    #                                        )
 
-    # dens, dist = mesh.calculate_density_mp(selection='resname TIP3 and not type H',
-    #                                        interface_selection=interface_selection, skip=skip)  # , number_of_frames=1)
-    #
-    dens_1, dist_1 = mesh.calculate_density_mp(
-        f'resname TRITO and not name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-        ratio=ratio,
-        skip=skip)  # hydrophobic
-    # dens_2, dist_2 = mesh.calculate_density_mp(
-    #     f'resname TY39 and not name {TYL3_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    # dens_1, dist_1 = mesh.calculate_density_mp(
+    #     f'resname TRITO and not name {TRITO_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    #     start=start,
     #     ratio=ratio,
     #     skip=skip)  # hydrophilic
-    # d_3, dens_3 = mesh.calculate_density_mp(
-    #     f'resname TX0 and not name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    # dens_2, dist_2 = mesh.calculate_density_mp(
+    #     f'resname TRITO and name {TRITO_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+    #     start=start,
     #     ratio=ratio,
     #     skip=skip)  # hydrophobic
-    # d_4, dens_4 = mesh.calculate_density_mp(
-    #     f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
-    #     ratio=ratio,
-    #     skip=skip)  # hydrophilic
+
+    dens, dist = mesh.calculate_density_mp(selection='resname TIP3 and not type H',
+                                           interface_selection=interface_selection, start=start, skip=skip)  # , number_of_frames=1)
+
+    dens_1, dist_1 = mesh.calculate_density_mp(selection=f'resname TY79 and not name {TYL7_HYDROPHOBIC} and not type H O',
+                                            interface_selection=interface_selection,
+                                            start=start,
+                                            skip=skip)  # hydrophilic
+    dens_2, dist_2 = mesh.calculate_density_mp(
+        f'resname TY79 and name {TYL7_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+        start=start,
+        ratio=ratio,
+        skip=skip)  # hydrophobic
+    dens_3, dist_3 = mesh.calculate_density_mp(
+        f'resname TX0 and not name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+        start=start,
+        ratio=ratio,
+        skip=skip)  # hydrophilic
+    dens_4, dist_4 = mesh.calculate_density_mp(
+        f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O', interface_selection=interface_selection,
+        start=start,
+        ratio=ratio,
+        skip=skip)  # hydrophobic
 
     # np.save(
-    #     f'{BASE_DATA_SAVE_DIR}/{"_".join(system)}_{surf_ratio}_data_{rescale}_rescaled_{str(ratio).replace("․", "_")}_with_Oxy.npy',
-    #     np.array([d, dens, d_1, dens_1, d_2, dens_2], dtype=object))  # , d_3, dens_3, d_4, dens_4], dtype=object))
+    #     f'{BASE_DATA_SAVE_DIR}/{"_".join(system)}_data_{rescale}_rescaled_{str(ratio).replace("․", "_")}.npy',
+    #     np.array([dens, dist, dens_1, dist_1, dens_2, dist_2, dens_3, dist_3, dens_4, dist_4], dtype=object))  # , d_3, dens_3, d_4, dens_4], dtype=object))
     # d, dens, d_1, dens_1, d_2, dens_2, d_3, dens_3, d_4, dens_4 = np.load(
     #     f'{DATA_DIR}/{"_".join(system)}_{surf_ratio}_data_{rescale}_rescaled.npy', allow_pickle=True)
     # plt.hist([i[0] for i in res[1].values()])
 
     from matplotlib import pyplot as plt
+    plt.plot(dist, dens, label='Water')
 
-    plt.plot(dens_1, dist_1)
-
+    plt.plot(dist_1, dens_1, label='TY7 hydrophilic')
+    plt.plot(dist_2, dens_2, label='TY7 hydrophobic')
+    plt.plot(dist_3, dens_3, label='TX0 hydrophilic')
+    plt.plot(dist_4, dens_4, label='TX0 hydrophobic')
+    plt.legend()
+    plt.xlim(-15, 50)
     # plt.plot(dist_1, dens_1)
     #
     # plt.plot(dist_2, dens_2)

@@ -2,3 +2,5 @@ tests/scratch.py
 src/cpp
 test.npy
 src/dist
+.fleet
+.vscode
