@@ -7,7 +7,6 @@ grid_project/settings.py
 grid_project.egg-info/PKG-INFO
 grid_project.egg-info/SOURCES.txt
 grid_project.egg-info/dependency_links.txt
-grid_project.egg-info/requires.txt
 grid_project.egg-info/top_level.txt
 grid_project/core/utils.c
 grid_project/core/__init__.py

@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
-Name: grid-project
+Name: grid_project
 Version: 1.0.10
 Summary: Grid project creates a grid from an molecular dynamics structure file. The system in question can have an arbitrary structure. Volume and species densities can then calculated.
 Home-page: https://github.com/hrachishkhanyan/grid_project
@@ -29,7 +29,7 @@ Project-URL: Bug Tracker, https://github.com/hrachishkhanyan/grid_project/issues
 Classifier: Programming Language :: Python :: 3
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Operating System :: OS Independent
-Requires-Python: >=3.9
+Requires-Python: >=3.11
 Description-Content-Type: text/markdown
 License-File: LICENSE
 

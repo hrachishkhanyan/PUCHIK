@@ -19,7 +19,7 @@ from grid_project.settings import DEBUG
 from grid_project.utilities.universal_functions import extract_hull  # , _is_inside
 
 # if argv[1] == 'cy':
-from grid_project.core.utils import find_distance  # , norm, _is_inside
+from grid_project.core.utils import find_distance_2  # , norm, _is_inside
 # elif argv[1] == 'py':
 #    from grid_project.core.pyutils import find_distance_2  # , norm, _is_inside
 # from grid_project.core.utils import norm, _is_inside
@@ -91,7 +91,7 @@ class Mesh:
         Returns:
             Dimensions of the box as an int
         """
-        self.u.trajectory[self.current_frame]
+
         return int(np.ceil(self.u.dimensions[0]))
 
     @logger(DEBUG)
@@ -244,7 +244,7 @@ class Mesh:
         # self.u.trajectory[atom_group.universe.trajectory.frame]
         # define the matrices
 
-        grid_matrix = self._calc_mesh(self._get_int_dim(), selection, main_structure)  # !TODO _get_int_dim փոխի
+        grid_matrix = self._calc_mesh(self._get_int_dim(), selection, main_structure)
 
         if main_structure:  # if selection is None, then it's the main structure
             self.grid_matrix = grid_matrix
@@ -281,61 +281,78 @@ class Mesh:
         interface_hull += transposed
         return interface_hull
 
-    def _calculate_density_grid(self, coords, bin_count):
-        # Works on a cubic box. !TODO Generalize later
-        self.u.trajectory[self.current_frame]
+    # @logger(DEBUG)
+    def _normalize_density(self, node_count, dist_dict):
+        # Normalization !TODO Generalize
+        result = {}
+        # dists = np.array(dists)
+        unique_dists = set(dist_dict)
+        node_count = np.array(node_count)
 
-        # distances = np.array([item[0] for item in dists_and_coord])
-        # coords = np.array([item[1] for item in coords])
-        coords = np.array(coords)
+        for dist in unique_dists:
+            dist_length = len(node_count[node_count == dist])
+            result[dist] = len(np.array(dist_dict[dist])) / dist_length / (self.rescale ** 3)
 
-        density_grid = np.zeros((bin_count, bin_count, bin_count))
-        # distance_grid = np.zeros((bin_count, bin_count, bin_count))
-        # molecule_count_grid = np.zeros((bin_count, bin_count, bin_count))
+        return result
 
-        edges, step = np.linspace(0, self._get_int_dim(), bin_count + 1, retstep=True)
-        grid_cell_volume = step ** 3
+    def _normalize_density_2(self, dists_and_coord, bin_count=12):
+        # bin_count - how many equal parts is one dimension divided
+        # Տուփը բաժանում ենք N հավասար խորանարդերի։ Հաշվում ենք բոլոր տուփերի միջև դիստանցիաները ու դրանց համապատասխան
+        # մասնիկների քանակները։ Մասնիկները քանակը բաժանում ենք խորանարդի ծավալի վրա ու ^ այս դիստանցիաներից յուրաքանչյուրին
+        # վերագրում ենք այդ խտությունը
+        dimension_extra = 120 - self._get_int_dim()  # TODO: change this
+        res_dists = []
+        res_densities = []
+        number_matrix = np.empty(shape=(self._get_int_dim() + dimension_extra,) * 3 + (2,))
+        number_matrix.fill(np.nan)
+        bin_size = self._get_int_dim() // bin_count
 
-        # y_edges = np.linspace(0, self._get_int_dim(), bin_count + 1)
-        # z_edges = np.linspace(0, self._get_int_dim(), bin_count + 1)
+        for dc in dists_and_coord:
+            x, y, z = dc[1]
 
-        for x, y, z in coords:
-            x_idx = np.digitize(x, edges) - 1
-            y_idx = np.digitize(y, edges) - 1
-            z_idx = np.digitize(z, edges) - 1
+            number_matrix[x, y, z, 1] = dc[0]
 
-            density_grid[x_idx, y_idx, z_idx] += 1
-            # distance_grid[x_idx, y_idx, z_idx] += dist
-            # molecule_count_grid[x_idx, y_idx, z_idx] += 1
+            if np.isnan(number_matrix[x, y, z, 0]):
+                number_matrix[x, y, z, 0] = 0
+            number_matrix[x, y, z, 0] += 1
 
-        density_grid /= grid_cell_volume
+        for i in range(0, bin_count):
+            for j in range(0, bin_count):
+                for k in range(0, bin_count):
+                    bin_ = number_matrix[
+                           i * bin_size: (i + 1) * bin_size,
+                           j * bin_size: (j + 1) * bin_size,
+                           k * bin_size: (k + 1) * bin_size
+                           ]
+                    density = np.nansum(bin_[:, :, :, 0]) / (bin_size ** 3)
+                    dists = bin_[:, :, :, 1]
+                    temp = list(dists[~np.isnan(dists)])
+                    res_dists += temp
+                    res_densities += [density] * len(temp)
+        res_densities = np.array(res_densities)
+        res_dists = np.array(res_dists)
 
-        # mean_distance_grid = np.zeros_like(distance_grid)
-        # non_zero_indices = molecule_count_grid > 0
+        # Second part
+        sort_index = np.argsort(res_dists)
+        dens = res_densities[sort_index]
+        dist = np.round(res_dists[sort_index])
+        min_d, max_d = int(dist.min()), int(dist.max()) + 1  # considering range limit exclusion
 
-        # mean_distance_grid[non_zero_indices] = distance_grid[non_zero_indices] / molecule_count_grid[
-        #     non_zero_indices]
-        return density_grid
+        offset = 25  # Array has an offset of 35 to account for negative distances
+        dens_fin = np.empty(self._get_int_dim() + dimension_extra + offset)  # Distances are indices of the array.
+        dist_fin = np.empty(self._get_int_dim() + dimension_extra + offset)
+        dens_fin.fill(np.nan)
+        dist_fin.fill(np.nan)
 
-    def _grid_centers(self, hull, bin_count):
-        self.u.trajectory[self.current_frame]
+        for j in range(min_d, max_d):
+            indices = np.argwhere(dist == j)
+            with warnings.catch_warnings():
+                warnings.filterwarnings('ignore', r'Mean of empty slice')
 
-        edges, step = np.linspace(0, self._get_int_dim(), bin_count + 1, retstep=True)
-        x_centers = (edges[:-1] + edges[1:]) / 2
-        y_centers = (edges[:-1] + edges[1:]) / 2
-        z_centers = (edges[:-1] + edges[1:]) / 2
-        x_grid, y_grid, z_grid = np.meshgrid(x_centers, y_centers, z_centers, indexing='ij')
+                dens_fin[offset + j] = dens[indices].mean()
 
-        return np.vstack([x_grid.ravel(), y_grid.ravel(), z_grid.ravel()]).T
-
-
-    def _normalize_density(self, coords, bin_count=12):
-        density_grid = self._calculate_density_grid(coords, bin_count)
-        # mean_distance_grid = mean_distance_grid.flatten()
-        density_grid = density_grid.flatten()
-        # sorted_indices = np.argsort(mean_distance_grid)
-
-        return density_grid
+            dist_fin[offset + j] = j
+        return dens_fin, dist_fin
 
     def _extract_from_mesh(self, mol_type):
         if mol_type not in self.unique_resnames:
@@ -361,31 +378,30 @@ class Mesh:
         self.current_frame = frame_num
 
         mesh_coords = []
-
         mesh = self.calculate_mesh(selection=interface_selection, main_structure=True)[:, :, :,
-               self.main_structure]
-
+               self.main_structure]  # interface = stretch(self.calculate_interface(ratio=ratio), self.interface_rescale, 3)  # uncomment after
+        # implementing generalized normalization
         for index, struct in enumerate(self.main_structure):
             mesh_coords.extend(self.make_coordinates(mesh[:, :, :, index]))
+        # mesh_coordinates = self.make_coordinates(mesh)
         mesh_coordinates = np.array(mesh_coords)
-
-        selection_coords = self.u.select_atoms(selection).positions  # self.make_coordinates(selection_mesh)
-
-        try:
-            hull = ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
-        except Exception as m:
-            print(f'Cannot construct the hull at frame {self.current_frame}:', m)
-            return
-        grid_centers = self._grid_centers(hull, bin_count=norm_bin_count)
-
-        distances = np.array(find_distance(hull, grid_centers))  # Calculate distances from the interface to each grid cell
-        densities = self._normalize_density(selection_coords, bin_count=norm_bin_count)  # Calculate the density of each cell
-
-        indices = np.argsort(distances)
-        distances = distances[indices]
-        densities = densities[indices]
-
-        return distances, densities
+        print(mesh_coordinates)
+        # selection_mesh = self.calculate_mesh(selection)[:, :, :, 0]
+        #
+        # selection_coords = self.make_coordinates(selection_mesh)
+        #
+        # # selection_coords = self.make_coordinates(selection_mesh, keep_numbers=True)
+        #
+        # # res, d = find_distance_2(selection_coords, mesh_coordinates, interface)  # first method
+        # try:
+        #     hull = ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
+        # except Exception as m:
+        #     print('Cannot construct the hull', m)
+        #     return
+        # res = find_distance_2(hull, selection_coords)  # This and next line are second method
+        # res, d = self._normalize_density_2(res, bin_count=norm_bin_count)
+        #
+        # return res, d  # Return density and according distance
 
     # @timer
     def calculate_density(self, selection=None, interface_selection=None, start=0, skip=1, end=None,
@@ -401,6 +417,7 @@ class Mesh:
         :param skip: Skip every n-th frame
         :return:
         """
+        print('gavno')
         n_frames = self.u.trajectory.n_frames if end is None else end
 
         dens_per_frame = partial(self._calc_dens_mp,
@@ -412,18 +429,16 @@ class Mesh:
         with Pool(cpu_count) as worker_pool:
             res = worker_pool.map(dens_per_frame, frame_range)
         res = np.array(res)
-        distances = res[:, 0]
-        densities = res[:, 1]
+        temp_dens = res[:, 0]
+        # temp_dist = res[:, 1]  # not needed?
 
-        distances = distances.mean(axis=0)
-        densities = densities.mean(axis=0)
-        # with warnings.catch_warnings():
-        #     warnings.filterwarnings('ignore', r'Mean of empty slice')
-        #     densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dens))  # there will be nan's because of nan's
+        with warnings.catch_warnings():
+            warnings.filterwarnings('ignore', r'Mean of empty slice')
+            densities = temp_dens.mean(axis=0, where=~np.isnan(temp_dens))  # there will be nan's because of nan's
 
-        # densities = np.nan_to_num(densities, nan=0.)  # replacing nan's with 0's
+        densities = np.nan_to_num(densities, nan=0.)  # replacing nan's with 0's
 
-        return distances, densities
+        return densities, np.arange(-25, len(densities) - 25)  # Return densities and according distances
 
     def interface(self, data=None):
         mesh = self.calculate_interface() if data is None else data
@@ -440,5 +455,31 @@ class Mesh:
         return res
 
 
+def test(*args, **kwargs):
+    from src.test.mol_parts import TYL3_HYDROPHOBIC, TX100_HYDROPHOBIC, TYL7_HYDROPHOBIC, TX100_OXYGEN, TY7_OXYGEN, \
+        TY_CARBON, TX100_CARBON
+    from grid_project.settings import BASE_DATA_SAVE_DIR
+    TRITO_HYDROPHOBIC = 'C19 C20 C21 C22 C23 C24 C25 C26 C27 C28 C29 C30 C31'
+
+    paths = {
+        'tx100': r'C:\Users\hrach\Documents\Simulations\TX100',
+        'mix': r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3'
+    }
+    rescale = 1
+    skip = 20
+    start = 2000
+    system = ['TY39']
+    interface_selection = \
+        f'(resname TY39 and name {TYL3_HYDROPHOBIC}) or (resname TX0 and name {TX100_HYDROPHOBIC}) and not type H O'
+    # interface_selection = f'resname TX0 and name {TX100_HYDROPHOBIC} and not type H O'
+
+    # interface_selection = f'resname TRITO and name O1 and not type H'
+    name = '100pc_tyl'
+    mesh = Mesh(
+        traj=fr'{paths["mix"]}\{name}\centered_whole_skip_10.xtc',
+        top=fr'{paths["mix"]}\{name}\centered.gro',
+        rescale=rescale)
+
+
 if __name__ == '__main__':
-    pass
+    test()
