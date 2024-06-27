@@ -1,6 +1,6 @@
 tests/scratch.py
-src/cpp
+AICON/cpp
 test.npy
-src/dist
+AICON/dist
 .fleet
 .vscode

@@ -1,0 +1,35 @@
+[build-system]
+requires = [
+    "setuptools>=61.0",
+    "Cython",
+    "numpy>=1.26.0",
+    "setuptools",
+    "wheel"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "AICON"
+version = "1.0.1"
+authors = [
+    { name = "Hrachya Ishkhanyan", email = "hrachya.ishkhanyan@kcl.ac.uk" },
+]
+description = "Grid project creates a grid from an molecular dynamics structure file. The system in question can have an arbitrary structure. Volume and species densities can then calculated."
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+dependencies = [
+    "MDAnalysis",
+    "scipy>=1.14.0",
+    "PyGEL3D"
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/hrachishkhanyan/grid_project"
+"Bug Tracker" = "https://github.com/hrachishkhanyan/grid_project/issues"
+

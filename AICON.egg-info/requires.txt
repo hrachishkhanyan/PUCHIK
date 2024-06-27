@@ -1,0 +1,3 @@
+MDAnalysis
+scipy>=1.14.0
+PyGEL3D

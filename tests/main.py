@@ -1,10 +1,11 @@
 import operator
+import os
 from collections import Counter
 from functools import reduce
 
 import numpy as np
 from MDAnalysis.analysis.rdf import InterRDF
-from grid_project.utilities.universal_functions import make_coordinates
+# from src.grid_project.utilities.universal_functions import make_coordinates
 from matplotlib import pyplot as plt
 import pickle
 from grid_project import Mesh
@@ -21,10 +22,9 @@ def main(*args, **kwargs):
     system = ['TY39', 'TX0']
     surf_ratio = '50_50'
     ratio = 0.4
-    mesh = Mesh(
-        traj=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\50tyl_50TX\production.part0005_skip_10.xtc',
-        top=r'C:\Users\hrach\Documents\Simulations\tyloxapol_tx\tyl_3\50tyl_50TX\production.part0005.gro',
-        rescale=rescale)
+    PATH = r"C:\Users\hrach\Documents\Simulations\naol_micelles"
+    system = "200-naol-micelle-5M-Nacl"
+    mesh = Mesh(os.path.join(PATH, system, 'centered.xtc'), os.path.join(PATH, system, 'centered.gro'))
     mesh.interface_rescale = rescale
     # mesh = Mesh(r'C:\Users\hrach\Documents\Simulations\TX100\triton_micelle_production999.gro', rescale=rescale)
     # tail = 'C6A C6B C6C C5 C4 C2 C3A C3B C1A C1B C1F C1C C1E C1D'
