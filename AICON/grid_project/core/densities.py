@@ -1,6 +1,6 @@
 # from sys import argv  # for benchmarking only
 import logging
-import warnings
+# import warnings
 from functools import partial
 from multiprocessing import cpu_count
 
@@ -14,7 +14,7 @@ from scipy.spatial import ConvexHull
 from tqdm.contrib.concurrent import process_map
 
 # Local imports
-from ..utilities.decorators import timer, logger
+from ..utilities.decorators import logger  #, timer
 from ..utilities.universal_functions import extract_hull  # , _is_inside
 from ..volume.monte_carlo import monte_carlo_volume
 from ..settings import DEBUG
@@ -53,6 +53,8 @@ class Mesh:
         self.length = self.u.trajectory.n_frames
         self.unique_resnames = None
         self.main_structure = []
+        self.main_structure_resnames = ''
+
         self.interface_borders = None  # defined in calculate_interface method
         self.current_frame = 0
 
@@ -78,6 +80,7 @@ class Mesh:
         :param auto: Determine automatically if True
         :return: None
         """
+        self.main_structure_resnames = f'resname {" ".join(res_names)} and not type H'
         self.main_structure = np.where(np.in1d(self.unique_resnames, res_names))[0]
 
     def _get_int_dim(self):
@@ -328,29 +331,7 @@ class Mesh:
 
         return self.grid_matrix[:, :, :, mol_index]
 
-    def create_hull(self, frame_num, selection, interface_selection, norm_bin_count):
-        self.current_frame = frame_num
-
-        mesh_coords = []
-
-        mesh = self.calculate_mesh(selection=interface_selection, main_structure=True)[:, :, :,
-               self.main_structure]
-
-        for index, struct in enumerate(self.main_structure):
-            mesh_coords.extend(self.make_coordinates(mesh[:, :, :, index]))
-        mesh_coordinates = np.array(mesh_coords)
-
-        selection_coords = self.u.select_atoms(selection).positions  # self.make_coordinates(selection_mesh)
-
-        try:
-            hull = ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
-        except IndexError as _:
-            logging.warning(
-                f'Cannot construct the hull at frame {self.current_frame}: one of your selections might be empty')
-            return
-        return mesh_coordinates, hull
-
-    def _calc_dens_mp(self, frame_num, selection, interface_selection, norm_bin_count):
+    def _calc_dens_mp(self, frame_num, selection, norm_bin_count):
         """
         Calculates the density of selection from interface. Multiprocessing version
 
@@ -365,7 +346,7 @@ class Mesh:
 
         mesh_coords = []
 
-        mesh = self.calculate_mesh(selection=interface_selection, main_structure=True)[:, :, :,
+        mesh = self.calculate_mesh(selection=self.main_structure_resnames, main_structure=True)[:, :, :,
                self.main_structure]
 
         for index, struct in enumerate(self.main_structure):
@@ -395,7 +376,7 @@ class Mesh:
         return distances, densities
 
     # @timer
-    def calculate_density(self, selection=None, interface_selection=None, start=0, skip=1, end=None,
+    def calculate_density(self, selection=None, start=0, skip=1, end=None,
                           norm_bin_count=20, cpu_count=CPU_COUNT):
         """
         Calculates density of selection from the interface
@@ -412,7 +393,6 @@ class Mesh:
 
         dens_per_frame = partial(self._calc_dens_mp,
                                  selection=selection,
-                                 interface_selection=interface_selection,
                                  norm_bin_count=norm_bin_count)  # _calc_dens_mp function with filled selection using partial
         frame_range = range(start, n_frames, skip)
 

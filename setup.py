@@ -1,8 +1,19 @@
+import os
 from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 import numpy
 
-VERSION = '1.0.1'
+# Import the current version number
+# from AICON._version import __version__
+import tomllib
+
+
+def get_current_version():
+    with open("pyproject.toml", "rb") as f:
+        data = tomllib.load(f)
+
+    return data['project']['version']
+
 
 extensions = [
     Extension(
@@ -14,7 +25,7 @@ extensions = [
 
 setup(
     name='AICON',
-    version=VERSION,
+    version=get_current_version(),
     description='Intrinsic density profiles for aspherical structures',
     url='https://github.com/hrachishkhanyan/grid_project',
     author='H. Ishkhanyan',

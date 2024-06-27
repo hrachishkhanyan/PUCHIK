@@ -4,6 +4,7 @@ README.md
 pyproject.toml
 setup.py
 AICON/__init__.py
+AICON/_version.py
 AICON.egg-info/PKG-INFO
 AICON.egg-info/SOURCES.txt
 AICON.egg-info/dependency_links.txt
