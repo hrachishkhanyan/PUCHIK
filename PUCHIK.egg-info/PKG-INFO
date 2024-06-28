@@ -47,6 +47,14 @@ The interface construction works for spherical and rod-like nanoparticles equall
 
 ![image](https://drive.google.com/uc?export=view&id=1YTiM2OxzkGO0GcbC5WvFffBdZN9-e_6D)
 
+## Installation
+
+You can install the PUCHIK package using pip:
+
+```
+pip install PUCHIK
+```
+
 ## Usage
 
 The main class in this package is the "Mesh" class. To set up a mesh, import it from PUCHIK:
