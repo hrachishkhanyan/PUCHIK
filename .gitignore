@@ -1,5 +1,7 @@
 tests/scratch.py
 PUCHIK/cpp
+dist
+PUCHIK.egg-info
 test.npy
 PUCHIK/dist
 .fleet
