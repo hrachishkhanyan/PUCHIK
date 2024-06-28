@@ -48,7 +48,7 @@ def norm(np.ndarray point, np.ndarray plane) -> float:
     return dist
 
 
-def _is_inside(np.ndarray point, hull) -> np.bool_:
+def _is_inside(np.ndarray point, hull) -> bool:
     return point_in_hull(point, hull)
 
 

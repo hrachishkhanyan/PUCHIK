@@ -4,7 +4,7 @@ from Cython.Build import cythonize
 import numpy
 
 # Import the current version number
-# from AICON._version import __version__
+# from PUCHIK._version import __version__
 import tomllib
 
 
@@ -17,20 +17,20 @@ def get_current_version():
 
 extensions = [
     Extension(
-        name='AICON.grid_project.core.utils',
-        sources=['AICON/grid_project/core/utils.pyx'],
-        include_dirs=[numpy.get_include(), 'AICON/grid_project/core'],
+        name='PUCHIK.grid_project.core.utils',
+        sources=['PUCHIK/grid_project/core/utils.pyx'],
+        include_dirs=[numpy.get_include(), 'PUCHIK/grid_project/core'],
     )
 ]
 
 setup(
-    name='AICON',
+    name='PUCHIK',
     version=get_current_version(),
-    description='Intrinsic density profiles for aspherical structures',
+    description='Python Utility for Characterizing Heterogeneous Interfaces and Kinetics',
     url='https://github.com/hrachishkhanyan/grid_project',
     author='H. Ishkhanyan',
     author_email='hrachya.ishkhanyan@kcl.ac.uk',
     license='MIT',
-    provides=['AICON'],
+    provides=['PUCHIK'],
     ext_modules=cythonize(extensions),
 )

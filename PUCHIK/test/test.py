@@ -3,8 +3,8 @@ from time import perf_counter
 import numpy as np
 from matplotlib import pyplot as plt
 
-from AICON.grid_project.core.densities import Mesh
-from AICON.grid_project.utilities.universal_functions import extract_interface
+from PUCHIK.grid_project.core.densities import Mesh
+from PUCHIK.grid_project.utilities.universal_functions import extract_interface
 
 
 def test_sphere():

@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "setuptools >= 40.9.0",
+    "setuptools>=40.9.0",
     "Cython",
     "numpy>=1.26.0",
     "setuptools",
@@ -9,13 +9,13 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "AICON"
-version = '1.0.3'
+name = "PUCHIK"
+version = '1.0.0'
 #dynamic = ['version']
 authors = [
     { name = "Hrachya Ishkhanyan", email = "hrachya.ishkhanyan@kcl.ac.uk" },
 ]
-description = "Grid project creates a grid from an molecular dynamics structure file. The system in question can have an arbitrary structure. Volume and species densities can then calculated."
+description = "Python Utility for Characterizing Heterogeneous Interfaces and Kinetics creates a grid from an molecular dynamics structure file. The system in question can have an arbitrary structure. Volume and species densities can then calculated."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"

@@ -1,6 +1,6 @@
-# AICON
+# PUCHIK
 
-Aspherical Interface Constructor for Nanoparticles (AICON), is a tool for analyzing molecular dynamics trajectories. It allows constructing an interface between two phases, enabling to calculate intrinsic density profiles, volumes, etc.
+Python Utility for Characterizing Heterogeneous Interfaces and Kinetics (PUCHIK), is a tool for analyzing molecular dynamics trajectories. It allows constructing an interface between two phases, enabling to calculate intrinsic density profiles, volumes, etc.
 
 The interface construction works for spherical and rod-like nanoparticles equally well, making it a great tool to work with nanoparticles of almost every shape. 
 
@@ -8,10 +8,10 @@ The interface construction works for spherical and rod-like nanoparticles equall
 
 ## Usage
 
-The main class in this package is the "Mesh" class. To set up a mesh, import it from AICON;
+The main class in this package is the "Mesh" class. To set up a mesh, import it from PUCHIK:
 
 ```python
-from AICON import Mesh
+from PUCHIK import Mesh
 ```
 
 You should provide it with a topology and optionally a trajectory files. AICON uses MDAnalysis Readers to open a trajectory. You can find the supported formats [here](https://docs.mdanalysis.org/stable/documentation_pages/coordinates/init.html).
