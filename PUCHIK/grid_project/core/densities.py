@@ -2,7 +2,6 @@
 import logging
 # import warnings
 from functools import partial
-from multiprocessing import cpu_count
 
 from MDAnalysis.analysis.distances import self_distance_array
 from MDAnalysis.transformations.wrap import wrap
@@ -14,10 +13,10 @@ from scipy.spatial import ConvexHull
 from tqdm.contrib.concurrent import process_map
 
 # Local imports
-from ..utilities.decorators import logger  #, timer
+from ..utilities.decorators import logger  # , timer
 from ..utilities.universal_functions import extract_hull  # , _is_inside
 from ..volume.monte_carlo import monte_carlo_volume
-from ..settings import DEBUG
+from ..settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT, UNITS
 from .utils import find_distance
 
 logging.basicConfig(format='%(message)s')
@@ -26,9 +25,6 @@ np.seterr(invalid='ignore', divide='ignore')
 """
     Grid method for analyzing complex shaped structures
 """
-CPU_COUNT = cpu_count()
-UNITS = ('nm', 'a')
-TQDM_BAR_FORMAT = '\033[37m{percentage:3.0f}%|{bar:30}\033[37m|[Estimated time remaining: {remaining}]\033[0m'
 
 
 class Mesh:
@@ -52,8 +48,8 @@ class Mesh:
         self.interface_rescale = 1  # this is for calculating a rescaled interface then upscaling it
         self.length = self.u.trajectory.n_frames
         self.unique_resnames = None
-        self.main_structure = []
-        self.main_structure_resnames = ''
+        self.main_structure_selection = ''
+        self.volume_data = None
 
         self.interface_borders = None  # defined in calculate_interface method
         self.current_frame = 0
@@ -72,16 +68,13 @@ class Mesh:
         transform = wrap(self.ag)
         self.u.trajectory.add_transformations(transform)
 
-    def select_structure(self, *res_names,
-                         auto=False):  # TODO I think this can be determined automatically by clustering
+    def select_structure(self, selection):
         """
         Use this method to select the structure for density calculations. Enter 1 or more resnames
-        :param res_names: Resname(s) of the main structure
-        :param auto: Determine automatically if True
+        :param selection: selection(s) of the main structure
         :return: None
         """
-        self.main_structure_resnames = f'resname {" ".join(res_names)} and not type H'
-        self.main_structure = np.where(np.in1d(self.unique_resnames, res_names))[0]
+        self.main_structure_selection = selection
 
     def _get_int_dim(self):
         """
@@ -90,38 +83,23 @@ class Mesh:
         Returns:
             Dimensions of the box as an int
         """
-        self.u.trajectory[self.current_frame]
         return int(np.ceil(self.u.dimensions[0]))
 
     @logger(DEBUG)
-    def calculate_volume(self, number=100_000, units='nm', method='mc', rescale=None):
+    def calculate_volume(self):
         """
         Returns the volume of the selected structure
-
-        Args:
-            number (int): Number of points to generate for volume estimation
-            units (str): Measure unit of the returned value
-            method (str): Method of calculation. 'mc' for Monte Carlo estimation,
-                'riemann' for Riemann sum method
-            rescale (int): Rescale factor
 
         Returns:
             float: Volume of the structure
         """
+        logging.log('Calculating the volume of the selected structure')
+        hull_volumes = np.zeros(len(self.u.trajectory))
 
-        if units not in UNITS:
-            raise ValueError('units should be either \'nm\' or \'a\'')
+        for ts in self.u.trajectory:
+            hull_volumes[ts.frame] = self._create_hull().volume
 
-        rescale = rescale if rescale is not None else self.find_min_dist()
-
-        # vol = self._monte_carlo_volume(number, rescale) if method == 'mc' else None
-        vol = monte_carlo_volume(self._get_int_dim(), self.grid_matrix, number, rescale) if method == 'mc' else None
-
-        # scale back up and convert from Angstrom to nm if units == 'nm'
-        # return vol * self.find_min_dist() ** 3 / 1000 if units == 'nm' else vol * self.find_min_dist() ** 3
-        return vol / 1000
-
-        # return vol * rescale ** 3 / 1000 if units == 'nm' else vol * rescale ** 3
+        self.volume_data = hull_volumes
 
     @staticmethod
     def make_grid(pbc_dim: int, dim=1, d4=None) -> np.ndarray:
@@ -147,15 +125,11 @@ class Mesh:
             x (float): x coordinate
             y (float): y coordinate
             z (float): z coordinate
-            rescale (int): rescale factor
 
         Returns:
             tuple: Coordinates of the node inside the grid where the point belongs
         """
 
-        # n_x = round(x / rescale_coef)
-        # n_y = round(y / rescale_coef)
-        # n_z = round(z / rescale_coef)
         n_x = int(x)
         n_y = int(y)
         n_z = int(z)
@@ -163,12 +137,11 @@ class Mesh:
         return n_x, n_y, n_z
 
     @staticmethod
-    def make_coordinates(mesh, keep_numbers=False):
+    def make_coordinates(mesh):
         """
         Converts the mesh to coordinates
         Args:
             mesh (np.ndarray):  Mesh to convert into 3D coordinates
-            keep_numbers (bool): Resulting tuples will also contain the number of particles at that coordinate if True
 
         Returns:
             np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh
@@ -179,7 +152,7 @@ class Mesh:
             for j, col in enumerate(mat):
                 for k, elem in enumerate(col):
                     if elem > 0:
-                        coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))
+                        coords.append((i, j, k))
 
         return np.array(coords, dtype=int)
 
@@ -192,58 +165,38 @@ class Mesh:
         """
         return int(np.ceil(self_distance_array(self.ag.positions).min()))
 
-    def _calc_density(self, mol_type, grid_dim, min_distance_coeff):
-        """ Not sure what's this for. May delete it later """
-        density_matrix = self.make_grid(grid_dim, dim=min_distance_coeff, d4=False)
-        for atom in self.ag:
-            x, y, z = self.check_cube(*atom.position, rescale=min_distance_coeff)
-            if atom.type == mol_type:
-                density_matrix[x, y, z] += 1
-
-        return density_matrix
-
-    def _calc_mesh(self, grid_dim, selection, diff=False):
+    def _calc_mesh(self, grid_dim, selection):
         """
         Calculates the mesh according the atom positions in the box
 
         Args:
             grid_dim (int): Box dimensions
-            rescale: rescale factor
-            diff: Is True if we are calculating a mesh for other than the main structure
 
         Returns:
             np.ndarray: The grid
         """
-        self.u.trajectory[self.current_frame]
         atom_group = self.u.select_atoms(selection)
+        grid_matrix = self.make_grid(grid_dim)
 
-        grid_matrix = self.make_grid(grid_dim, d4=len(self.unique_resnames))
         for atom in atom_group:
             x, y, z = self.check_cube(*atom.position)
-            res_number = 0 if not diff else np.where(self.unique_resnames == atom.resname)
-            grid_matrix[x, y, z, res_number] += 1
+            grid_matrix[x, y, z] += 1
 
         return grid_matrix
 
     # @logger(DEBUG)
-    def calculate_mesh(self, selection=None, main_structure=False):
+    def calculate_mesh(self, selection, main_structure=False):
         """
-        Calculates the mesh using _calc_mesh private method
+        Calculates the mesh using _calc_mesh method
         Args:
-            selection: Selection for atom group to calculate mesh
-            rescale: rescale factor
+            selection (str): Selection for atom group to calculate mesh
             main_structure (bool): use as the main structure if true (e.g. densities are calculated relative to this)
         Returns:
             np.ndarray: Returns the grid matrix
         """
-        # find closest atoms and rescale positions according to this
-        # get one dimension
-
-        # print(atom_group.universe.trajectory.frame)
-        # self.u.trajectory[atom_group.universe.trajectory.frame]
         # define the matrices
 
-        grid_matrix = self._calc_mesh(self._get_int_dim(), selection, main_structure)  # !TODO _get_int_dim փոխի
+        grid_matrix = self._calc_mesh(self._get_int_dim(), selection)  # !TODO _get_int_dim փոխի
 
         if main_structure:  # if selection is None, then it's the main structure
             self.grid_matrix = grid_matrix
@@ -251,34 +204,6 @@ class Mesh:
         return grid_matrix
 
     # @logger(DEBUG)
-    def calculate_interface(self, ratio=0.4, inverse=False):
-        """
-        Extract the interface from the grid TODO better way needed
-        Args:
-            inverse (bool): Return everything except for the structure if True
-            :param ratio: ratio of moltype/water at a certain point
-        Returns:
-            np.ndarray: interface matrix
-
-        """
-
-        interface = self.grid_matrix.copy()
-
-        if inverse:
-            interface[self.grid_matrix[:, :, :, 1] / self.grid_matrix[:, :, :, 0] >= ratio] = 0
-            return interface[:, :, :, 0]
-
-        # The sum(axis=3) is for taking into account the whole structure, which could be constructed of different
-        # types of molecules
-        interface[(0 < self.grid_matrix[:, :, :, self.main_structure].sum(axis=3) / self.grid_matrix[:, :, :, 0]) & (
-                self.grid_matrix[:, :, :, self.main_structure].sum(axis=3) / self.grid_matrix[:, :, :, 0] < ratio)] = 0
-
-        interface = interface[:, :, :, self.main_structure].sum(axis=3)
-        # extracted, self.interface_borders = extract_interface(interface, self.interface_rescale)
-        interface_hull = extract_hull(interface, 14)
-        transposed = extract_hull(interface.T).T  # This is done for filling gaps in the other side
-        interface_hull += transposed
-        return interface_hull
 
     def _calculate_density_grid(self, coords, bin_count):
         # Works on a cubic box. !TODO Generalize later
@@ -305,8 +230,6 @@ class Mesh:
         return density_grid
 
     def _grid_centers(self, hull, bin_count):
-        self.u.trajectory[self.current_frame]
-
         edges, step = np.linspace(0, self._get_int_dim(), bin_count + 1, retstep=True)
         x_centers = (edges[:-1] + edges[1:]) / 2
         y_centers = (edges[:-1] + edges[1:]) / 2
@@ -331,6 +254,20 @@ class Mesh:
 
         return self.grid_matrix[:, :, :, mol_index]
 
+    def _create_hull(self):
+
+        mesh = self.calculate_mesh(selection=self.main_structure_selection, main_structure=True)
+
+        mesh_coords = self.make_coordinates(mesh[:, :, :])
+        mesh_coordinates = np.array(mesh_coords)
+
+        try:
+            return ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
+        except IndexError as _:
+            logging.warning(
+                f'Cannot construct the hull at frame {self.current_frame}: one of your selections might be empty')
+            return
+
     def _calc_dens_mp(self, frame_num, selection, norm_bin_count):
         """
         Calculates the density of selection from interface. Multiprocessing version
@@ -343,31 +280,21 @@ class Mesh:
             tuple: Density array and corresponding distances
         """
         self.current_frame = frame_num
-
-        mesh_coords = []
-
-        mesh = self.calculate_mesh(selection=self.main_structure_resnames, main_structure=True)[:, :, :,
-               self.main_structure]
-
-        for index, struct in enumerate(self.main_structure):
-            mesh_coords.extend(self.make_coordinates(mesh[:, :, :, index]))
-        mesh_coordinates = np.array(mesh_coords)
+        self.u.trajectory[self.current_frame]
 
         selection_coords = self.u.select_atoms(selection).positions  # self.make_coordinates(selection_mesh)
 
-        try:
-            hull = ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
-        except IndexError as _:
-            logging.warning(
-                f'Cannot construct the hull at frame {self.current_frame}: one of your selections might be empty')
-            return
+        hull = self._create_hull()
 
         grid_centers = self._grid_centers(hull, bin_count=norm_bin_count)
 
         distances = np.array(
-            find_distance(hull, grid_centers))  # Calculate distances from the interface to each grid cell
-        densities = self._normalize_density(selection_coords,
-                                            bin_count=norm_bin_count)  # Calculate the density of each cell
+            find_distance(hull, grid_centers)
+        )  # Calculate distances from the interface to each grid cell
+        densities = self._normalize_density(
+            selection_coords,
+            bin_count=norm_bin_count
+        )  # Calculate the density of each cell
 
         indices = np.argsort(distances)
         distances = distances[indices]
@@ -401,15 +328,10 @@ class Mesh:
         print(f'Running density calculation for the following atom group: {selection}')
         res = process_map(dens_per_frame, frame_range,
                           max_workers=cpu_count,
-                          # ascii=" >=",
-                          # colour="YELLOW",
                           bar_format=TQDM_BAR_FORMAT
                           )
 
         res = np.array(res)
-
-        distances = res[:, 0]
-        densities = res[:, 1]
 
         distances, densities = self._process_result(res)
 
@@ -418,20 +340,6 @@ class Mesh:
         # densities = densities.mean(axis=0)
 
         return distances, densities
-
-    def interface(self, data=None):
-        mesh = self.calculate_interface() if data is None else data
-        res = mesh.copy()
-
-        for i, plane in enumerate(res):
-            for j, row in enumerate(plane):
-                for k, point in enumerate(row):
-                    if point > 0:
-                        if (mesh[i, j - 1, k] != 0 and mesh[i, j + 1, k] != 0
-                                and mesh[i, j, k - 1] != 0 and mesh[i, j, k + 1] != 0
-                                and mesh[i - 1, j, k] != 0 and mesh[i + 1, j, k] != 0):
-                            res[i, j, k] = 0
-        return res
 
     @staticmethod
     def _process_result(res):

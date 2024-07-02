@@ -51,6 +51,6 @@ m.calculate_density(density_selection, start=10, end=1000, skip=2, norm_bin_coun
 
 This version will start the calculation at the 10th frame and finish it at frame 1000 considering every 2nd frame. **norm_bin_count** specifies the number of divisions of the simulation box in each dimension to create a grid.
 
-An example figure which shows the number density of different residues relative to the distance to the interface:
+An example figure which shows the number density of different residues relative to the distance to the interface of a sodium oleate micelle:
 
 ![image](https://drive.google.com/uc?export=view&id=1swRuoD-rs01SA-4jqPLjwxuuv9UlUGkm)

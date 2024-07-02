@@ -1,7 +1,7 @@
 import numpy as np
 cimport numpy as np
 from pygel3d import hmesh
-from scipy.spatial import ConvexHull
+# from scipy.spatial import ConvexHull
 
 np.import_array()
 

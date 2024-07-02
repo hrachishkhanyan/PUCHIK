@@ -1,5 +1,6 @@
 import numpy as np
-from ..utilities.universal_functions import check_cube, is_inside
+from ..utilities.universal_functions import check_cube
+from ..core.utils import _is_inside
 
 
 def generate_point(dim):
@@ -15,12 +16,13 @@ def generate_point(dim):
     return point
 
 
-def monte_carlo(dim, mesh, number):
+def monte_carlo(dim, hull, number):
     """
     Monte Carlo volume estimation algorithm
 
     Args:
         dim (int): Dimensions of the box
+        hull (hull object): Convex hull of the structure
         number (int): Number of points to generate
 
     Returns:
@@ -28,29 +30,26 @@ def monte_carlo(dim, mesh, number):
     """
     in_volume = 0
     out_volume = 0
-    # in_points = []
-    # out_points = []
 
     for _ in range(number):
         point = generate_point(dim)
-        which_cell = check_cube(*point)
 
-        if is_inside(which_cell, mesh):
+        if _is_inside(point, hull):
             in_volume += 1
-            # in_points.append(which_cell)
         else:
             out_volume += 1
-            # out_points.append(which_cell)
 
     ratio = in_volume / (out_volume + in_volume)
-    return ratio  #, (in_points, out_points)
+    return ratio
 
 
-def monte_carlo_volume(dim, mesh, number, rescale=None):
+def monte_carlo_volume(dim, hull, number):
     """
     Utility function responsible for rescaling and calling the actual algorithm
 
     Args:
+        dim (int): Dimensions of the box
+        hull (hull object): Hull object
         number (int): Number of points to generate
         rescale (int): Rescale factor
 
@@ -59,6 +58,6 @@ def monte_carlo_volume(dim, mesh, number, rescale=None):
     """
 
     pbc_vol = dim ** 3
-    pbc_sys_ratio = monte_carlo(dim // rescale, mesh, number=number)
-    print(pbc_sys_ratio)
+    pbc_sys_ratio = monte_carlo(dim, hull, number=number)
+
     return pbc_sys_ratio * pbc_vol  # , points
