@@ -19,7 +19,7 @@ pip install PUCHIK
 
 ## Usage
 
-The main class in this package is the "Mesh" class. To set up a mesh, import it from PUCHIK:
+The main class in this package is the "Interface" class. To set up a mesh, import it from PUCHIK:
 
 ```python
 from PUCHIK import Mesh
@@ -30,7 +30,7 @@ You should provide it with a topology and optionally a trajectory files. PUCHIK 
 ```python
 trj = '<path_to_trajectory>'
 top = '<path_to_topology>'
-m = Mesh(trj, top)
+m = Interface(trj, top)
 ```
 
 Lastly, select the atom groups you want to consider, atom groups that comprise the interface, and run the **calculate_density** method:

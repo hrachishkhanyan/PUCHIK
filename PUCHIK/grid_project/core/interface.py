@@ -17,7 +17,7 @@ from ..utilities.decorators import logger  # , timer
 from ..utilities.universal_functions import extract_hull  # , _is_inside
 from ..volume.monte_carlo import monte_carlo_volume
 from ..settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT, UNITS
-from .utils import find_distance
+from .utils import find_distance, _is_inside
 
 logging.basicConfig(format='%(message)s')
 np.seterr(invalid='ignore', divide='ignore')
@@ -27,7 +27,7 @@ np.seterr(invalid='ignore', divide='ignore')
 """
 
 
-class Mesh:
+class Interface:
     """
         Class creates to create a mesh of points representing different molecule
         types of the system in a grid
@@ -317,21 +317,10 @@ class Mesh:
         :return:
         """
         n_frames = self.u.trajectory.n_frames if end is None else end
-
-        dens_per_frame = partial(self._calc_dens_mp,
-                                 selection=selection,
-                                 norm_bin_count=norm_bin_count)  # _calc_dens_mp function with filled selection using partial
         frame_range = range(start, n_frames, skip)
-
-        # with Pool(cpu_count) as worker_pool:
-        #     res = worker_pool.map(dens_per_frame, frame_range)
         print(f'Running density calculation for the following atom group: {selection}')
-        res = process_map(dens_per_frame, frame_range,
-                          max_workers=cpu_count,
-                          bar_format=TQDM_BAR_FORMAT
-                          )
-
-        res = np.array(res)
+        res = self._mp_calc(self._calc_dens_mp, frame_range, cpu_count, selection=selection,
+                            norm_bin_count=norm_bin_count)
 
         distances, densities = self._process_result(res)
 
@@ -367,6 +356,64 @@ class Mesh:
         final_densities = final_densities.mean(axis=0, where=final_distances != 0)
 
         return final_distances, final_densities
+
+    def _calc_count(self, frame_num, selection) -> int:
+        """
+        The method calculates and returns the number of <selection> molecules inside the interface
+
+        :param selection: Selection for molecules to check if they are solubilized in the NP or no
+        :param start: starting frame
+        :param skip: skip
+        :param end: final frame
+        :return: ndarray containing number of molecules each frame
+        """
+        self.current_frame = frame_num
+        self.u.trajectory[self.current_frame]
+
+        ag = self.u.select_atoms(selection)
+        n_atoms = len(ag) // ag.n_residues
+
+        hull = self._create_hull()
+        coms = []
+        count = 0
+
+        for i in range(ag.n_residues):
+            coms.append(ag[i * n_atoms: (i + 1) * n_atoms].center_of_mass())
+
+        for com in coms:
+            if _is_inside(com, hull):
+                count += 1
+
+        return count
+
+    def mol_count(self, selection, start=0, skip=1, end=None, cpu_count=CPU_COUNT):
+        n_frames = self.u.trajectory.n_frames if end is None else end
+        frame_range = range(start, n_frames, skip)
+
+        print(f'Calculating number of "{selection}" molecules inside the interface')
+
+        res = self._mp_calc(self._calc_count, frame_range, cpu_count, selection=selection)
+
+        return res
+
+    @staticmethod
+    def _mp_calc(func, frame_range, cpu_count, **kwargs):
+        """
+        This method handles multiprocessing
+        :param func:
+        :param frame_range:
+        :param cpu_count:
+        :param kwargs:
+        :return:
+        """
+        per_frame_func = partial(func, **kwargs)
+
+        res = process_map(per_frame_func, frame_range,
+                          max_workers=cpu_count,
+                          bar_format=TQDM_BAR_FORMAT
+                          )
+
+        return np.array(res)
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
-__all__ = ['Mesh']
+__all__ = ['Interface']
 
-from .grid_project.core.densities import Mesh
+from .grid_project.core.interface import Interface
 from ._version import __version__
 
 
