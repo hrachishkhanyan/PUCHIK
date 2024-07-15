@@ -22,7 +22,7 @@ pip install PUCHIK
 The main class in this package is the "Interface" class. To set up a mesh, import it from PUCHIK:
 
 ```python
-from PUCHIK import Mesh
+from PUCHIK import Interface
 ```
 
 You should provide it with a topology and optionally a trajectory files. PUCHIK uses MDAnalysis Readers to open a trajectory. You can find the supported formats [here](https://docs.mdanalysis.org/stable/documentation_pages/coordinates/init.html).
