@@ -2,6 +2,7 @@
 import logging
 # import warnings
 from functools import partial
+from typing import Union
 
 from MDAnalysis.analysis.distances import self_distance_array
 from MDAnalysis.transformations.wrap import wrap
@@ -11,12 +12,11 @@ import numpy as np
 from scipy.spatial import ConvexHull
 # from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
+from multiprocessing import Manager
 
 # Local imports
 from ..utilities.decorators import logger  # , timer
-from ..utilities.universal_functions import extract_hull  # , _is_inside
-from ..volume.monte_carlo import monte_carlo_volume
-from ..settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT, UNITS
+from ..settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT
 from .utils import find_distance, _is_inside
 
 logging.basicConfig(format='%(message)s')
@@ -46,13 +46,13 @@ class Interface:
         self.mesh = None
         self.rescale = rescale
         self.interface_rescale = 1  # this is for calculating a rescaled interface then upscaling it
-        self.length = self.u.trajectory.n_frames
         self.unique_resnames = None
         self.main_structure_selection = ''
         self.volume_data = None
-
-        self.interface_borders = None  # defined in calculate_interface method
         self.current_frame = 0
+
+        manager = Manager()
+        self._hull = manager.dict()
 
     def select_atoms(self, sel):
         """
@@ -84,22 +84,6 @@ class Interface:
             Dimensions of the box as an int
         """
         return int(np.ceil(self.u.dimensions[0]))
-
-    @logger(DEBUG)
-    def calculate_volume(self):
-        """
-        Returns the volume of the selected structure
-
-        Returns:
-            float: Volume of the structure
-        """
-        logging.log('Calculating the volume of the selected structure')
-        hull_volumes = np.zeros(len(self.u.trajectory))
-
-        for ts in self.u.trajectory:
-            hull_volumes[ts.frame] = self._create_hull().volume
-
-        self.volume_data = hull_volumes
 
     @staticmethod
     def make_grid(pbc_dim: int, dim=1, d4=None) -> np.ndarray:
@@ -255,17 +239,21 @@ class Interface:
         return self.grid_matrix[:, :, :, mol_index]
 
     def _create_hull(self):
+        if self._hull.get(self.current_frame):
+            # If the hull was calculated for this frame, just return it
+            return self._hull[self.current_frame]
 
         mesh = self.calculate_mesh(selection=self.main_structure_selection, main_structure=True)
 
         mesh_coords = self.make_coordinates(mesh[:, :, :])
         mesh_coordinates = np.array(mesh_coords)
-
         try:
-            return ConvexHull(mesh_coordinates)  # , qhull_options='Q0')
+            hull = ConvexHull(mesh_coordinates)
+            self._hull[self.current_frame] = hull
+            return hull  # , qhull_options='Q0')
         except IndexError as _:
             logging.warning(
-                f'Cannot construct the hull at frame {self.current_frame}: one of your selections might be empty')
+                f'Cannot construct the hull at frame {self.current_frame}: main structure selection might be empty')
             return
 
     def _calc_dens_mp(self, frame_num, selection, norm_bin_count):
@@ -395,6 +383,33 @@ class Interface:
         res = self._mp_calc(self._calc_count, frame_range, cpu_count, selection=selection)
 
         return res
+
+    def _calc_hull(self, frame_num):
+        self.current_frame = frame_num
+        self.u.trajectory[self.current_frame]
+
+        return self._create_hull()
+
+    @logger(DEBUG)
+    def calculate_volume(self, area=False, start=0, skip=1, end=None, cpu_count=CPU_COUNT) -> Union[tuple, np.ndarray]:
+        """
+        Returns the volume of the hull
+        :param bool area: If True, return the area of the hull as well
+        :param int start: First frame of the trajectory
+        :param int skip: How many frames to skip
+        :param int end: Final frame of the trajectory
+        :param int cpu_count: Sets the number of cores to utilize during the calculation
+        :return [tuple, np.ndarray] volume: ndarray containing the volume values of the hull at each frame, or a tuple
+        of ndarrays for volumes and areas
+        """
+        n_frames = self.u.trajectory.n_frames if end is None else end
+        frame_range = range(start, n_frames, skip)
+        print('Calculating the volume of the selected structure')
+        hulls = self._mp_calc(self._calc_hull, frame_range, cpu_count)
+        return np.array([hull.volume for hull in hulls]) if not area else (
+            np.array([hull.volume for hull in hulls]),
+            np.array([hull.area for hull in hulls])
+        )
 
     @staticmethod
     def _mp_calc(func, frame_range, cpu_count, **kwargs):

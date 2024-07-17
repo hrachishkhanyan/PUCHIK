@@ -48,7 +48,7 @@ Note that **calculate_density** uses every CPU core. You can specify the number 
 A more customized usage of the **calculate_density** method can be:
 
 ```python
-m.calculate_density(density_selection, start=10, end=1000, skip=2, norm_bin_count=12)
+distances, densities = m.calculate_density(density_selection, start=10, end=1000, skip=2, norm_bin_count=12)
 ```
 
 This version will start the calculation at the 10th frame and finish it at frame 1000 considering every 2nd frame. **norm_bin_count** specifies the number of divisions of the simulation box in each dimension to create a grid.
@@ -56,3 +56,22 @@ This version will start the calculation at the 10th frame and finish it at frame
 An example figure which shows the number density of different residues relative to the distance to the interface of a sodium oleate micelle:
 
 ![image](https://drive.google.com/uc?export=view&id=1swRuoD-rs01SA-4jqPLjwxuuv9UlUGkm)
+
+### Solubilized molecule count
+
+PUCHIK also offers functionality for calculating the number of solubilized small molecules within a nanoparticle. This can be accomplished using the **mol_count** method. The signature of this method is identical to that of the **calculate_density** method. Here is an example usage:
+```python
+sol = m.mol_count('resname TIP3 and type O', start=0, end=500)
+```
+
+### Volume and area
+ As a direct consequence of using a convex hull, the volume of the hull can be easily extracted. The **calculate_volume** method does just that:
+ 
+```python
+v = m.calculate_volume(start=500, end=1000, skip=2)
+```
+
+*area* keyword argument can be set to True to return the area of the hull as well:
+```python
+v, a = m.calculate_volume(area=True, start=500, end=1000, skip=2)
+```

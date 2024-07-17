@@ -1,3 +1,4 @@
-# from grid_project.core.densities import Mesh
-#
-# __all__ = ['Mesh']
+from .settings import CPU_COUNT
+
+__all__ = ['CPU_COUNT']
+
