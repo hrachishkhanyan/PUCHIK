@@ -4,6 +4,7 @@ dist
 PUCHIK.egg-info
 test.npy
 PUCHIK/dist
+tests
 .fleet
 .vscode
 .idea

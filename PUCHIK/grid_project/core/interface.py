@@ -346,15 +346,7 @@ class Interface:
         return final_distances, final_densities
 
     def _calc_count(self, frame_num, selection) -> int:
-        """
-        The method calculates and returns the number of <selection> molecules inside the interface
 
-        :param selection: Selection for molecules to check if they are solubilized in the NP or no
-        :param start: starting frame
-        :param skip: skip
-        :param end: final frame
-        :return: ndarray containing number of molecules each frame
-        """
         self.current_frame = frame_num
         self.u.trajectory[self.current_frame]
 
@@ -375,6 +367,15 @@ class Interface:
         return count
 
     def mol_count(self, selection, start=0, skip=1, end=None, cpu_count=CPU_COUNT):
+        """
+        The method calculates and returns the number of <selection> molecules inside the interface
+        :param selection: Selection for molecules to check if they are solubilized in the NP or no
+        :param start:
+        :param skip:
+        :param end:
+        :param cpu_count:
+        :return: ndarray containing number of molecules each frame
+        """
         n_frames = self.u.trajectory.n_frames if end is None else end
         frame_range = range(start, n_frames, skip)
 
