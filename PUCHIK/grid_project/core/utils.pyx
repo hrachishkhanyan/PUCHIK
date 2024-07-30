@@ -1,23 +1,29 @@
+cimport cython
 import numpy as np
 cimport numpy as np
 from pygel3d import hmesh
-# from scipy.spatial import ConvexHull
+from libc.math cimport fabs
 
+# from scipy.spatial import ConvexHull
 np.import_array()
+
 
 def find_distance(hull, np.ndarray points):
     cdef list res
     cdef np.ndarray p
     cdef float d
-
+    cdef int i, p_length
     # Construct PyGEL Manifold from the convex hull
     m = hmesh.Manifold()
     for s in hull.simplices:
         m.add_face(hull.points[s])
 
     dist = hmesh.MeshDistance(m)
-    res = []
-    for p in points:
+    p_length = points.shape[0]
+    res = [0.0] * p_length
+
+    for i in range(p_length):
+        p = points[i]
         # Get the distance to the point
         # But don't trust its sign, because of possible
         # wrong orientation of mesh face
@@ -31,9 +37,10 @@ def find_distance(hull, np.ndarray points):
             if d < 0:
                 d *= -1
 
-        res.append(d)
+        res[i] = d
 
     return res
+
 
 def norm(np.ndarray point, np.ndarray plane) -> float:
     cdef np.ndarray p0

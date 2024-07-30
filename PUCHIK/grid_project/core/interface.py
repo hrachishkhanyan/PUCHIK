@@ -1,10 +1,11 @@
 # from sys import argv  # for benchmarking only
 import logging
+import multiprocessing
+import time
 # import warnings
 from functools import partial
 from typing import Union
 
-from MDAnalysis.analysis.distances import self_distance_array
 from MDAnalysis.transformations.wrap import wrap
 import MDAnalysis as mda
 import numpy as np
@@ -18,7 +19,7 @@ from multiprocessing import Manager
 from ..utilities.decorators import logger  # , timer
 from ..settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT
 from .utils import find_distance, _is_inside
-
+# from .utils_python import find_distance, _is_inside
 logging.basicConfig(format='%(message)s')
 np.seterr(invalid='ignore', divide='ignore')
 
@@ -38,23 +39,20 @@ class Interface:
             rescale (int): Rescales the system down n times. Defaults to 1
     """
 
-    def __init__(self, traj, top=None, rescale=1):
+    def __init__(self, traj, top=None):
         self.grid_matrix = None
         self.u: mda.Universe = mda.Universe(top, traj) if top else mda.Universe(traj)
         self.ag = None
-        self.dim = None
-        self.mesh = None
-        self.rescale = rescale
-        self.interface_rescale = 1  # this is for calculating a rescaled interface then upscaling it
         self.unique_resnames = None
-        self.main_structure_selection = ''
-        self.volume_data = None
+        self.main_structure_selection = None
         self.current_frame = 0
 
         manager = Manager()
         self._hull = manager.dict()
 
-    def select_atoms(self, sel):
+
+
+    def select_atoms(self, sel='all'):
         """
         Method for selecting the atoms using MDAnalysis selections
 
@@ -140,15 +138,6 @@ class Interface:
 
         return np.array(coords, dtype=int)
 
-    def find_min_dist(self):
-        """
-        Estimate rescale factor.
-        Get rid of this.
-        Returns:
-
-        """
-        return int(np.ceil(self_distance_array(self.ag.positions).min()))
-
     def _calc_mesh(self, grid_dim, selection):
         """
         Calculates the mesh according the atom positions in the box
@@ -207,6 +196,11 @@ class Interface:
             y_idx = np.digitize(y, edges) - 1
             z_idx = np.digitize(z, edges) - 1
 
+            # This is to ensure indices are within the grid bounds
+            x_idx = min(max(x_idx, 0), bin_count - 1)
+            y_idx = min(max(y_idx, 0), bin_count - 1)
+            z_idx = min(max(z_idx, 0), bin_count - 1)
+
             density_grid[x_idx, y_idx, z_idx] += 1
 
         density_grid /= grid_cell_volume
@@ -239,6 +233,8 @@ class Interface:
         return self.grid_matrix[:, :, :, mol_index]
 
     def _create_hull(self):
+        if not self.main_structure_selection:
+            raise ValueError('Select the main structure with "select_structure" before running calculations')
         if self._hull.get(self.current_frame):
             # If the hull was calculated for this frame, just return it
             return self._hull[self.current_frame]
@@ -423,11 +419,12 @@ class Interface:
         :return:
         """
         per_frame_func = partial(func, **kwargs)
-
+        timer_start = time.perf_counter()
         res = process_map(per_frame_func, frame_range,
                           max_workers=cpu_count,
                           bar_format=TQDM_BAR_FORMAT
                           )
+        print(f'Execution time for {len(frame_range)} frames: ', time.perf_counter() - timer_start)
 
         return np.array(res)
 
