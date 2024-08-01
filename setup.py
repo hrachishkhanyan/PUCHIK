@@ -5,14 +5,15 @@ import numpy
 
 # Import the current version number
 # from PUCHIK._version import __version__
-import tomllib
+# import tomllib  # no tomllib before 3.11
 
 
 def get_current_version():
-    with open("pyproject.toml", "rb") as f:
-        data = tomllib.load(f)
-
-    return data['project']['version']
+    return "1.1.1"
+#     with open("pyproject.toml", "rb") as f:
+#         data = tomllib.load(f)
+#
+#     return data['project']['version']
 
 
 extensions = [

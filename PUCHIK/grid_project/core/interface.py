@@ -11,6 +11,7 @@ import MDAnalysis as mda
 import numpy as np
 
 from scipy.spatial import ConvexHull
+from tqdm import tqdm
 # from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
 from multiprocessing import Manager
@@ -19,6 +20,7 @@ from multiprocessing import Manager
 from ..utilities.decorators import logger  # , timer
 from ..settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT
 from .utils import find_distance, _is_inside
+
 # from .utils_python import find_distance, _is_inside
 logging.basicConfig(format='%(message)s')
 np.seterr(invalid='ignore', divide='ignore')
@@ -49,8 +51,6 @@ class Interface:
 
         manager = Manager()
         self._hull = manager.dict()
-
-
 
     def select_atoms(self, sel='all'):
         """
@@ -252,9 +252,9 @@ class Interface:
                 f'Cannot construct the hull at frame {self.current_frame}: main structure selection might be empty')
             return
 
-    def _calc_dens_mp(self, frame_num, selection, norm_bin_count):
+    def _calc_dens(self, frame_num, selection, norm_bin_count):
         """
-        Calculates the density of selection from interface. Multiprocessing version
+        Calculates the density of selection from interface.
 
         Args:
             frame_num (int): Number of the frame
@@ -288,7 +288,7 @@ class Interface:
 
     # @timer
     def calculate_density(self, selection=None, start=0, skip=1, end=None,
-                          norm_bin_count=20, cpu_count=CPU_COUNT):
+                          norm_bin_count=20, cpu_count=CPU_COUNT, mp=True):
         """
         Calculates density of selection from the interface
         :param end: Final frame
@@ -298,13 +298,22 @@ class Interface:
         :param interface_selection: Selection of what is considered as interface
         :param start: Starting frame
         :param skip: Skip every n-th frame
+        :param mp: If False, computation will be performed iteratively on a single process
+
         :return:
         """
         n_frames = self.u.trajectory.n_frames if end is None else end
         frame_range = range(start, n_frames, skip)
         print(f'Running density calculation for the following atom group: {selection}')
-        res = self._mp_calc(self._calc_dens_mp, frame_range, cpu_count, selection=selection,
-                            norm_bin_count=norm_bin_count)
+        if mp:
+            res = self._mp_calc(self._calc_dens, frame_range, cpu_count, selection=selection,
+                                norm_bin_count=norm_bin_count)
+        else:
+            # Single-process calculation
+            res = [None] * len(frame_range)
+            for index, i in enumerate(tqdm(frame_range, bar_format=TQDM_BAR_FORMAT)):
+                res[index] = self._calc_dens(i, selection, norm_bin_count)
+            res = np.array(res)
 
         distances, densities = self._process_result(res)
 
@@ -409,7 +418,11 @@ class Interface:
         )
 
     @staticmethod
-    def _mp_calc(func, frame_range, cpu_count, **kwargs):
+    def _sp_calc(func):
+        ...
+
+    @staticmethod
+    def _mp_calc(func, frame_range, cpu_count, **kwargs) -> np.ndarray:
         """
         This method handles multiprocessing
         :param func:
@@ -419,12 +432,10 @@ class Interface:
         :return:
         """
         per_frame_func = partial(func, **kwargs)
-        timer_start = time.perf_counter()
         res = process_map(per_frame_func, frame_range,
                           max_workers=cpu_count,
                           bar_format=TQDM_BAR_FORMAT
                           )
-        print(f'Execution time for {len(frame_range)} frames: ', time.perf_counter() - timer_start)
 
         return np.array(res)
 

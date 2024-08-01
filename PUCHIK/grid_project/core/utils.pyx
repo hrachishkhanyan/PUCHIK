@@ -21,7 +21,6 @@ def find_distance(hull, np.ndarray points):
     dist = hmesh.MeshDistance(m)
     p_length = points.shape[0]
     res = [0.0] * p_length
-
     for i in range(p_length):
         p = points[i]
         # Get the distance to the point
