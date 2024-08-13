@@ -1,6 +1,5 @@
 # from sys import argv  # for benchmarking only
 import logging
-import multiprocessing
 import time
 # import warnings
 from functools import partial
@@ -16,10 +15,11 @@ from tqdm.contrib.concurrent import process_map
 from multiprocessing import Manager
 
 # Local imports
-from ..utilities.decorators import logger  # , timer
-from ..settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT
-from .utils import find_distance, _is_inside
-# from .utils_python import find_distance, _is_inside
+from PUCHIK.grid_project.utilities.MoleculeSystem import MoleculeSystem
+from PUCHIK.grid_project.utilities.decorators import logger
+from PUCHIK.grid_project.settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT
+from PUCHIK.grid_project.core.utils import find_distance, _is_inside
+
 logging.basicConfig(format='%(message)s')
 np.seterr(invalid='ignore', divide='ignore')
 
@@ -28,7 +28,7 @@ np.seterr(invalid='ignore', divide='ignore')
 """
 
 
-class Interface:
+class Interface (MoleculeSystem):
     """
         Class creates to create a mesh of points representing different molecule
         types of the system in a grid
