@@ -1,6 +1,5 @@
 # from sys import argv  # for benchmarking only
 import logging
-import multiprocessing
 import time
 # import warnings
 from functools import partial
@@ -16,10 +15,11 @@ from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
 from multiprocessing import Manager
 
+from PUCHIK.grid_project.utilities.MoleculeSystem import MoleculeSystem
 # Local imports
-from ..utilities.decorators import logger  # , timer
-from ..settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT
-from .utils import find_distance, _is_inside
+from PUCHIK.grid_project.utilities.decorators import logger  # , timer
+from PUCHIK.grid_project.settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT
+from PUCHIK.grid_project.core.utils import find_distance, _is_inside
 
 # from .utils_python import find_distance, _is_inside
 logging.basicConfig(format='%(message)s')
@@ -30,7 +30,7 @@ np.seterr(invalid='ignore', divide='ignore')
 """
 
 
-class Interface:
+class Interface (MoleculeSystem):
     """
         Class creates to create a mesh of points representing different molecule
         types of the system in a grid
@@ -38,7 +38,6 @@ class Interface:
         Attributes:
             traj (str): Path to any trajectory format supported by MDAnalysis package
             top (str): Path to any topology format supported by MDAnalysis package. Defaults to None
-            rescale (int): Rescales the system down n times. Defaults to 1
     """
 
     def __init__(self, traj, top=None):
@@ -56,9 +55,8 @@ class Interface:
         """
         Method for selecting the atoms using MDAnalysis selections
 
-        Args:
-            sel (str): selection string
-
+        :param sel: selection string
+        :return:
         """
         self.ag = self.u.select_atoms(sel)
         self.unique_resnames = np.unique(self.ag.resnames)
@@ -68,7 +66,8 @@ class Interface:
 
     def select_structure(self, selection):
         """
-        Use this method to select the structure for density calculations. Enter 1 or more resnames
+        Use this method to select the structure for density calculations․
+
         :param selection: selection(s) of the main structure
         :return: None
         """
@@ -129,14 +128,7 @@ class Interface:
             np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh
         """
 
-        coords = []
-        for i, mat in enumerate(mesh):
-            for j, col in enumerate(mat):
-                for k, elem in enumerate(col):
-                    if elem > 0:
-                        coords.append((i, j, k))
-
-        return np.array(coords, dtype=int)
+        return np.argwhere(mesh > 0)
 
     def _calc_mesh(self, grid_dim, selection):
         """
@@ -243,14 +235,14 @@ class Interface:
 
         mesh_coords = self.make_coordinates(mesh[:, :, :])
         mesh_coordinates = np.array(mesh_coords)
-        try:
-            hull = ConvexHull(mesh_coordinates)
-            self._hull[self.current_frame] = hull
-            return hull  # , qhull_options='Q0')
-        except IndexError as _:
-            logging.warning(
-                f'Cannot construct the hull at frame {self.current_frame}: main structure selection might be empty')
-            return
+        # try:
+        hull = ConvexHull(mesh_coordinates)
+        self._hull[self.current_frame] = hull
+        return hull  # , qhull_options='Q0')
+        # except IndexError as _:
+        #     logging.warning(
+        #         f'Cannot construct the hull at frame {self.current_frame}: main structure selection might be empty')
+        #     return
 
     def _calc_dens(self, frame_num, selection, norm_bin_count):
         """
@@ -431,12 +423,13 @@ class Interface:
         :param kwargs:
         :return:
         """
+        start = time.perf_counter()
         per_frame_func = partial(func, **kwargs)
         res = process_map(per_frame_func, frame_range,
                           max_workers=cpu_count,
                           bar_format=TQDM_BAR_FORMAT
                           )
-
+        print(f'Execution time for {len(frame_range)} frames:', time.perf_counter() - start)
         return np.array(res)
 
 

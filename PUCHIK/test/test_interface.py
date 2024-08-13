@@ -1,7 +1,7 @@
 import pytest
 import os
 from numpy import isclose
-from ..grid_project.core.interface import Interface
+from PUCHIK.grid_project.core.interface import Interface
 
 TEST_DIR = './PUCHIK/test/test_structures'
 
