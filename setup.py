@@ -5,14 +5,6 @@ import numpy
 
 # Import the current version number
 # from PUCHIK._version import __version__
-import tomllib
-
-
-def get_current_version():
-    with open("pyproject.toml", "rb") as f:
-        data = tomllib.load(f)
-
-    return data['project']['version']
 
 
 extensions = [
@@ -25,7 +17,7 @@ extensions = [
 
 setup(
     name='PUCHIK',
-    version=get_current_version(),
+    version='1.1.1',
     description='Python Utility for Characterizing Heterogeneous Interfaces and Kinetics',
     url='https://github.com/hrachishkhanyan/grid_project',
     author='H. Ishkhanyan',
