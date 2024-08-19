@@ -9,8 +9,7 @@ np.import_array()
 
 
 def find_distance(hull, np.ndarray points):
-    cdef list res
-    cdef np.ndarray p
+    cdef np.ndarray p, res
     cdef float d
     cdef int i, p_length
     # Construct PyGEL Manifold from the convex hull
@@ -20,7 +19,7 @@ def find_distance(hull, np.ndarray points):
 
     dist = hmesh.MeshDistance(m)
     p_length = points.shape[0]
-    res = [0.0] * p_length
+    res = np.zeros(p_length)
 
     for i in range(p_length):
         p = points[i]
@@ -66,34 +65,3 @@ def point_in_hull(np.ndarray point, hull):
     return all(
         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
         for eq in hull.equations)
-
-def make_coordinates(mesh, keep_numbers=False):
-    """
-    Converts the mesh to coordinates
-    Args:
-        mesh (np.ndarray):  Mesh to convert into 3D coordinates
-        keep_numbers (bool): Resulting tuples will also contain the number of particles at that coordinate if True
-
-    Returns:
-        np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh
-    """
-    cdef int dim
-    cdef list coords
-
-    dim = mesh.ndim
-    coords = []
-
-    if dim == 2:
-        for i, col in enumerate(mesh):
-            for j, elem in enumerate(col):
-                if elem > 0:
-                    coords.append((i, j)) if not keep_numbers else coords.append((i, j, mesh[i, j]))
-    else:
-        for i, mat in enumerate(mesh):
-            for j, col in enumerate(mat):
-                for k, elem in enumerate(col):
-                    if elem > 0:
-                        coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))
-
-    return np.array(coords, dtype=int)
-

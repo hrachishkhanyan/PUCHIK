@@ -129,14 +129,7 @@ class Interface (MoleculeSystem):
             np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh
         """
 
-        coords = []
-        for i, mat in enumerate(mesh):
-            for j, col in enumerate(mat):
-                for k, elem in enumerate(col):
-                    if elem > 0:
-                        coords.append((i, j, k))
-
-        return np.array(coords, dtype=int)
+        return np.argwhere(mesh > 0)
 
     def _calc_mesh(self, grid_dim, selection):
         """
