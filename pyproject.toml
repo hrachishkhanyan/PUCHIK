@@ -10,7 +10,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "PUCHIK"
-version = '1.1.1'
+version = '1.1.2'
 #dynamic = ['version']
 authors = [
     { name = "Hrachya Ishkhanyan", email = "hrachya.ishkhanyan@kcl.ac.uk" },
