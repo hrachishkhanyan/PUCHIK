@@ -30,7 +30,7 @@ np.seterr(invalid='ignore', divide='ignore')
 """
 
 
-class Interface (MoleculeSystem):
+class Interface(MoleculeSystem):
     """
         Class creates to create a mesh of points representing different molecule
         types of the system in a grid
@@ -302,10 +302,13 @@ class Interface (MoleculeSystem):
                                 norm_bin_count=norm_bin_count)
         else:
             # Single-process calculation
+            start = time.perf_counter()
+
             res = [None] * len(frame_range)
             for index, i in enumerate(tqdm(frame_range, bar_format=TQDM_BAR_FORMAT)):
                 res[index] = self._calc_dens(i, selection, norm_bin_count)
             res = np.array(res)
+            print(f'Execution time for {len(frame_range)} frames:', time.perf_counter() - start)
 
         distances, densities = self._process_result(res)
 
@@ -423,13 +426,11 @@ class Interface (MoleculeSystem):
         :param kwargs:
         :return:
         """
-        start = time.perf_counter()
         per_frame_func = partial(func, **kwargs)
         res = process_map(per_frame_func, frame_range,
                           max_workers=cpu_count,
                           bar_format=TQDM_BAR_FORMAT
                           )
-        print(f'Execution time for {len(frame_range)} frames:', time.perf_counter() - start)
         return np.array(res)
 
 
