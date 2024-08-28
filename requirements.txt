@@ -6,3 +6,4 @@ MDAnalysis
 pygel3d
 setuptools
 wheel
+python-dotenv

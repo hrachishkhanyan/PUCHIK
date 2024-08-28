@@ -36,3 +36,11 @@ def test_calculate_volume():
     v = m.calculate_volume()
     assert isclose(v, 146450.0), f'Volume should be close to {146450.0}'
 
+
+def test_create_alpha_hull():
+    m = Interface(
+        os.path.join(TEST_DIR, 'InP_cylinder.pdb')
+    )
+    m.use_alpha_shape = True
+    m.select_structure('resname UNL')
+    m._create_hull()

@@ -5,3 +5,7 @@ global-include *.c
 global-include *.h
 global-include *.cpp
 global-include *.so
+
+global-include *.exe
+global-include *.dll
+include PUCHIK/alpha_shaper/AlphaShaper.pdb

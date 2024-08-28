@@ -9,8 +9,7 @@ np.import_array()
 
 
 def find_distance(hull, np.ndarray points):
-    cdef list res
-    cdef np.ndarray p
+    cdef np.ndarray p, res
     cdef float d
     cdef int i, p_length
     # Construct PyGEL Manifold from the convex hull
@@ -20,7 +19,8 @@ def find_distance(hull, np.ndarray points):
 
     dist = hmesh.MeshDistance(m)
     p_length = points.shape[0]
-    res = [0.0] * p_length
+    res = np.zeros(p_length)
+
     for i in range(p_length):
         p = points[i]
         # Get the distance to the point
@@ -41,20 +41,11 @@ def find_distance(hull, np.ndarray points):
     return res
 
 
-def norm(np.ndarray point, np.ndarray plane) -> float:
-    cdef np.ndarray p0
-    cdef np.ndarray p1
-    cdef np.ndarray p2
-    cdef np.ndarray normal
-    cdef np.ndarray n
-    p0, p1, p2 = plane
-    normal = np.cross(p1 - p0, p2 - p0)
-    n = normal / np.abs(normal)
-    dist = np.abs(np.dot(point - p0, n))
-    return dist
-
-
-def _is_inside(np.ndarray point, hull) -> bool:
+def _is_inside(np.ndarray point, hull, alpha_shape=False) -> bool:
+    if alpha_shape:
+        vertices = hull.points
+        cells = hull.cells
+        return point_in_alpha_shape(point, cells, vertices)
     return point_in_hull(point, hull)
 
 
@@ -66,33 +57,35 @@ def point_in_hull(np.ndarray point, hull):
         (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
         for eq in hull.equations)
 
-def make_coordinates(mesh, keep_numbers=False):
-    """
-    Converts the mesh to coordinates
-    Args:
-        mesh (np.ndarray):  Mesh to convert into 3D coordinates
-        keep_numbers (bool): Resulting tuples will also contain the number of particles at that coordinate if True
 
-    Returns:
-        np.ndarray: Ndarray of tuples representing coordinates of each of the points in the mesh
-    """
-    cdef int dim
-    cdef list coords
+def point_in_alpha_shape(np.ndarray point, np.ndarray cells, np.ndarray vertices) -> bool:
+    cdef np.ndarray cell, tetrahedron_points
 
-    dim = mesh.ndim
-    coords = []
+    for cell in cells:
+        tetrahedron_points = vertices[cell]
+        if point_in_tetrahedron(point, tetrahedron_points):
+            return True
+    return False
 
-    if dim == 2:
-        for i, col in enumerate(mesh):
-            for j, elem in enumerate(col):
-                if elem > 0:
-                    coords.append((i, j)) if not keep_numbers else coords.append((i, j, mesh[i, j]))
-    else:
-        for i, mat in enumerate(mesh):
-            for j, col in enumerate(mat):
-                for k, elem in enumerate(col):
-                    if elem > 0:
-                        coords.append((i, j, k)) if not keep_numbers else coords.append((i, j, k, mesh[i, j, k]))
+def point_in_tetrahedron(np.ndarray point, np.ndarray tetrahedron_points) -> bool:
+    cdef np.ndarray v0, v1, v2, v_point
+    cdef float denom, u, v, w, t
 
-    return np.array(coords, dtype=int)
+    v0 = tetrahedron_points[1] - tetrahedron_points[0]
+    v1 = tetrahedron_points[2] - tetrahedron_points[0]
+    v2 = tetrahedron_points[3] - tetrahedron_points[0]
+    v_point = point - tetrahedron_points[0]
 
+    # Calculate determinants
+    denom = np.linalg.det(np.column_stack((v0, v1, v2)))
+    if denom == 0:
+        return False
+
+    # Calculate barycentric coordinates
+    u = np.linalg.det(np.column_stack((v_point, v1, v2))) / denom
+    v = np.linalg.det(np.column_stack((v0, v_point, v2))) / denom
+    w = np.linalg.det(np.column_stack((v0, v1, v_point))) / denom
+    t = 1 - u - v - w
+
+    # Check if the point is inside the tetrahedron
+    return (u >= 0) and (v >= 0) and (w >= 0) and (t >= 0)

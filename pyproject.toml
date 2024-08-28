@@ -4,7 +4,7 @@ requires = [
     "Cython",
     "numpy>=1.26.0",
     "setuptools",
-    "wheel"
+    "wheel",
 ]
 build-backend = "setuptools.build_meta"
 
@@ -22,7 +22,8 @@ requires-python = ">=3.10"
 dependencies = [
     "MDAnalysis",
     "scipy>=1.14.0",
-    "PyGEL3D"
+    "PyGEL3D",
+    "python-dotenv"
 ]
 classifiers = [
     "Programming Language :: Python :: 3",

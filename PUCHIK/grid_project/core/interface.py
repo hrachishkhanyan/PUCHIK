@@ -15,6 +15,7 @@ from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
 from multiprocessing import Manager
 
+from PUCHIK.grid_project.core.AlphaShape import AlphaShape
 from PUCHIK.grid_project.utilities.MoleculeSystem import MoleculeSystem
 # Local imports
 from PUCHIK.grid_project.utilities.decorators import logger  # , timer
@@ -50,6 +51,18 @@ class Interface(MoleculeSystem):
 
         manager = Manager()
         self._hull = manager.dict()
+
+        self._use_alpha_shape = False
+
+    @property
+    def use_alpha_shape(self):
+        return self._use_alpha_shape
+
+    @use_alpha_shape.setter
+    def use_alpha_shape(self, val):
+        if type(val) is not bool:
+            raise TypeError('use_alpha_shape must be a boolean')
+        self._use_alpha_shape = val
 
     def select_atoms(self, sel='all'):
         """
@@ -199,7 +212,7 @@ class Interface(MoleculeSystem):
 
         return density_grid
 
-    def _grid_centers(self, hull, bin_count):
+    def _grid_centers(self, bin_count):
         edges, step = np.linspace(0, self._get_int_dim(), bin_count + 1, retstep=True)
         x_centers = (edges[:-1] + edges[1:]) / 2
         y_centers = (edges[:-1] + edges[1:]) / 2
@@ -236,7 +249,10 @@ class Interface(MoleculeSystem):
         mesh_coords = self.make_coordinates(mesh[:, :, :])
         mesh_coordinates = np.array(mesh_coords)
         # try:
-        hull = ConvexHull(mesh_coordinates)
+        if self.use_alpha_shape:
+            hull = AlphaShape(mesh_coordinates).calculate_as()
+        else:
+            hull = ConvexHull(mesh_coordinates)
         self._hull[self.current_frame] = hull
         return hull  # , qhull_options='Q0')
         # except IndexError as _:
@@ -262,7 +278,7 @@ class Interface(MoleculeSystem):
 
         hull = self._create_hull()
 
-        grid_centers = self._grid_centers(hull, bin_count=norm_bin_count)
+        grid_centers = self._grid_centers(bin_count=norm_bin_count)
 
         distances = np.array(
             find_distance(hull, grid_centers)
@@ -361,7 +377,7 @@ class Interface(MoleculeSystem):
             coms.append(ag[i * n_atoms: (i + 1) * n_atoms].center_of_mass())
 
         for com in coms:
-            if _is_inside(com, hull):
+            if _is_inside(com, hull, self.use_alpha_shape):
                 count += 1
 
         return count
@@ -426,11 +442,15 @@ class Interface(MoleculeSystem):
         :param kwargs:
         :return:
         """
+        start = time.perf_counter()
+
         per_frame_func = partial(func, **kwargs)
         res = process_map(per_frame_func, frame_range,
                           max_workers=cpu_count,
                           bar_format=TQDM_BAR_FORMAT
                           )
+        print(f'Execution time for {len(frame_range)} frames:', time.perf_counter() - start)
+
         return np.array(res)
 
 
