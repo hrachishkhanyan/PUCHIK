@@ -7,6 +7,8 @@ The interface construction works for spherical and rod-like nanoparticles equall
 
 This package is built on top of [MDAnalysis](https://www.mdanalysis.org/), [SciPy](https://scipy.org/), [NumPy](https://numpy.org/doc/stable/index.html) and [PyGEL3D](https://pypi.org/project/PyGEL3D/) libraries.
 
+This is an experimental branch that offers a functionality to use alpha shapes (with an optimal or user provided alpha value) instead of a convex hull. This is done with the help of AlphaShaper.exe which was compiled using the [CGAL](https://www.cgal.org/) library. For now this only works on Windows. C++ source code is provided as well in case you would like to compile it for other platforms. The usage will be shown below.
+
 ![image](https://drive.google.com/uc?export=view&id=1YTiM2OxzkGO0GcbC5WvFffBdZN9-e_6D)
 
 ## Installation
@@ -33,6 +35,10 @@ top = '<path_to_topology>'
 m = Interface(trj, top)
 ```
 
+Optionally, if you want to use the alpha shape functionality, change the **use_alpha_shape** property to *True*:
+```python
+m.use_alpha_shape = True
+```
 Lastly, select the atom groups you want to consider, atom groups that comprise the interface, and run the **calculate_density** method:
 
 ```python
@@ -56,6 +62,7 @@ This version will start the calculation at the 10th frame and finish it at frame
 An example figure which shows the number density of different residues relative to the distance to the interface of a sodium oleate micelle:
 
 ![image](https://drive.google.com/uc?export=view&id=1swRuoD-rs01SA-4jqPLjwxuuv9UlUGkm)
+
 
 ### Solubilized molecule count
 

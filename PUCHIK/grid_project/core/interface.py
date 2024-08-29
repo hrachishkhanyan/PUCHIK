@@ -250,15 +250,11 @@ class Interface(MoleculeSystem):
         mesh_coordinates = np.array(mesh_coords)
         # try:
         if self.use_alpha_shape:
-            hull = AlphaShape(mesh_coordinates).calculate_as()
+            hull = AlphaShape(mesh_coordinates).calculate_as(self.current_frame)
         else:
             hull = ConvexHull(mesh_coordinates)
         self._hull[self.current_frame] = hull
-        return hull  # , qhull_options='Q0')
-        # except IndexError as _:
-        #     logging.warning(
-        #         f'Cannot construct the hull at frame {self.current_frame}: main structure selection might be empty')
-        #     return
+        return hull
 
     def _calc_dens(self, frame_num, selection, norm_bin_count):
         """

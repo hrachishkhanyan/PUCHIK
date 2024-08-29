@@ -2,6 +2,7 @@ import subprocess
 import numpy as np
 from dotenv import load_dotenv
 import os
+from pathlib import Path
 
 # Load .env to get alpha_shape exe
 load_dotenv()
@@ -38,14 +39,32 @@ class AlphaShape:
     def simplices(self, new_simplices):
         self._simplices = new_simplices
 
-    def calculate_as(self, alpha=-1):
-        alpha_shaper_exe = os.getenv('ALPHA_SHAPER_EXECUTABLE')
+    def calculate_as(self, frame_num, alpha=-1):
+        """
+        Calculate the alpha shape for frame <frame_num>
+        :param frame_num:
+        :param alpha:
+        :return:
+        """
+        temp_file_name = f'./.temp_frame_{frame_num}.xyz'
+        temp_output_facets_file_name = f'output_facets_{frame_num}.txt'
+        temp_output_cells_file_name = f'output_cells_{frame_num}.txt'
 
-        np.savetxt('.temp.xyz', self.points, header=f'{len(self.points)}', comments='')
-        proc = subprocess.run([alpha_shaper_exe, './.temp.xyz', f'{alpha}'], capture_output=True, text=True)
-        os.remove('.temp.xyz')
+        output_file_suffix = f'{frame_num}'
+        alpha_shaper_exe = Path(__file__).resolve().parent.parent / 'alpha_shaper' / 'AlphaShaper.exe'
+        if not os.path.exists(alpha_shaper_exe):
+            print(alpha_shaper_exe)
+            raise FileNotFoundError("Couldn't find the executable.")
 
-        self.simplices = np.loadtxt('output_facets.txt', dtype=int)
-        self.cells = np.loadtxt('output_cells.txt', dtype=int)
-        print(proc.stdout)
+        np.savetxt(temp_file_name, self.points, header=f'{len(self.points)}', comments='')
+        proc = subprocess.run([alpha_shaper_exe, temp_file_name, f'{alpha}', output_file_suffix],
+                              capture_output=True, text=True)
+
+        self.simplices = np.loadtxt(temp_output_facets_file_name, dtype=int)
+        self.cells = np.loadtxt(temp_output_cells_file_name, dtype=int)
+
+        os.remove(temp_file_name)
+        os.remove(temp_output_facets_file_name)
+        os.remove(temp_output_cells_file_name)
+
         return self
