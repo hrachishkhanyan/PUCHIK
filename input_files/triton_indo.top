@@ -1,0 +1,29 @@
+#include "./charmm36-jul2017.ff//forcefield.itp"
+
+; additional params for the molecule
+#include "triton.prm"
+#include "./indomethacin/indo.prm"
+#include "triton.itp"
+#include "./indomethacin/indo.itp"
+
+#include "./charmm36-jul2017.ff//tip3p.itp"
+#ifdef POSRES_WATER
+; Position restraint for each water oxygen
+[ position_restraints ]
+;  i funct		 fcx		fcy		   fcz
+   1	1		1000	   1000		  1000
+#endif
+
+; Include topology for ions
+#include "./charmm36-jul2017.ff//ions.itp"
+
+[ system ]
+; Name
+mol in water
+
+[ molecules ]
+; Compound		  #mols
+TRITO		         150
+INDO                     100
+SOL         65673
+NA               100
