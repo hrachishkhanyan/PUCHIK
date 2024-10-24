@@ -13,6 +13,7 @@ class ClusterSearch(MoleculeSystem):
     Select atoms to cluster using select_atoms method and then run find_clusters to return the list of ids in each
     cluster for each frame. !TODO Currently we consider isolated atoms as separate clusters and might need to change it
     """
+
     def __init__(self, top_path: str, trj_path=None):
         self.ag = None
         if not trj_path:
