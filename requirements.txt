@@ -1,6 +1,6 @@
 setuptools>=61.0
 Cython
-numpy>=1.26.0
+numpy==1.26.0
 scipy>=1.14.0
 MDAnalysis
 pygel3d
