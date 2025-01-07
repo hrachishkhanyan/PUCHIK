@@ -4,7 +4,6 @@ cimport numpy as np
 from pygel3d import hmesh
 from libc.math cimport fabs
 
-# from scipy.spatial import ConvexHull
 np.import_array()
 
 

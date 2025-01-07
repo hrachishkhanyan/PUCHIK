@@ -17,7 +17,7 @@ extensions = [
 
 setup(
     name='PUCHIK',
-    version='1.1.2',
+    version='1.2.0',
     description='Python Utility for Characterizing Heterogeneous Interfaces and Kinetics',
     url='https://github.com/hrachishkhanyan/grid_project',
     author='H. Ishkhanyan',
