@@ -9,7 +9,7 @@ import numpy
 
 
 def get_current_version():
-    return "1.1.1"
+    return "1.2.0"
 #     with open("pyproject.toml", "rb") as f:
 #         data = tomllib.load(f)
 #
@@ -33,5 +33,6 @@ setup(
     author_email='hrachya.ishkhanyan@kcl.ac.uk',
     license='MIT',
     provides=['PUCHIK'],
+    packages=['PUCHIK'],
     ext_modules=cythonize(extensions),
 )

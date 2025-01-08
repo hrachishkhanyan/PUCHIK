@@ -9,7 +9,7 @@ load_dotenv()
 
 
 class AlphaShape:
-
+    """ Python wrapper for AlphaShaper.exe """
     def __init__(self, points):
         self._points = points  # All points
         self._cells = None

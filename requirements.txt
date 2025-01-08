@@ -1,9 +1,9 @@
 setuptools>=61.0
-Cython
-numpy>=1.26.0
-scipy>=1.14.0
-MDAnalysis
-pygel3d
+Cython==3.0.10
+numpy==1.26.0
+scipy==1.14.0
+MDAnalysis==2.8.0
+pygel3d==0.5.2
 setuptools
 wheel
 python-dotenv

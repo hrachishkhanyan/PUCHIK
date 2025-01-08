@@ -158,6 +158,11 @@ class Interface(MoleculeSystem):
 
         for atom in atom_group:
             x, y, z = self.check_cube(*atom.position)
+            # Correct outlying coordinates !TODO Create a separate utility function for such checks
+            x = min(max(x, 0), grid_dim - 1)
+            y = min(max(y, 0), grid_dim - 1)
+            z = min(max(z, 0), grid_dim - 1)
+
             grid_matrix[x, y, z] += 1
 
         return grid_matrix
@@ -438,14 +443,13 @@ class Interface(MoleculeSystem):
         :param kwargs:
         :return:
         """
-        start = time.perf_counter()
-
+        # start = time.perf_counter()
         per_frame_func = partial(func, **kwargs)
         res = process_map(per_frame_func, frame_range,
                           max_workers=cpu_count,
                           bar_format=TQDM_BAR_FORMAT
                           )
-        print(f'Execution time for {len(frame_range)} frames:', time.perf_counter() - start)
+        # print(f'Execution time for {len(frame_range)} frames:', time.perf_counter() - start)
 
         return np.array(res)
 
