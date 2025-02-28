@@ -420,6 +420,9 @@ class Interface(MoleculeSystem):
         :return [tuple, np.ndarray] volume: ndarray containing the volume values of the hull at each frame, or a tuple
         of ndarrays for volumes and areas
         """
+        if self.use_alpha_shape:
+            raise NotImplementedError('Volume calculations using alpha shapes is not yet implemented')
+
         n_frames = self.u.trajectory.n_frames if end is None else end
         frame_range = range(start, n_frames, skip)
         print('Calculating the volume of the selected structure')
