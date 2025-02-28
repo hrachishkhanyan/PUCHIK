@@ -9,7 +9,7 @@ import numpy
 
 
 def get_current_version():
-    return "1.2.2"
+    return "1.2.3"
 #     with open("pyproject.toml", "rb") as f:
 #         data = tomllib.load(f)
 #
