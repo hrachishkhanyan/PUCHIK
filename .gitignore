@@ -8,3 +8,4 @@ tests
 .vscode
 .idea
 /PUCHIK/grid_project/core/utils_python.py
+**/__pycache__/
