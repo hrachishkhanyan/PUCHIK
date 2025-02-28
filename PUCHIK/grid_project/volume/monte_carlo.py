@@ -1,6 +1,5 @@
 import numpy as np
-from ..utilities.universal_functions import check_cube
-from ..core.utils import _is_inside
+from PUCHIK.grid_project.core.utils import _is_inside
 
 
 def generate_point(dim):
