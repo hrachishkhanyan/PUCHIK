@@ -82,3 +82,9 @@ v = m.calculate_volume(start=500, end=1000, skip=2)
 ```python
 v, a = m.calculate_volume(area=True, start=500, end=1000, skip=2)
 ```
+
+## Cite
+
+If you've used this package in your project please cite the following paper:
+
+Ishkhanyan, H., Santana-Bonilla, A., & Lorenz, C. D. (2025). PUCHIK: A Python Package To Analyze Molecular Dynamics Simulations of Aspherical Nanoparticles. *Journal of Chemical Information and Modeling*. https://doi.org/10.1021/ACS.JCIM.4C02128
