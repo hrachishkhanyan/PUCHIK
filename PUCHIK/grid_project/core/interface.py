@@ -348,14 +348,18 @@ class Interface(MoleculeSystem):
         for i, arr in enumerate(distances):
             minim = abs(int(arr[0]))
 
-            offset_distances[i, offset - minim:dim_2 + (offset - minim)] = arr
-            offset_densities[i, offset - minim:dim_2 + (offset - minim)] = densities[i]
+            offset_minim = offset - minim  # Ensure index is non-negative
+
+            offset_distances[i, offset_minim:dim_2 + offset_minim] = arr
+            offset_densities[i, offset_minim:dim_2 + offset_minim] = densities[i]
 
         # Trim zeros
         global_min = abs(int(distances.min()))
 
-        final_distances = offset_distances[:, offset - global_min:dim_2 + (offset - global_min)]
-        final_densities = offset_densities[:, offset - global_min:dim_2 + (offset - global_min)]
+        offset_global_min = offset - global_min  # Again, ensure index is non-negative
+
+        final_distances = offset_distances[:, offset_global_min:dim_2 + offset_global_min]
+        final_densities = offset_densities[:, offset_global_min:dim_2 + offset_global_min]
 
         final_distances = final_distances.mean(axis=0, where=final_distances != 0)
         final_densities = final_densities.mean(axis=0, where=final_distances != 0)
