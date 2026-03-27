@@ -17,7 +17,7 @@ class AlphaShape:
 
     @property
     def cells(self):
-        return self._points
+        return self._cells
 
     @cells.setter
     def cells(self, new_cells):
@@ -29,7 +29,7 @@ class AlphaShape:
 
     @points.setter
     def points(self, new_points):
-        self._simplices = new_points
+        self._points = new_points
 
     @property
     def simplices(self):
@@ -59,6 +59,9 @@ class AlphaShape:
         np.savetxt(temp_file_name, self.points, header=f'{len(self.points)}', comments='')
         proc = subprocess.run([alpha_shaper_exe, temp_file_name, f'{alpha}', output_file_suffix],
                               capture_output=True, text=True)
+
+        if proc.returncode != 0:
+            raise RuntimeError(f"AlphaShaper failed:\n{proc.stderr}")
 
         self.simplices = np.loadtxt(temp_output_facets_file_name, dtype=int)
         self.cells = np.loadtxt(temp_output_cells_file_name, dtype=int)

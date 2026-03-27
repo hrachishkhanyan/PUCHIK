@@ -64,7 +64,7 @@ class ClusterSearch(MoleculeSystem):
 
 def center_to_file(u, selection, o_filename, centroid_pos_selection=None, start=0, skip=1, end=None):
     """
-    A utility function to center the system around an atom.
+    A utility function to center the system around the center of mass of a selection or an atom.
 
     :param u: MDAnalysis Universe object
     :param selection: Selection of the section to be centered (protein, nucleic, resname <NANOPARTICLE>, etc)
@@ -123,26 +123,62 @@ def center_to_file(u, selection, o_filename, centroid_pos_selection=None, start=
             w.write(all_atoms)
 
 
-# def center_in_memory(u, selection):
-#     """
-#     A utility function to center the system around an atom inplace.
-#
-#     :param u: MDAnalysis Universe object
-#     :param selection: Selection of the atom to be centered
-#     :return:
-#     """
-#     u.transfer_to_memory()
-#
-#     all_atoms = u.select_atoms('all')
-#
-#     for ts in u.trajectory:
-#         pbc_dim = u.dimensions[0]
-#         all_atom_pos = all_atoms.positions
-#
-#         center_of_mass_pos = u.select_atoms(selection).center_of_mass()
-#         new_pos = _translate_system(all_atom_pos, center_of_mass_pos, pbc_dim)
-#
-#         ts.positions = new_pos
+def center_in_memory(u, selection, centroid_pos_selection=None, start=0, skip=1, end=None):
+    """
+    A utility function to center the system around an atom inplace.
+
+    :param u: MDAnalysis Universe object
+    :param selection: Selection of the atom to be centered
+    :return:
+    """
+    u.transfer_to_memory()
+
+    all_atoms = u.select_atoms('all')
+
+    ag = u.select_atoms(selection)
+    try:
+        # Check if bond info can be acquired
+        _ = ag.fragments
+        has_fragments = True
+    except Exception:
+        has_fragments = False
+
+    if has_fragments:
+        transform = mda.transformations.unwrap(ag)
+        u.trajectory.add_transformations(transform)
+    else:
+        warnings.warn("For best result, use a bond-aware format (e.g. tpr) or provide explicit centroid atom selection")
+
+    if centroid_pos_selection:
+        centroid = u.select_atoms(centroid_pos_selection)
+
+        if len(centroid) > 1:
+            raise ValueError("Centroid selection should be a single atom")
+    else:
+        centroid = u.select_atoms(selection)
+
+
+    for ts in u.trajectory[start:end:skip]:
+        pbc_dim = u.dimensions[:3]
+        all_atom_pos = all_atoms.positions
+
+        if centroid_pos_selection:
+            centroid_pos = centroid.positions
+        else:
+            # Compute center of mass of the selection
+            centroid_pos = centroid.center_of_mass()
+
+        new_pos = _translate_system(all_atom_pos, centroid_pos, pbc_dim)
+
+        ts.positions = new_pos
+    # for ts in u.trajectory:
+    #     pbc_dim = u.dimensions[0]
+    #     all_atom_pos = all_atoms.positions
+    #
+    #     center_of_mass_pos = u.select_atoms(selection).center_of_mass()
+    #     new_pos = _translate_system(all_atom_pos, center_of_mass_pos, pbc_dim)
+    #
+    #     ts.positions = new_pos
 
 
 def _translate_system(positions: np.ndarray, center_atom_pos: np.ndarray, pbc_dim: float) -> np.ndarray:
