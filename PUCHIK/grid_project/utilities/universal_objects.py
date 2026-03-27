@@ -1,3 +1,6 @@
+import os
+import warnings
+
 import numpy as np
 import MDAnalysis as mda
 from MDAnalysis.lib.distances import distance_array
@@ -59,51 +62,87 @@ class ClusterSearch(MoleculeSystem):
         return clusters
 
 
-def center_to_file(u, selection, o_filename=None, ext=None):
+def center_to_file(u, selection, o_filename, centroid_pos_selection=None, start=0, skip=1, end=None):
     """
     A utility function to center the system around an atom.
 
     :param u: MDAnalysis Universe object
-    :param selection: Selection of the atom to be centered
+    :param selection: Selection of the section to be centered (protein, nucleic, resname <NANOPARTICLE>, etc)
     :param o_filename: Output trajectory file name
-    :param ext: Extension of the output trajectory file
+    :param centroid_pos_selection: Selection of the centroid (single atom) positions
+    :param start: Starting frame
+    :param skip: Number of frames to skip
+    :param end: Ending frame
     :return:
     """
+    if not o_filename:
+        raise TypeError("Please provide an output file name with an extension")
 
-    # !TODO Implement trajectory slicing here
+    filename, ext = os.path.splitext(o_filename)
+
     all_atoms = u.select_atoms('all')
 
-    with mda.Writer(f'{o_filename}.xtc', all_atoms.n_atoms) as w:
-        for _ in u.trajectory:
-            pbc_dim = u.dimensions[0]
+    ag = u.select_atoms(selection)
+    try:
+        # Check if bond info can be acquired
+        _ = ag.fragments
+        has_fragments = True
+    except Exception:
+        has_fragments = False
+
+    if has_fragments:
+        transform = mda.transformations.unwrap(ag)
+        u.trajectory.add_transformations(transform)
+    else:
+        warnings.warn("For best result, use a bond-aware format (e.g. tpr) or provide explicit centroid atom selection")
+
+    if centroid_pos_selection:
+        centroid = u.select_atoms(centroid_pos_selection)
+
+        if len(centroid) > 1:
+            raise ValueError("Centroid selection should be a single atom")
+    else:
+        centroid = u.select_atoms(selection)
+
+    with mda.Writer(f'{filename}{ext}', all_atoms.n_atoms) as w:
+
+        for _ in u.trajectory[start:end:skip]:
+            pbc_dim = u.dimensions[:3]
             all_atom_pos = all_atoms.positions
-            center_atom_pos = u.select_atoms(selection).positions
-            new_pos = _translate_system(all_atom_pos, center_atom_pos, pbc_dim)
+
+            if centroid_pos_selection:
+                centroid_pos = centroid.positions
+            else:
+                # Compute center of mass of the selection
+                centroid_pos = centroid.center_of_mass()
+
+            new_pos = _translate_system(all_atom_pos, centroid_pos, pbc_dim)
+
             all_atoms.positions = new_pos
 
             w.write(all_atoms)
 
 
-def center_in_memory(u, selection):
-    """
-    A utility function to center the system around an atom inplace.
-
-    :param u: MDAnalysis Universe object
-    :param selection: Selection of the atom to be centered
-    :return:
-    """
-    u.transfer_to_memory()
-
-    all_atoms = u.select_atoms('all')
-
-    for ts in u.trajectory:
-        pbc_dim = u.dimensions[0]
-        all_atom_pos = all_atoms.positions
-        center_atom_pos = u.select_atoms(selection).positions
-
-        new_pos = _translate_system(all_atom_pos, center_atom_pos, pbc_dim)
-
-        ts.positions = new_pos
+# def center_in_memory(u, selection):
+#     """
+#     A utility function to center the system around an atom inplace.
+#
+#     :param u: MDAnalysis Universe object
+#     :param selection: Selection of the atom to be centered
+#     :return:
+#     """
+#     u.transfer_to_memory()
+#
+#     all_atoms = u.select_atoms('all')
+#
+#     for ts in u.trajectory:
+#         pbc_dim = u.dimensions[0]
+#         all_atom_pos = all_atoms.positions
+#
+#         center_of_mass_pos = u.select_atoms(selection).center_of_mass()
+#         new_pos = _translate_system(all_atom_pos, center_of_mass_pos, pbc_dim)
+#
+#         ts.positions = new_pos
 
 
 def _translate_system(positions: np.ndarray, center_atom_pos: np.ndarray, pbc_dim: float) -> np.ndarray:
@@ -115,7 +154,9 @@ def _translate_system(positions: np.ndarray, center_atom_pos: np.ndarray, pbc_di
     :param pbc_dim: Dimensions of PBC
     :return: New positions
     """
-    pbc_center = np.array((pbc_dim,) * 3) / 2
+    pbc_center = np.array(pbc_dim) / 2
+
+    # pbc_center = np.array((pbc_dim,) * 3) / 2
 
     # Translate everything to the desired position
     translation_vec = center_atom_pos - pbc_center
