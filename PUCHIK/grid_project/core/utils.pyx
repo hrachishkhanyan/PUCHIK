@@ -50,12 +50,11 @@ def _is_inside(np.ndarray point, hull, alpha_shape=False) -> bool:
 
 
 def point_in_hull(np.ndarray point, hull):
-    cdef double tolerance
-    tolerance = 1e-12
+    cdef double tolerance = 1e-12
+    cdef np.ndarray equations = hull.equations
 
-    return all(
-        (np.dot(eq[:-1], point) + eq[-1] <= tolerance)
-        for eq in hull.equations)
+    # A point is inside the hull if it lies on the inner side of every facet.
+    return bool(np.all(equations[:, :-1].dot(point) + equations[:, -1] <= tolerance))
 
 
 def point_in_alpha_shape(np.ndarray point, np.ndarray cells, np.ndarray vertices) -> bool:

@@ -151,14 +151,14 @@ class Interface(MoleculeSystem):
         atom_group = self.u.select_atoms(selection)
         grid_matrix = self.make_grid(grid_dim)
 
-        for atom in atom_group:
-            x, y, z = self.check_cube(*atom.position)
-            # Correct outlying coordinates !TODO Create a separate utility function for such checks
-            x = min(max(x, 0), grid_dim - 1)
-            y = min(max(y, 0), grid_dim - 1)
-            z = min(max(z, 0), grid_dim - 1)
+        if atom_group.n_atoms == 0:
+            return grid_matrix
 
-            grid_matrix[x, y, z] += 1
+        # Truncate positions toward zero (matches int() in check_cube) and
+        # clip outlying coordinates into the grid before binning.
+        indices = atom_group.positions.astype(np.intp)
+        np.clip(indices, 0, grid_dim - 1, out=indices)
+        np.add.at(grid_matrix, (indices[:, 0], indices[:, 1], indices[:, 2]), 1)
 
         return grid_matrix
 
@@ -184,23 +184,17 @@ class Interface(MoleculeSystem):
         # Works on a cubic box. !TODO Generalize later
         self.u.trajectory[self.current_frame]  # Set the frame to the current frame. Must be a better way...
 
-        coords = np.array(coords)
+        coords = np.asarray(coords)
         density_grid = np.zeros((bin_count, bin_count, bin_count))
 
         edges, step = np.linspace(0, self._get_int_dim(), bin_count + 1, retstep=True)
         grid_cell_volume = step ** 3
 
-        for x, y, z in coords:
-            x_idx = np.digitize(x, edges) - 1
-            y_idx = np.digitize(y, edges) - 1
-            z_idx = np.digitize(z, edges) - 1
-
-            # This is to ensure indices are within the grid bounds
-            x_idx = min(max(x_idx, 0), bin_count - 1)
-            y_idx = min(max(y_idx, 0), bin_count - 1)
-            z_idx = min(max(z_idx, 0), bin_count - 1)
-
-            density_grid[x_idx, y_idx, z_idx] += 1
+        if coords.shape[0] > 0:
+            # Bin every coordinate and clip indices within the grid bounds.
+            indices = np.digitize(coords, edges) - 1
+            np.clip(indices, 0, bin_count - 1, out=indices)
+            np.add.at(density_grid, (indices[:, 0], indices[:, 1], indices[:, 2]), 1)
 
         density_grid /= grid_cell_volume
 
