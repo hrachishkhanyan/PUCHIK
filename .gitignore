@@ -9,3 +9,8 @@ tests
 .idea
 /PUCHIK/grid_project/core/utils_python.py
 **/__pycache__/
+
+# macOS build artifacts (do not commit)
+*.so
+build/lib.macosx-*/
+build/temp.macosx-*/
