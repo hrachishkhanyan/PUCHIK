@@ -1,7 +1,5 @@
-# from sys import argv  # for benchmarking only
 import logging
 import time
-# import warnings
 from functools import partial
 from typing import Union
 
@@ -9,20 +7,17 @@ from MDAnalysis.transformations.wrap import wrap
 import MDAnalysis as mda
 import numpy as np
 
-from scipy.spatial import ConvexHull
+from scipy.spatial import ConvexHull, QhullError
 from tqdm import tqdm
-# from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
 from multiprocessing import Manager
 
 from PUCHIK.grid_project.core.AlphaShape import AlphaShape
 from PUCHIK.grid_project.utilities.MoleculeSystem import MoleculeSystem
-# Local imports
-from PUCHIK.grid_project.utilities.decorators import logger  # , timer
+from PUCHIK.grid_project.utilities.decorators import logger
 from PUCHIK.grid_project.settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT
 from PUCHIK.grid_project.core.utils import find_distance, _is_inside
 
-# from .utils_python import find_distance, _is_inside
 logging.basicConfig(format='%(message)s')
 np.seterr(invalid='ignore', divide='ignore')
 
@@ -167,7 +162,6 @@ class Interface(MoleculeSystem):
 
         return grid_matrix
 
-    # @logger(DEBUG)
     def calculate_mesh(self, selection, main_structure=False):
         """
         Calculates the mesh using _calc_mesh method
@@ -186,8 +180,6 @@ class Interface(MoleculeSystem):
 
         return grid_matrix
 
-    # @logger(DEBUG)
-
     def _calculate_density_grid(self, coords, bin_count):
         # Works on a cubic box. !TODO Generalize later
         self.u.trajectory[self.current_frame]  # Set the frame to the current frame. Must be a better way...
@@ -197,9 +189,6 @@ class Interface(MoleculeSystem):
 
         edges, step = np.linspace(0, self._get_int_dim(), bin_count + 1, retstep=True)
         grid_cell_volume = step ** 3
-
-        # y_edges = np.linspace(0, self._get_int_dim(), bin_count + 1)
-        # z_edges = np.linspace(0, self._get_int_dim(), bin_count + 1)
 
         for x, y, z in coords:
             x_idx = np.digitize(x, edges) - 1
@@ -218,11 +207,9 @@ class Interface(MoleculeSystem):
         return density_grid
 
     def _grid_centers(self, bin_count):
-        edges, step = np.linspace(0, self._get_int_dim(), bin_count + 1, retstep=True)
-        x_centers = (edges[:-1] + edges[1:]) / 2
-        y_centers = (edges[:-1] + edges[1:]) / 2
-        z_centers = (edges[:-1] + edges[1:]) / 2
-        x_grid, y_grid, z_grid = np.meshgrid(x_centers, y_centers, z_centers, indexing='ij')
+        edges = np.linspace(0, self._get_int_dim(), bin_count + 1)
+        centers = (edges[:-1] + edges[1:]) / 2
+        x_grid, y_grid, z_grid = np.meshgrid(centers, centers, centers, indexing='ij')
 
         return np.vstack([x_grid.ravel(), y_grid.ravel(), z_grid.ravel()]).T
 
@@ -251,9 +238,7 @@ class Interface(MoleculeSystem):
 
         mesh = self.calculate_mesh(selection=self.main_structure_selection, main_structure=True)
 
-        mesh_coords = self.make_coordinates(mesh[:, :, :])
-        mesh_coordinates = np.array(mesh_coords)
-        # try:
+        mesh_coordinates = self.make_coordinates(mesh)
         if self.use_alpha_shape:
             hull = AlphaShape(mesh_coordinates).calculate_as(self.current_frame)
         else:
@@ -268,14 +253,13 @@ class Interface(MoleculeSystem):
         Args:
             frame_num (int): Number of the frame
             selection (str): Selection of the atom group density of which is to be calculated
-            ratio (float): Ratio moltype/water !TODO for testing. Remove later
         Returns:
             tuple: Density array and corresponding distances
         """
         self.current_frame = frame_num
         self.u.trajectory[self.current_frame]
 
-        selection_coords = self.u.select_atoms(selection).positions  # self.make_coordinates(selection_mesh)
+        selection_coords = self.u.select_atoms(selection).positions
 
         hull = self._create_hull()
 
@@ -295,7 +279,6 @@ class Interface(MoleculeSystem):
 
         return distances, densities
 
-    # @timer
     def calculate_density(self, selection=None, start=0, skip=1, end=None,
                           norm_bin_count=20, cpu_count=CPU_COUNT, mp=True):
         """
@@ -304,7 +287,6 @@ class Interface(MoleculeSystem):
         :param norm_bin_count: Bin count for normalization
         :param cpu_count: Number of cores to use
         :param selection: MDAnalysis selection of ag
-        :param interface_selection: Selection of what is considered as interface
         :param start: Starting frame
         :param skip: Skip every n-th frame
         :param mp: If False, computation will be performed iteratively on a single process
@@ -437,10 +419,6 @@ class Interface(MoleculeSystem):
         )
 
     @staticmethod
-    def _sp_calc(func):
-        ...
-
-    @staticmethod
     def _mp_calc(func, frame_range, cpu_count, **kwargs) -> np.ndarray:
         """
         This method handles multiprocessing
@@ -450,13 +428,11 @@ class Interface(MoleculeSystem):
         :param kwargs:
         :return:
         """
-        # start = time.perf_counter()
         per_frame_func = partial(func, **kwargs)
         res = process_map(per_frame_func, frame_range,
                           max_workers=cpu_count,
                           bar_format=TQDM_BAR_FORMAT
                           )
-        # print(f'Execution time for {len(frame_range)} frames:', time.perf_counter() - start)
 
         return np.array(res)
 
