@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 from functools import partial
 from typing import Union
@@ -38,7 +39,18 @@ class Interface(MoleculeSystem):
 
     def __init__(self, traj, top=None):
         self.grid_matrix = None
-        self.u: mda.Universe = mda.Universe(top, traj) if top else mda.Universe(traj)
+
+        self._check_path(top, 'topology')
+        self._check_path(traj, 'trajectory')
+        try:
+            self.u: mda.Universe = mda.Universe(top, traj) if top else mda.Universe(traj)
+        except (ValueError, OSError) as e:
+            raise ValueError(
+                f'MDAnalysis could not build a Universe from topology={top!r}, '
+                f'trajectory={traj!r}. Check the files exist and are of a supported, '
+                f'matching format.'
+            ) from e
+
         self.ag = None
         self.unique_resnames = None
         self.main_structure_selection = None
@@ -48,6 +60,22 @@ class Interface(MoleculeSystem):
         self._hull = manager.dict()
 
         self._use_alpha_shape = False
+
+    @staticmethod
+    def _check_path(path, kind):
+        """
+        Validate that a topology/trajectory path (or list of paths) exists.
+
+        Args:
+            path: A file path, list of file paths, or None (skipped).
+            kind (str): Human-readable label used in the error message.
+        """
+        if path is None:
+            return
+        candidates = path if isinstance(path, (list, tuple)) else [path]
+        for candidate in candidates:
+            if isinstance(candidate, (str, os.PathLike)) and not os.path.exists(candidate):
+                raise FileNotFoundError(f'{kind.capitalize()} file not found: {candidate}')
 
     @property
     def use_alpha_shape(self):
@@ -67,6 +95,9 @@ class Interface(MoleculeSystem):
         :return:
         """
         self.ag = self.u.select_atoms(sel)
+        if self.ag.n_atoms == 0:
+            raise ValueError(f'Selection "{sel}" matched 0 atoms. Check the selection string '
+                             f'and the residue/atom names present in the system.')
         self.unique_resnames = np.unique(self.ag.resnames)
         print('Wrapping trajectory...')
         transform = wrap(self.ag)
@@ -79,7 +110,22 @@ class Interface(MoleculeSystem):
         :param selection: selection(s) of the main structure
         :return: None
         """
+        if self.u.select_atoms(selection).n_atoms == 0:
+            raise ValueError(f'Main structure selection "{selection}" matched 0 atoms. '
+                             f'The interface hull cannot be built from an empty selection.')
         self.main_structure_selection = selection
+
+    def _require_selection(self, selection):
+        """
+        Validate that ``selection`` is provided and matches at least one atom.
+        Raises a clear error instead of letting an empty selection silently
+        produce zero densities/counts downstream.
+        """
+        if not selection:
+            raise ValueError('A non-empty MDAnalysis selection string must be provided.')
+        if self.u.select_atoms(selection).n_atoms == 0:
+            raise ValueError(f'Selection "{selection}" matched 0 atoms. Check the selection '
+                             f'string and the residue/atom names present in the system.')
 
     def _get_int_dim(self):
         """
@@ -233,10 +279,24 @@ class Interface(MoleculeSystem):
         mesh = self.calculate_mesh(selection=self.main_structure_selection, main_structure=True)
 
         mesh_coordinates = self.make_coordinates(mesh)
+        if len(mesh_coordinates) < 4:
+            raise ValueError(
+                f'Main structure "{self.main_structure_selection}" occupies only '
+                f'{len(mesh_coordinates)} grid cell(s) at frame {self.current_frame}; '
+                f'at least 4 non-coplanar points are required to build a 3D hull.'
+            )
         if self.use_alpha_shape:
             hull = AlphaShape(mesh_coordinates).calculate_as(self.current_frame)
         else:
-            hull = ConvexHull(mesh_coordinates)
+            try:
+                hull = ConvexHull(mesh_coordinates)
+            except QhullError as e:
+                raise ValueError(
+                    f'Could not build a convex hull for main structure '
+                    f'"{self.main_structure_selection}" at frame {self.current_frame}. '
+                    f'The points are likely degenerate (coplanar/collinear) or span a '
+                    f'zero volume.'
+                ) from e
         self._hull[self.current_frame] = hull
         return hull
 
@@ -287,6 +347,7 @@ class Interface(MoleculeSystem):
 
         :return:
         """
+        self._require_selection(selection)
         n_frames = self.u.trajectory.n_frames if end is None else end
         frame_range = range(start, n_frames, skip)
         print(f'Running density calculation for the following atom group: {selection}')
@@ -373,6 +434,7 @@ class Interface(MoleculeSystem):
         :param cpu_count:
         :return: ndarray containing number of molecules each frame
         """
+        self._require_selection(selection)
         n_frames = self.u.trajectory.n_frames if end is None else end
         frame_range = range(start, n_frames, skip)
 

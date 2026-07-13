@@ -116,3 +116,41 @@ def test_mol_count_regression():
     m.select_structure('resname UNL')
     counts = m.mol_count('resname UNL', end=1)
     assert list(np.asarray(counts)) == [5562]
+
+
+# --- Error handling ---------------------------------------------------------
+
+def test_missing_trajectory_raises():
+    with pytest.raises(FileNotFoundError):
+        Interface(os.path.join(TEST_DIR, 'does_not_exist.pdb'))
+
+
+def test_missing_topology_raises():
+    with pytest.raises(FileNotFoundError):
+        Interface(CYLINDER, top=os.path.join(TEST_DIR, 'does_not_exist.tpr'))
+
+
+def test_select_atoms_empty_raises():
+    m = Interface(CYLINDER)
+    with pytest.raises(ValueError):
+        m.select_atoms('resname NOPE')
+
+
+def test_select_structure_empty_raises():
+    m = Interface(CYLINDER)
+    with pytest.raises(ValueError):
+        m.select_structure('resname NOPE')
+
+
+def test_calculate_density_requires_selection():
+    m = Interface(CYLINDER)
+    m.select_structure('resname UNL')
+    with pytest.raises(ValueError):
+        m.calculate_density(None)
+
+
+def test_mol_count_empty_selection_raises():
+    m = Interface(CYLINDER)
+    m.select_structure('resname UNL')
+    with pytest.raises(ValueError):
+        m.mol_count('resname NOPE')
