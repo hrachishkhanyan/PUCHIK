@@ -4,6 +4,7 @@ import numpy as np
 from numpy import isclose
 from scipy.spatial import ConvexHull
 from PUCHIK.grid_project.core.interface import Interface
+from PUCHIK.grid_project.core.AlphaShape import AlphaShape
 from PUCHIK.grid_project.core.utils import _is_inside
 
 TEST_DIR = './PUCHIK/test/test_structures'
@@ -154,3 +155,31 @@ def test_mol_count_empty_selection_raises():
     m.select_structure('resname UNL')
     with pytest.raises(ValueError):
         m.mol_count('resname NOPE')
+
+
+# --- Optional alpha-shape executable ----------------------------------------
+
+def test_is_available_returns_bool():
+    assert isinstance(AlphaShape.is_available(), bool)
+
+
+def test_use_alpha_shape_falls_back_when_executable_missing(monkeypatch):
+    monkeypatch.setattr(AlphaShape, 'is_available', classmethod(lambda cls: False))
+    m = Interface(CYLINDER)
+    with pytest.warns(RuntimeWarning):
+        m.use_alpha_shape = True
+    assert m.use_alpha_shape is False
+
+
+def test_use_alpha_shape_enabled_when_executable_present(monkeypatch):
+    monkeypatch.setattr(AlphaShape, 'is_available', classmethod(lambda cls: True))
+    m = Interface(CYLINDER)
+    m.use_alpha_shape = True
+    assert m.use_alpha_shape is True
+
+
+def test_calculate_as_without_executable_raises(monkeypatch):
+    monkeypatch.setattr(AlphaShape, '_resolve_executable', staticmethod(lambda: None))
+    shape = AlphaShape(np.zeros((4, 3)))
+    with pytest.raises(RuntimeError):
+        shape.calculate_as(0)

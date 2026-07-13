@@ -1,6 +1,8 @@
 import logging
 import os
+import platform
 import time
+import warnings
 from functools import partial
 from typing import Union
 
@@ -85,6 +87,14 @@ class Interface(MoleculeSystem):
     def use_alpha_shape(self, val):
         if type(val) is not bool:
             raise TypeError('use_alpha_shape must be a boolean')
+        if val and not AlphaShape.is_available():
+            warnings.warn(
+                f'Alpha-shape support requires the compiled AlphaShaper executable, which '
+                f'was not found for platform {platform.system()!r}. Falling back to '
+                f'convex-hull analysis.',
+                RuntimeWarning,
+            )
+            val = False
         self._use_alpha_shape = val
 
     def select_atoms(self, sel='all'):

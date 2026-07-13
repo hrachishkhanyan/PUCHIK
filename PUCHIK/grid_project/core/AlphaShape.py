@@ -1,15 +1,26 @@
-import subprocess
-import numpy as np
-from dotenv import load_dotenv
 import os
+import platform
+import subprocess
 from pathlib import Path
 
-# Load .env to get alpha_shape exe
-load_dotenv()
+import numpy as np
+
+# python-dotenv is only needed to pick up an ALPHA_SHAPER_EXECUTABLE override
+# from a .env file. It is optional: the package must import fine without it.
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
 
 class AlphaShape:
-    """ Python wrapper for AlphaShaper.exe """
+    """ Python wrapper for the compiled AlphaShaper executable.
+
+    Alpha-shape support is optional: it requires the CGAL-based AlphaShaper
+    binary, which is only bundled for Windows. On any platform where a runnable
+    executable cannot be found, :meth:`is_available` returns ``False`` and the
+    caller should fall back to convex-hull analysis. """
     def __init__(self, points):
         self._points = points  # All points
         self._cells = None
@@ -39,6 +50,41 @@ class AlphaShape:
     def simplices(self, new_simplices):
         self._simplices = new_simplices
 
+    @staticmethod
+    def _resolve_executable():
+        """
+        Locate a runnable AlphaShaper executable for the current platform.
+
+        Resolution order:
+            1. The ``ALPHA_SHAPER_EXECUTABLE`` environment variable (may come
+               from a .env file), if it points at a runnable file.
+            2. The bundled binary in ``PUCHIK/grid_project/alpha_shaper``, using
+               the platform-appropriate name (``AlphaShaper.exe`` on Windows,
+               ``AlphaShaper`` elsewhere).
+
+        Returns:
+            pathlib.Path | None: Path to a runnable executable, or ``None`` if
+            none was found.
+        """
+        base = Path(__file__).resolve().parent.parent / 'alpha_shaper'
+        exe_name = 'AlphaShaper.exe' if platform.system() == 'Windows' else 'AlphaShaper'
+
+        candidates = []
+        env_path = os.environ.get('ALPHA_SHAPER_EXECUTABLE')
+        if env_path:
+            candidates.append(Path(env_path))
+        candidates.append(base / exe_name)
+
+        for candidate in candidates:
+            if candidate.is_file() and os.access(candidate, os.X_OK):
+                return candidate
+        return None
+
+    @classmethod
+    def is_available(cls):
+        """ Return True if a runnable AlphaShaper executable exists on this platform. """
+        return cls._resolve_executable() is not None
+
     def calculate_as(self, frame_num, alpha=-1):
         """
         Calculate the alpha shape for frame <frame_num>
@@ -51,10 +97,15 @@ class AlphaShape:
         temp_output_cells_file_name = f'output_cells_{frame_num}.txt'
 
         output_file_suffix = f'{frame_num}'
-        alpha_shaper_exe = Path(__file__).resolve().parent.parent / 'alpha_shaper' / 'AlphaShaper.exe'
-        if not os.path.exists(alpha_shaper_exe):
-            print(alpha_shaper_exe)
-            raise FileNotFoundError("Couldn't find the executable.")
+        alpha_shaper_exe = self._resolve_executable()
+        if alpha_shaper_exe is None:
+            raise RuntimeError(
+                f'Alpha-shape calculation requires the compiled AlphaShaper executable, '
+                f'which was not found for platform {platform.system()!r}. Build it from '
+                f'PUCHIK/grid_project/alpha_shaper/src, set the ALPHA_SHAPER_EXECUTABLE '
+                f'environment variable, or use the default convex-hull analysis '
+                f'(use_alpha_shape=False).'
+            )
 
         np.savetxt(temp_file_name, self.points, header=f'{len(self.points)}', comments='')
         proc = subprocess.run([alpha_shaper_exe, temp_file_name, f'{alpha}', output_file_suffix],
