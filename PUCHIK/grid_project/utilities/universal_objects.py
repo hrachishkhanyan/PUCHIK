@@ -3,8 +3,9 @@ import warnings
 
 import numpy as np
 import MDAnalysis as mda
-from MDAnalysis.lib.distances import distance_array
-from MDAnalysis.transformations import unwrap
+from scipy.spatial import cKDTree
+from scipy.sparse import coo_matrix
+from scipy.sparse.csgraph import connected_components
 
 from PUCHIK.grid_project.utilities.MoleculeSystem import MoleculeSystem
 
@@ -26,39 +27,62 @@ class ClusterSearch(MoleculeSystem):
     def select_atoms(self, selection: str) -> None:
         self.ag = self.u.select_atoms(selection)
 
-    def _dfs(self, index: int, positions: np.ndarray, cluster: list, checked: list) -> list:
-        checked.append(index)
+    @staticmethod
+    def _cluster_frame(positions: np.ndarray, atom_residue: np.ndarray,
+                       n_res: int, resids: np.ndarray) -> list:
+        """
+        Group residues into connected clusters for a single frame.
 
-        for i in range(len(positions)):
+        Two residues belong to the same cluster if any pair of their atoms lies
+        within ``CLUSTER_SEARCH_CUTOFF`` of each other (no periodic boundary
+        conditions, matching the original behaviour). Atom neighbours are found
+        with a KD-tree and residues are grouped via connected components, which
+        replaces the previous O(n_res^2) recursive depth-first search.
 
-            if i != index and i not in checked:
-                distances = distance_array(positions[index], positions[i])
+        Args:
+            positions (np.ndarray): (n_atoms, 3) atom positions in AtomGroup order.
+            atom_residue (np.ndarray): Residue index (0..n_res-1) of each atom.
+            n_res (int): Number of residues.
+            resids (np.ndarray): Sorted unique resids, indexed by residue index.
 
-                if (distances < CLUSTER_SEARCH_CUTOFF).any():
-                    cluster.append(i)
-                    self._dfs(i, positions, cluster, checked)
+        Returns:
+            list: Clusters (arrays of resids), ordered by their smallest residue.
+        """
+        tree = cKDTree(positions)
+        pairs = tree.query_pairs(CLUSTER_SEARCH_CUTOFF, output_type='ndarray')
 
-        return cluster
+        if len(pairs):
+            res_i = atom_residue[pairs[:, 0]]
+            res_j = atom_residue[pairs[:, 1]]
+        else:
+            res_i = res_j = np.empty(0, dtype=int)
+
+        adjacency = coo_matrix(
+            (np.ones(len(res_i)), (res_i, res_j)), shape=(n_res, n_res)
+        )
+        n_components, labels = connected_components(adjacency, directed=False)
+
+        members = [[] for _ in range(n_components)]
+        for residue_index, label in enumerate(labels):
+            members[label].append(residue_index)
+        members.sort(key=lambda group: group[0])
+
+        return [resids[np.array(group)] for group in members]
 
     def find_clusters(self):
+        if self.ag is None:
+            raise ValueError('Call select_atoms(...) before find_clusters().')
+
         n_res = self.ag.n_residues
         resids = np.unique(self.ag.resids)
         n_atoms = self.ag.n_atoms // n_res
+        # Residue index of each atom, in AtomGroup order. Assumes a uniform
+        # number of atoms per residue, as the original implementation did.
+        atom_residue = np.repeat(np.arange(n_res), n_atoms)
+
         clusters = []
-
-        positions = np.zeros((len(self.u.trajectory), n_res, n_atoms, 3))
-        for ts in self.u.trajectory:
-            current_frame_clusters = []
-            checked_residues = []
-
-            for i in range(n_res):
-                for j in range(n_atoms):
-                    positions[ts.frame, i, j] = self.ag[i * n_atoms + j].position
-
-            for i, position in enumerate(positions[ts.frame]):
-                if i not in checked_residues:
-                    current_frame_clusters.append(resids[self._dfs(i, positions[ts.frame], [i], checked_residues)])
-            clusters.append(current_frame_clusters)
+        for _ in self.u.trajectory:
+            clusters.append(self._cluster_frame(self.ag.positions, atom_residue, n_res, resids))
         return clusters
 
 
