@@ -7,7 +7,7 @@ The interface construction works for spherical and rod-like nanoparticles equall
 
 This package is built on top of [MDAnalysis](https://www.mdanalysis.org/), [SciPy](https://scipy.org/), [NumPy](https://numpy.org/doc/stable/index.html) and [PyGEL3D](https://pypi.org/project/PyGEL3D/) libraries.
 
-This is an experimental branch that offers a functionality to use alpha shapes (with an optimal or user provided alpha value) instead of a convex hull. This is done with the help of AlphaShaper.exe which was compiled using the [CGAL](https://www.cgal.org/) library. For now this only works on Windows. C++ source code is provided as well in case you would like to compile it for other platforms. The usage will be shown below.
+Functionality to use alpha shapes (with an optimal or user provided alpha value) instead of a convex hull is now added to main branch. This is done with the help of AlphaShaper executable which was compiled using the [CGAL](https://www.cgal.org/) library. For now this only works on Windows. C++ source code is provided as well in case you would like to compile it for other platforms. Help on how to compile it and use it will be given below. 
 
 ![image](https://drive.google.com/uc?export=view&id=1YTiM2OxzkGO0GcbC5WvFffBdZN9-e_6D)
 
@@ -82,6 +82,37 @@ v = m.calculate_volume(start=500, end=1000, skip=2)
 ```python
 v, a = m.calculate_volume(area=True, start=500, end=1000, skip=2)
 ```
+
+### Compiling the executable for alpha shapes
+
+For **MacOS** it's pretty straightforward. You will need the CGAL library installed on your system. You can use *brew* for it:
+
+```bash
+brew install cgal
+```
+
+On a **Linux** machine (Debian, Ubuntu, etc.), you can install the CGAL library with *apt-get*:
+
+```bash
+sudo apt-get install libcgal-dev
+```
+
+On a different Linux distribution, use the according package manager or build CGAL [manually](https://doc.cgal.org/latest/Manual/installation.html).
+
+Then navigate to *PUCHIK/grid_project/alpha_shaper/src* and create a dir called **build**
+
+```bash 
+# From root of PUCHIK repo
+cd PUCHIK/grid_project/alpha_shaper/src
+mkdir build
+cd build
+cmake ..
+make
+
+# Move the executable into the alpha_shaper folder for PUCHIK to find it
+mv AlphaShaper PUCHIK/grid_project/alpha_shaper
+```
+
 
 ## Cite
 

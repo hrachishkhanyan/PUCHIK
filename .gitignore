@@ -1,3 +1,4 @@
+.gitignore
 tests/scratch.py
 dist
 PUCHIK.egg-info
@@ -9,8 +10,11 @@ tests
 .idea
 /PUCHIK/grid_project/core/utils_python.py
 **/__pycache__/
+/PUCHIK/grid_project/alpha_shaper/src/build
+/PUCHIK/grid_project/alpha_shaper/AlphaShaper
 
 # macOS build artifacts (do not commit)
 *.so
+build/
 build/lib.macosx-*/
 build/temp.macosx-*/
