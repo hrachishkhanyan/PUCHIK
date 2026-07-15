@@ -18,3 +18,4 @@ tests
 build/
 build/lib.macosx-*/
 build/temp.macosx-*/
+.temp_frame_*.xyz
