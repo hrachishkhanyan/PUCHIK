@@ -87,6 +87,7 @@ class Interface(MoleculeSystem):
     def use_alpha_shape(self, val):
         if type(val) is not bool:
             raise TypeError('use_alpha_shape must be a boolean')
+
         if val and not AlphaShape.is_available():
             warnings.warn(
                 f'Alpha-shape support requires the compiled AlphaShaper executable, which '
@@ -95,6 +96,8 @@ class Interface(MoleculeSystem):
                 RuntimeWarning,
             )
             val = False
+
+        self._hull.clear()
         self._use_alpha_shape = val
 
     def select_atoms(self, sel='all'):
@@ -282,6 +285,7 @@ class Interface(MoleculeSystem):
     def _create_hull(self):
         if not self.main_structure_selection:
             raise ValueError('Select the main structure with "select_structure" before running calculations')
+
         if self._hull.get(self.current_frame):
             # If the hull was calculated for this frame, just return it
             return self._hull[self.current_frame]
@@ -296,7 +300,7 @@ class Interface(MoleculeSystem):
                 f'at least 4 non-coplanar points are required to build a 3D hull.'
             )
         if self.use_alpha_shape:
-            hull = AlphaShape(mesh_coordinates).calculate_as(self.current_frame)
+            hull = AlphaShape(mesh_coordinates).calculate_as(self.current_frame, volume=True)
         else:
             try:
                 hull = ConvexHull(mesh_coordinates)
@@ -472,13 +476,13 @@ class Interface(MoleculeSystem):
         :return [tuple, np.ndarray] volume: ndarray containing the volume values of the hull at each frame, or a tuple
         of ndarrays for volumes and areas
         """
-        if self.use_alpha_shape:
-            raise NotImplementedError('Volume calculations using alpha shapes is not yet implemented')
-
+   
         n_frames = self.u.trajectory.n_frames if end is None else end
         frame_range = range(start, n_frames, skip)
         print('Calculating the volume of the selected structure')
         hulls = self._mp_calc(self._calc_hull, frame_range, cpu_count)
+
+
         return np.array([hull.volume for hull in hulls]) if not area else (
             np.array([hull.volume for hull in hulls]),
             np.array([hull.area for hull in hulls])

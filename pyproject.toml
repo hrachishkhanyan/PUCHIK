@@ -1,9 +1,8 @@
 [build-system]
 requires = [
-    "setuptools>=40.9.0",
-    "Cython",
-    "numpy>=1.26.0",
-    "setuptools",
+    "setuptools>=61.0",
+    "Cython>=3.0.10",
+    "numpy>=2.0",
     "wheel",
 ]
 build-backend = "setuptools.build_meta"
@@ -20,10 +19,11 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 dependencies = [
-    "MDAnalysis",
+    "numpy>=1.26",     # no <2 cap — the extension built per above runs on both
+    "MDAnalysis>=2.8.0",
     "scipy>=1.14.0",
     "PyGEL3D",
-    "python-dotenv"
+    "python-dotenv",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",

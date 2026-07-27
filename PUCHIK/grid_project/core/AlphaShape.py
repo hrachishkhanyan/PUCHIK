@@ -25,6 +25,7 @@ class AlphaShape:
         self._points = points  # All points
         self._cells = None
         self._simplices = None
+        self.volume = None
 
     @property
     def cells(self):
@@ -85,17 +86,19 @@ class AlphaShape:
         """ Return True if a runnable AlphaShaper executable exists on this platform. """
         return cls._resolve_executable() is not None
 
-    def calculate_as(self, frame_num, alpha=-1):
+    def calculate_as(self, frame_num, alpha=-1, volume=False):
         """
         Calculate the alpha shape for frame <frame_num>
         :param frame_num:
         :param alpha:
+        :param volume:
         :return:
         """
         temp_file_name = f'./.temp_frame_{frame_num}.xyz'
         temp_output_facets_file_name = f'output_facets_{frame_num}.txt'
         temp_output_cells_file_name = f'output_cells_{frame_num}.txt'
-
+        temp_output_volume_file_name = f'output_volumes_{frame_num}.txt'
+            
         output_file_suffix = f'{frame_num}'
         alpha_shaper_exe = self._resolve_executable()
         if alpha_shaper_exe is None:
@@ -116,9 +119,11 @@ class AlphaShape:
 
         self.simplices = np.loadtxt(temp_output_facets_file_name, dtype=int)
         self.cells = np.loadtxt(temp_output_cells_file_name, dtype=int)
+        self.volume = np.loadtxt(temp_output_volume_file_name, dtype=float) if volume else None
 
         os.remove(temp_file_name)
         os.remove(temp_output_facets_file_name)
         os.remove(temp_output_cells_file_name)
+        os.remove(temp_output_volume_file_name)
 
         return self

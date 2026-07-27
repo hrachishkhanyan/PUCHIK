@@ -3,6 +3,7 @@
 #include <CGAL/Alpha_shape_cell_base_3.h>
 #include <CGAL/Alpha_shape_vertex_base_3.h>
 #include <CGAL/Delaunay_triangulation_3.h>
+
 #include <fstream>
 #include <list>
 #include <cassert>
@@ -29,6 +30,7 @@ int main(int argc, char **argv) {
 
     std::ofstream output_facets("output_facets_" + suffix + ".txt");
     std::ofstream output_cells("output_cells_" + suffix + ".txt");
+    std::ofstream output_volumes("output_volumes_" + suffix + ".txt");
 
     if (!input_file) {
         std::cerr << "Error: Cannot open file " << argv[1] << std::endl;
@@ -69,12 +71,24 @@ int main(int argc, char **argv) {
     fit != alpha_shape.finite_facets_end(); ++fit) {
         if (alpha_shape.classify(*fit) == Alpha_shape_3::REGULAR) {
             auto facet = alpha_shape.triangle(*fit);
+            auto x = point_index_map[facet.vertex(0)];
+            auto y = point_index_map[facet.vertex(1)];
+            auto z = point_index_map[facet.vertex(2)];
+
+            Point vec = Point(x, y, z);
+
             for (auto i {0}; i < 3; i++) {
+
                 output_facets << point_index_map[facet.vertex(i)] << " ";
+
             }
             output_facets << std::endl;
         }
     }
+
+    output_volumes.precision(17);
+    double total_volume {};
+
     for (auto cit = alpha_shape.finite_cells_begin();
          cit != alpha_shape.finite_cells_end(); ++cit) {
         if (alpha_shape.classify(cit) == Alpha_shape_3::INTERIOR) {
@@ -84,9 +98,16 @@ int main(int argc, char **argv) {
 
             }
             output_cells << std::endl;
+
+            double volume = CGAL::to_double(CGAL::abs(alpha_shape.tetrahedron(cit).volume()));
+            total_volume += volume;
         }
     }
+    
+    output_volumes << total_volume << std::endl;
+    std::cout << "Total volume of the alpha shape is " << total_volume << std::endl;
     output_cells.close();
     output_facets.close();
+    output_volumes.close();
     return 0;
 }
