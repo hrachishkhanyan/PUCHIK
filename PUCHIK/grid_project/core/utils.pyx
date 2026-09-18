@@ -9,36 +9,23 @@ np.import_array()
 
 
 def find_distance(hull, np.ndarray points):
-    cdef np.ndarray p, res
-    cdef float d
-    cdef int i, p_length
+    cdef np.ndarray d, inside
     # Construct PyGEL Manifold from the convex hull
     m = hmesh.Manifold()
     for s in hull.simplices:
         m.add_face(hull.points[s])
 
     dist = hmesh.MeshDistance(m)
-    p_length = points.shape[0]
-    res = np.zeros(p_length)
 
-    for i in range(p_length):
-        p = points[i]
-        # Get the distance to the point
-        # But don't trust its sign, because of possible
-        # wrong orientation of mesh face
-        d = dist.signed_distance(p)
+    # Get the distances to all points in one batched call
+    # But don't trust their sign, because of possible
+    # wrong orientation of mesh faces
+    d = np.abs(dist.signed_distance(points))
 
-        # Correct the sign with ray inside test
-        if dist.ray_inside_test(p):
-            if d > 0:
-                d *= -1
-        else:
-            if d < 0:
-                d *= -1
+    # Correct the sign with ray inside test: negative inside, positive outside
+    inside = dist.ray_inside_test(points).astype(bool)
 
-        res[i] = d
-
-    return res
+    return np.where(inside, -d, d).astype(np.float64)
 
 
 def _is_inside(np.ndarray point, hull, alpha_shape=False) -> bool:

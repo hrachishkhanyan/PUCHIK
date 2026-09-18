@@ -117,13 +117,16 @@ class AlphaShape:
         if proc.returncode != 0:
             raise RuntimeError(f"AlphaShaper failed:\n{proc.stderr}")
 
-        self.simplices = np.loadtxt(temp_output_facets_file_name, dtype=int)
-        self.cells = np.loadtxt(temp_output_cells_file_name, dtype=int)
-        self.volume = np.loadtxt(temp_output_volume_file_name, dtype=float) if volume else None
-
-        os.remove(temp_file_name)
-        os.remove(temp_output_facets_file_name)
-        os.remove(temp_output_cells_file_name)
-        os.remove(temp_output_volume_file_name)
+        try:
+            self.simplices = np.loadtxt(temp_output_facets_file_name, dtype=int)
+            self.cells = np.loadtxt(temp_output_cells_file_name, dtype=int)
+            self.volume = np.loadtxt(temp_output_volume_file_name, dtype=float) if volume else None
+        except Exception as e:
+            raise RuntimeError(f"Failed to load output files:\n{e}")
+        finally:
+            os.remove(temp_file_name)
+            os.remove(temp_output_facets_file_name)
+            os.remove(temp_output_cells_file_name)
+            os.remove(temp_output_volume_file_name)
 
         return self

@@ -104,6 +104,7 @@ def test_calculate_density_regression():
     m = Interface(CYLINDER)
     m.select_atoms('all')
     m.select_structure('resname UNL')
+    print(m.u.select_atoms('resname UNL'))
     distances, densities = m.calculate_density('resname UNL', norm_bin_count=10, mp=False)
     # Distances come from the hull discretization, densities from the
     # density-grid binning; both sums lock those code paths.
