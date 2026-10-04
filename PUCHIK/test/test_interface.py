@@ -43,6 +43,30 @@ def test_calculate_volume():
     assert isclose(v, 146450.0), f'Volume should be close to {146450.0}'
 
 
+def test_calculate_volume_with_area():
+    m = Interface(
+        os.path.join(TEST_DIR, 'InP_cylinder.pdb')
+    )
+    m.select_structure('resname UNL')
+    v, a = m.calculate_volume(area=True)
+
+    assert isclose(v, 146450.0), f'Volume should be close to {146450.0}'
+    assert isclose(a, 15343.0), f'Area should be close to {1534.0}'
+
+
+def test_calculate_volume_with_area_alpha_shape():
+    m = Interface(
+        os.path.join(TEST_DIR, 'InP_cylinder.pdb')
+    )
+    m.select_structure('resname UNL')
+    m.use_alpha_shape = True
+    v, a = m.calculate_volume(area=True)
+    print(v)
+    assert isclose(v, 137360.0), f'Volume should be close to {137360.0}'
+    assert isclose(a, 19175.56), f'Area should be close to {19175.56}'
+
+
+
 def test_create_alpha_hull():
     m = Interface(
         os.path.join(TEST_DIR, 'InP_cylinder.pdb')

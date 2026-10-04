@@ -120,6 +120,9 @@ class AlphaShape:
         try:
             self.simplices = np.loadtxt(temp_output_facets_file_name, dtype=int)
             self.cells = np.loadtxt(temp_output_cells_file_name, dtype=int)
+            
+            tri = self.points[self.simplices]                       # (n_facets, 3, 3)
+            self.area = 0.5 * np.linalg.norm(np.cross(tri[:, 1] - tri[:, 0], tri[:, 2] - tri[:, 0]), axis=1).sum()
             self.volume = np.loadtxt(temp_output_volume_file_name, dtype=float) if volume else None
         except Exception as e:
             raise RuntimeError(f"Failed to load output files:\n{e}")
