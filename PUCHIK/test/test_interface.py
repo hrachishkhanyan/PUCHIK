@@ -5,7 +5,8 @@ from numpy import isclose
 from scipy.spatial import ConvexHull
 from PUCHIK.grid_project.core.interface import Interface
 from PUCHIK.grid_project.core.AlphaShape import AlphaShape
-from PUCHIK.grid_project.core.utils import _is_inside
+from PUCHIK.grid_project.core.utils import _is_inside, points_inside
+from PUCHIK.grid_project.volume.monte_carlo import monte_carlo_volume
 
 TEST_DIR = './PUCHIK/test/test_structures'
 CYLINDER = os.path.join(TEST_DIR, 'InP_cylinder.pdb')
@@ -85,7 +86,7 @@ def test_grid_centers_are_bin_midpoints():
     assert set(np.round(centers[:, 0], 6)) <= expected
 
 
-# --- Cython point-in-hull test (locks utils.point_in_hull) ------------------
+# --- Cython point-in-hull tests (lock utils.points_inside) ------------------
 
 def test_is_inside_convex_hull():
     corners = np.array(
@@ -96,6 +97,42 @@ def test_is_inside_convex_hull():
     hull = ConvexHull(corners)
     assert _is_inside(np.array([5.0, 5.0, 5.0]), hull, False) is True
     assert _is_inside(np.array([50.0, 50.0, 50.0]), hull, False) is False
+
+
+def test_is_inside_alpha_shape():
+    corners = np.array(
+        [[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10],
+         [10, 10, 0], [10, 0, 10], [0, 10, 10], [10, 10, 10]],
+        dtype=float,
+    )
+    hull = AlphaShape(corners).calculate_as(0)
+    assert _is_inside(np.array([5.0, 5.0, 5.0]), hull, True) is True
+    assert _is_inside(np.array([50.0, 50.0, 50.0]), hull, True) is False
+
+
+@pytest.mark.parametrize('alpha_shape', [False, True])
+def test_points_inside_batched(alpha_shape):
+    corners = np.array(
+        [[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10],
+         [10, 10, 0], [10, 0, 10], [0, 10, 10], [10, 10, 10]],
+        dtype=float,
+    )
+    hull = AlphaShape(corners).calculate_as(0) if alpha_shape else ConvexHull(corners)
+    points = np.array([[5.0, 5.0, 5.0], [50.0, 50.0, 50.0], [1.0, 9.0, 2.0], [-1.0, 5.0, 5.0]])
+    inside = points_inside(hull, points, alpha_shape)
+    assert inside.dtype == bool
+    assert list(inside) == [True, False, True, False]
+
+
+def test_monte_carlo_volume_of_cube():
+    corners = np.array(
+        [[0, 0, 0], [10, 0, 0], [0, 10, 0], [0, 0, 10],
+         [10, 10, 0], [10, 0, 10], [0, 10, 10], [10, 10, 10]],
+        dtype=float,
+    )
+    np.random.seed(0)
+    volume = monte_carlo_volume(20, ConvexHull(corners), number=100_000)
+    assert isclose(volume, 1000.0, rtol=0.05)
 
 
 # --- Pipeline regression tests (lock discretization/density/count) ----------
@@ -119,6 +156,15 @@ def test_mol_count_regression():
     counts = m.mol_count('resname UNL', end=1)
     assert list(np.asarray(counts)) == [5562]
 
+
+@pytest.mark.skipif(not AlphaShape.is_available(), reason='AlphaShaper executable not available')
+def test_mol_count_alpha_shape_regression():
+    m = Interface(CYLINDER)
+    m.use_alpha_shape = True
+    m.select_atoms('all')
+    m.select_structure('resname UNL')
+    counts = m.mol_count('resname UNL', end=1)
+    assert list(np.asarray(counts)) == [5270]
 
 # --- Error handling ---------------------------------------------------------
 

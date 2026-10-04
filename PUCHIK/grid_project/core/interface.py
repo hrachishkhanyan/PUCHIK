@@ -19,7 +19,7 @@ from PUCHIK.grid_project.core.AlphaShape import AlphaShape
 from PUCHIK.grid_project.utilities.MoleculeSystem import MoleculeSystem
 from PUCHIK.grid_project.utilities.decorators import logger
 from PUCHIK.grid_project.settings import DEBUG, CPU_COUNT, TQDM_BAR_FORMAT
-from PUCHIK.grid_project.core.utils import find_distance, _is_inside
+from PUCHIK.grid_project.core.utils import find_distance, points_inside
 
 logging.basicConfig(format='%(message)s')
 np.seterr(invalid='ignore', divide='ignore')
@@ -423,20 +423,10 @@ class Interface(MoleculeSystem):
         self.u.trajectory[self.current_frame]
 
         ag = self.u.select_atoms(selection)
-        n_atoms = len(ag) // ag.n_residues
-
         hull = self._create_hull()
-        coms = []
-        count = 0
+        coms = ag.center_of_mass(compound='residues')
 
-        for i in range(ag.n_residues):
-            coms.append(ag[i * n_atoms: (i + 1) * n_atoms].center_of_mass())
-
-        for com in coms:
-            if _is_inside(com, hull, self.use_alpha_shape):
-                count += 1
-
-        return count
+        return int(points_inside(hull, coms, self.use_alpha_shape).sum())
 
     def mol_count(self, selection, start=0, skip=1, end=None, cpu_count=CPU_COUNT):
         """

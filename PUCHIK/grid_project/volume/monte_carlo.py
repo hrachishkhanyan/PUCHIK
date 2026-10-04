@@ -1,5 +1,5 @@
 import numpy as np
-from PUCHIK.grid_project.core.utils import _is_inside
+from PUCHIK.grid_project.core.utils import points_inside
 
 
 def generate_point(dim):
@@ -27,18 +27,8 @@ def monte_carlo(dim, hull, number):
     Returns:
         ratio (float): Ratio of number of points generated inside the volume and overall number of points
     """
-    in_volume = 0
-    out_volume = 0
-
-    for _ in range(number):
-        point = generate_point(dim)
-
-        if _is_inside(point, hull):
-            in_volume += 1
-        else:
-            out_volume += 1
-
-    ratio = in_volume / (out_volume + in_volume)
+    points = np.random.rand(number, 3) * dim
+    ratio = points_inside(hull, points).mean()
     return ratio
 
 
